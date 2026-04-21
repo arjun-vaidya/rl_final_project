@@ -1,0 +1,26 @@
+# Starting pin set. Exact versions TBD once we stand up the env.
+# Core
+torch>=2.3
+transformers>=4.45
+peft>=0.12
+trl>=0.11
+accelerate>=0.34
+datasets>=2.20
+
+# Inference acceleration (pick one at setup time)
+vllm>=0.6            # preferred for rollouts
+# unsloth            # alternative if vllm is painful to install
+
+# Memory (for doc 07 extension)
+sentence-transformers>=3.0
+numpy>=1.26
+# faiss-cpu          # enable if dict+numpy kNN gets slow
+
+# Tracking / utils
+wandb>=0.17
+pyyaml>=6.0
+pydantic>=2.8
+
+# Dev
+pytest>=8.0
+ruff>=0.5
