@@ -21,12 +21,20 @@ Two LoRA adapters on one frozen base model; swap active adapter between Router a
 ```
 You are a planner. Output a JSON plan of subgoals for this math problem.
 
+[OPTIONAL — only if Plan Memory is enabled and returns results:]
+Similar problems you have solved before:
+1. {past_problem_1}  →  {past_plan_1}
+2. {past_problem_2}  →  {past_plan_2}
+[END OPTIONAL]
+
 Problem: {question}
 
 Format: {"plan": [{"subgoal": "<desc>", "tool": "python"}, ...]}
 
 Plan:
 ```
+
+The `[OPTIONAL ... END OPTIONAL]` block is omitted entirely when memory is off or cold. See [07_plan_memory.md](07_plan_memory.md).
 
 ### Solver
 
@@ -140,9 +148,13 @@ router_solver/
 │   ├── env/                  # gsm8k_loader.py, python_tool.py
 │   ├── agents/               # flat_agent.py, router_solver_agent.py
 │   ├── rewards/              # outcome.py, router.py, solver.py
+│   ├── memory/               # (optional) embedder.py, store.py, retrieval.py
 │   ├── training/             # train_flat.py, train_router_solver.py
 │   └── eval/                 # evaluate.py
-├── configs/                  # flat.yaml, router_solver.yaml
+├── configs/                  # flat.yaml, router_solver.yaml,
+│                             # router_solver_memory_{random,sim}.yaml
 ├── experiments/              # (gitignored) runs + logs
 └── tests/
 ```
+
+The `memory/` module is additive — `router_solver_agent.py` takes a `memory=None` kwarg and skips all retrieval logic when it's `None`. Details in [07_plan_memory.md](07_plan_memory.md).

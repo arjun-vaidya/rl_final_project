@@ -20,6 +20,18 @@ All matched on base model (Qwen2.5-1.5B-Instruct), tool (Python), compute (~24 G
 - **#3 vs #4** — does reward decomposition add value beyond architecture?
 - **#2 vs #3** — does hierarchy help even without decomposed rewards?
 
+### Optional extension: Plan Memory (Conditions #4a/b/c)
+
+If the core Router–Solver beats the flat baseline by end of W1, add a memory layer. See [07_plan_memory.md](07_plan_memory.md) for the full design. At a glance:
+
+| # | Condition | Memory |
+|---|---|---|
+| 4a | Router–Solver, decomposed rewards | none (= #4 above) |
+| 4b | Router–Solver, decomposed rewards | random retrieval |
+| 4c | Router–Solver, decomposed rewards | similarity-based retrieval |
+
+Comparison 4a vs 4c asks whether cross-problem memory helps; 4b vs 4c isolates whether *similarity* matters or just extra in-context exemplars.
+
 ## Metrics
 
 **Primary:** GSM8K test accuracy (exact numeric match).

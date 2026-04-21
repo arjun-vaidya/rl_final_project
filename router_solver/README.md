@@ -16,6 +16,7 @@
 | 04 | [Design](docs/04_design.md) | Model, LoRAs, GRPO, prompts, rewards |
 | 05 | [Evaluation](docs/05_evaluation.md) | Conditions, metrics, ablations, success criteria |
 | 06 | [References](docs/06_references.md) | Prior work + novelty statement |
+| 07 | [Plan Memory](docs/07_plan_memory.md) | **Uniqueness angle** — optional cross-problem plan retrieval extension |
 
 ## Status
 
@@ -23,4 +24,9 @@ Docs only — no code yet. **Deadlines:** slides May 3 · talk May 4–6 · repo
 
 ## Has this been done?
 
-**Partly, yes.** The high-level idea — hierarchical planner/executor LLM agents trained with GRPO-style RL — has recent published work (Agent-as-Tool, ArCHer, AgentPRM, Tree-GRPO). Our contribution is a *clean, matched-compute comparison* that isolates (a) architecture from (b) reward decomposition, plus a gradient-conflict diagnostic. Details and citations in [docs/06_references.md](docs/06_references.md).
+**Partly, yes.** The high-level idea — hierarchical planner/executor LLM agents trained with GRPO-style RL — has recent published work (Agent-as-Tool, ArCHer, AgentPRM, Tree-GRPO). Our contributions are:
+
+1. A *clean, matched-compute comparison* isolating architecture from reward decomposition, plus a gradient-conflict diagnostic.
+2. **Plan Memory** ([doc 07](docs/07_plan_memory.md)) — a cross-problem retrieval module attached to the Router, which (to our knowledge) no existing hierarchical-agent-RL paper has. This is the uniqueness angle and it's designed to be **additive** — the core experiment runs without it.
+
+Details and citations in [docs/06_references.md](docs/06_references.md).
