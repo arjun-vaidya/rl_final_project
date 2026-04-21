@@ -1,0 +1,26 @@
+# Router–Solver: Hierarchical RL for Tool-Using LLM Agents
+
+**Problem.** Outcome-only RL on multi-step tool use creates gradient conflict — good intermediate tool calls get penalized when the final answer is wrong, bad ones get rewarded when the answer is lucky. [details →](docs/01_problem.md)
+
+**Approach.** Split the agent into two LoRAs on one base model: a **Router** that plans subgoals, and a **Solver** that executes each subgoal with a tool call. Give each component its own reward, trained jointly with GRPO. [details →](docs/02_approach.md)
+
+**Experiment.** Four matched-compute conditions on GSM8K + Python tool: SFT baseline, flat GRPO (outcome-only), Router–Solver (outcome-only), Router–Solver (decomposed rewards). Primary comparison: flat vs full Router–Solver. [details →](docs/05_evaluation.md)
+
+## Docs
+
+| # | File | Contents |
+|---|---|---|
+| 01 | [Problem](docs/01_problem.md) | Gradient conflict, worked example |
+| 02 | [Approach](docs/02_approach.md) | Router–Solver, reward decomposition |
+| 03 | [Dataset & env](docs/03_dataset.md) | GSM8K + Python tool |
+| 04 | [Design](docs/04_design.md) | Model, LoRAs, GRPO, prompts, rewards |
+| 05 | [Evaluation](docs/05_evaluation.md) | Conditions, metrics, ablations, success criteria |
+| 06 | [References](docs/06_references.md) | Prior work + novelty statement |
+
+## Status
+
+Docs only — no code yet. **Deadlines:** slides May 3 · talk May 4–6 · report May 15.
+
+## Has this been done?
+
+**Partly, yes.** The high-level idea — hierarchical planner/executor LLM agents trained with GRPO-style RL — has recent published work (Agent-as-Tool, ArCHer, AgentPRM, Tree-GRPO). Our contribution is a *clean, matched-compute comparison* that isolates (a) architecture from (b) reward decomposition, plus a gradient-conflict diagnostic. Details and citations in [docs/06_references.md](docs/06_references.md).

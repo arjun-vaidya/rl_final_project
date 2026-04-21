@@ -1,0 +1,110 @@
+
+Skip To Content
+Dashboard
+Arjun Vaidya
+Account
+Dashboard
+My Courses
+Courses
+Groups
+Calendar
+One unread message.1
+Inbox
+History
+10 unread release notes.10
+Help
+ORCSE6529 Advanced Reinforcement LearningPagesProjects
+Spring 2026
+Home
+Assignments
+Gradescope
+Ed Discussion
+People
+Pages
+Files
+Syllabus
+Collaborations
+Chat
+Course Info
+Video Library
+Textbooks
+Zoom Class Sessions
+On-Campus Student Health and Wellness
+You@Columbia
+Projects 
+Timeline
+(All dates are 2026. All deadlines are 11:59pm of the stated date.)
+March 8: Submit a preliminary one-page description and 1-2 slides explaining your project idea through gradescope. You can formulate and submit this idea as a group of 1, 2, 3, or 4 students. You should describe the problem(s) you are interested in tackling, why they are interesting, possible sources of data you can use, and a general plan going forward. 
+March 9, 11: Present your idea in class using 1-2 slides.  The slides must clearly mention the contact information (uni) for your project group. You will get 5-10 minutes (depending on how many groups we have) to pitch your idea and get feedback from the instructor and your classmates. This time can also be used as an opportunity to recruit teammates with complementary skills, or to merge your idea with other groups who are interested in a similar topic. Plan to make the initial pitch for only a few minutes in order to leave time for discussion and feedback.  To save time, only 1 person from the group should make the initial pitch, although everyone should participate in the ensuing discussion. 
+March 23: After the in-class presentations of project ideas, we expect some reorganization of project groups. Submit your new project group information (team members' names and project title) through a Google form that we will provide. We may suggest adding a member to your team or merging it with another team, especially if your team is too small (fewer than 2 students).
+March 30: All the project groups and titles will be finalized. Almost all the final project groups will have 2-4 students. 
+May 3: Upload your presentation slides/poster (TBD) to this Google Drive folder. For a 10-minute presentation, typically 7 slides would suffice.  Please ensure that the first slide mentions the names of all group members and the project title.
+May 4/5/6: Deliver your presentation. Each group will have 10 minutes, including questions. Questions may be asked during the presentation, so everyone in the group should understand all the components of the project.
+May 15: Submit a 4-6 page report (with appendices if needed),
+code (all languages acceptable), and other supplementary materials via Gradescope. Make a group submission - one report per group.
+ 
+
+How to pick a project
+
+You can pick any topic for the project you wish, as long as there is a direct connection to reinforcement learning. For your project, you can formulate a problem as an RL problem and implement a solution, or you can think about a novel theoretical question or a novel algorithm, or you can do a blend of both. 
+
+Here are examples of possible types of projects:
+
+Consider an application coming from some other field such as medicine, finance, e-commerce, biology, music, HCI, natural language processing, chatbox, robotics, where you think RL can be used. Model the problem as an RL problem, compare results obtained using RL techniques to standard techniques in the domain, and/or design an algorithm tailored to a particular problem in the domain. 
+Design algorithms and run experiments on some simulation environments like advanced environments on gymnasium Gymnasium Documentation (farama.org)Links to an external site., Mujoco simulator http://www.mujoco.org/, OpenSim http://opensim.stanford.edu/Links to an external site. and numerous other free RL environment simulators that you can find online. Compare to existing work.
+Find an open theory problem and attempt to make progress on it. Besides the discussions in published papers, a great place to look for these is the proceedings of recent COLT conferences (Conference on Learning Theory), which every year publishes short open-problem papers. (Obviously, since these were published a while ago, it is possible that some of these will have already been solved. But that doesn’t mean they can’t be the starting point for a project.)
+Study and survey one of the many related topics not covered in this course. Examples include inverse RL, multiagent RL, imitation learning, use of RL in application domains like robotics, self-driving cars, natural language processing, vision, etc., To get ideas, browse assigned or optional readings, or the chapters of books that we did not cover, or explore recent survey articles.
+Come up with your own idea! Be original and creative. Use the instructor and TA office hours to develop those ideas.
+Making a project presentation
+For a 10-minute presentation, usually 6-7 slides suffice. A good thumb rule is to allocate 1.5 minutes per slide. Although it may vary based on your presentation style and how heavy the slides are, more than 10 slides for 10 minutes is generally a bad idea
+
+Most presentations should have the following components.
+
+Introduction: Give a general overview and motivate the problem that you are solving. Provide some overview of the existing literature on this problem. What methods (e.g. ML/heuristics/control or other RL approaches) have traditionally or previously been used for this problem?
+
+Formulation of the problem into an RL problem: what is the state space, what is the action space, transition dynamics? What is the reward? Goal? What kind of environment? Is it an online setting, offline setting, or simulator?
+
+Algorithm design:
+
+Explain the algorithm and explain algorithm design choices
+
+Which of the standard RL paradigms (policy gradient/Q-learning etc) did you pick? Why?
+
+Did you have to come up with new algorithm design ideas beyond the standard RL algorithms? Why?
+
+Reward shaping: how did you design the reward to match the goal and to enable efficient training?
+
+State space representation/Neural network architecture if DNN is used
+
+Results: Since this is a course project and not a published paper, I am not only interested in successful outcomes but also in what you tried and what you learned from it. Explain any experiments you did, and insights you gained from them, and what other experiments you might have done given more time. Make sure you have good baseline comparisons. (For theory projects, similarly describe what partial results you have, what else you tried to prove, and what you might want to prove next)
+
+Future work: If you were to work on this for the next 4-5 months, what would be your plan? What would you do next?
+
+Writing a final report
+The final outcome of your project should be a written report that clearly and concisely describes what you did, what results you got, and what the results mean. Your report should be 4-6 pages long. If necessary, you can include further details or plots/figures in at most 5-page appendix. The report should use 11pt font, 1-inch margins, and single spacing. Papers that vary from these guidelines risk receiving a grade deduction and/or some sections not being read. 
+
+Your report should follow the general format of a scholarly paper in this area. You should write your report as clearly as possible in a manner that would be understandable to a fellow student of this course. In other words, you should not assume that the reader has a background beyond what has been covered in class (as well as the prerequisites of the course).
+
+Your report should begin by describing the problem you are studying, some background (what has been done before), and the motivation for the problem, i.e., why it is worth studying. Previous work and outside sources should be cited throughout your report in a scholarly fashion following the style of academic papers in this area.
+
+Next, you should clearly explain what you did, both from a high level and then in more detail. For an experimental paper, you should explain the experiments in enough detail that there is a reasonable possibility that a motivated reader would be able to replicate them. You also should outline some of the theory underlying the algorithms you are studying. State your results clearly, and think about graphical tools you can use to make your results clearer (a table of numbers is usually less compelling than a graphical representation of the same data). Look through published papers for ideas. For a theoretical paper, the model and other mathematical details should be explained well enough for the results to be stated with mathematical precision and clarity.
+
+In every case, be sure to explain the meaning of your results. Don’t just give a table of results or a dry mathematical formula. Explain what the results mean, and what conclusions can be drawn from them. Again, do all this in a way that would be understandable and interesting to a fellow student of this course. What did you expect to find? What did you find instead? What are the implications? If you found something surprising, can you think of how it might be explained?
+
+What you will be graded on: Projects will be graded along the following dimensions:
+
+originality and creativity
+discussion of background material
+theoretical component and/or experimental design and execution
+discussion and interpretation of results
+writing of the final report, including clarity, completeness, and conciseness
+overall effort
+Code
+For implementation focused projects, please provide a link to your code. You can provide a GitHub or Colab link. You do not need to make the code public, although I encourage you to do so using GitHub. 
+
+ 
+
+(Contents of this page were derived from this excellent guidance. from Rob Schapire on choosing projects for his course at Princeton.)
+
+
+
