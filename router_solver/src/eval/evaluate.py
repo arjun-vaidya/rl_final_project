@@ -4,6 +4,7 @@ import json
 from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from src.env.gsm8k_loader import load_gsm8k_train, load_gsm8k_test
+from src.utils.parsing import extract_code_block
 from src.rewards.outcome import outcome_reward, extract_answer_from_trajectory
 from src.env.python_tool import run_python, ToolResult
 
@@ -17,17 +18,34 @@ def evaluate_flat(model, tokenizer, problems, device="cuda"):
         question = item.question
         gt = item.numeric_answer
         
-        # In a real evaluation, we'd run the tool loop. 
-        # For this script, we'll implement a basic rollout loop.
+        # Interleaved tool-use loop
         prompt = f"Question: {question}\nReasoning:"
+        trajectory = prompt
+        max_steps = 5
         
-        # Dummy rollout logic (since we don't have the full loop here)
-        # In a real script, this would handle <code> blocks
-        inputs = tokenizer(prompt, return_tensors="pt").to(device)
-        with torch.no_grad():
-            outputs = model.generate(**inputs, max_new_tokens=512)
+        for _ in range(max_steps):
+            inputs = tokenizer(trajectory, return_tensors="pt").to(device)
+            # Generate until </code> or <answer>
+            outputs = model.generate(
+                **inputs, 
+                max_new_tokens=256,
+                stop_strings=["</code>", "</answer>"],
+                tokenizer=tokenizer,
+                pad_token_id=tokenizer.eos_token_id
+            )
+            
+            new_text = tokenizer.decode(outputs[0][inputs.input_ids.shape[-1]:], skip_special_tokens=True)
+            trajectory += new_text
+            
+            if "</code>" in new_text:
+                # Extract and run code
+                code = extract_code_block(trajectory)
+                if code:
+                    tool_res = run_python(code)
+                    trajectory += f"\nOutput: {tool_res.output}\nReasoning:"
+            elif "</answer>" in new_text or tokenizer.eos_token in new_text:
+                break
         
-        trajectory = tokenizer.decode(outputs[0], skip_special_tokens=True)
         is_correct = outcome_reward(trajectory, gt)
         if is_correct:
             correct += 1
