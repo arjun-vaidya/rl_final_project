@@ -1,3 +1,4 @@
+import torch
 from typing import List, Dict, Optional
 from src.utils.prompts import build_router_prompt, build_solver_prompt
 from src.utils.parsing import parse_plan_json, extract_code_block
@@ -26,7 +27,7 @@ class RouterSolverAgent:
             # Dummy implementation for tests without peft
             pass
 
-    def rollout(self, question: str, memory=None, max_tokens: int = 1024) -> Dict:
+    def rollout(self, question: str, memory=None) -> Dict:
         """
         Executes a full hierarchical rollout.
         Returns a trajectory log.
@@ -35,11 +36,13 @@ class RouterSolverAgent:
         self._set_adapter(self.router_adapter)
         past_memory = ""
         if memory:
-            past_memory = memory.retrieve(question)
+            mem_results = memory.retrieve(question, k=self.config.memory.k)
+            # Format memory results as past examples
+            for i, p in enumerate(mem_results):
+                past_memory += f"{i+1}. Problem: ... -> Plan: {p}\n"
         
         router_prompt = build_router_prompt(question, past_memory)
-        # router_output = self._generate(router_prompt)
-        router_output = '{"plan": [{"subgoal": "test", "tool": "python"}]}' # Placeholder
+        router_output = self._generate(router_prompt, max_new_tokens=self.config.rollout.router_max_tokens)
         
         plan_dict = parse_plan_json(router_output)
         if not plan_dict:
@@ -50,19 +53,21 @@ class RouterSolverAgent:
         scratchpad = ""
         trajectory_steps = []
         
-        for step in plan_dict["plan"]:
-            subgoal = step["subgoal"]
+        # Limit steps to config
+        plan_steps = plan_dict["plan"][:self.config.rollout.max_subgoals]
+        
+        for step_idx, step in enumerate(plan_steps):
+            subgoal = step.get("subgoal", "solve")
             solver_prompt = build_solver_prompt(question, router_output, scratchpad, subgoal)
             
-            # solver_output = self._generate(solver_prompt)
-            solver_output = "<code>4*2</code>" # Placeholder
+            solver_output = self._generate(solver_prompt, max_new_tokens=self.config.rollout.solver_max_tokens)
             
             code = extract_code_block(solver_output)
-            tool_result = ToolResult("8", False, 0.0)
+            tool_result = ToolResult("", False, 0.0)
             if code:
                 tool_result = run_python(code)
             
-            scratchpad += f"\nSubgoal: {subgoal}\nTool Output: {tool_result.output}\n"
+            scratchpad += f"\n[Step {step_idx+1}] Output: {tool_res.output}\n"
             trajectory_steps.append({
                 "subgoal": subgoal,
                 "solver_output": solver_output,
@@ -79,5 +84,11 @@ class RouterSolverAgent:
 
     def _generate(self, prompt: str, max_new_tokens: int = 256) -> str:
         """Helper to generate text from the current model+adapter."""
-        # This will be implemented with actual model.generate() in the training loop
-        pass
+        inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
+        with torch.no_grad():
+            outputs = self.model.generate(
+                **inputs, 
+                max_new_tokens=max_new_tokens,
+                pad_token_id=self.tokenizer.eos_token_id
+            )
+        return self.tokenizer.decode(outputs[0][inputs.input_ids.shape[-1]:], skip_special_tokens=True)

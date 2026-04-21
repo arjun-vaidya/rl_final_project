@@ -63,8 +63,12 @@ except Exception as e:
                 wall_time_ms=wall_time_ms
             )
         
+        output = stdout.strip()
+        if len(output) > 256:
+            output = output[:253] + "..."
+            
         return ToolResult(
-            output=stdout.strip(),
+            output=output,
             is_error=False,
             wall_time_ms=wall_time_ms
         )
