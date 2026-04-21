@@ -1,5 +1,5 @@
 # configs/router_solver_memory_random.yaml
-# Condition #4a: Hierarchical Agent with Random Memory (Ablation)
+# Condition #4b: Hierarchical Agent with Random Memory (ablation baseline for 4c)
 
 model:
   base_id: "Qwen/Qwen2.5-1.5B-Instruct"

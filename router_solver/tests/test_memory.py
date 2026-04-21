@@ -77,11 +77,22 @@ class TestMemory(unittest.TestCase):
         mem = PlanMemory(mode=RetrievalMode.RANDOM)
         for i in range(5):
             mem.write_if_success(str(i), {"p": i}, 1.0)
-        
+
         results = mem.retrieve("any", k=2)
         self.assertEqual(len(results), 2)
-        # Should be plans, not just indices
-        self.assertIn("p", results[0])
+        # Each entry is {"question", "plan"} per docs/04_design.md + 07_plan_memory.md.
+        self.assertIn("question", results[0])
+        self.assertIn("plan", results[0])
+        self.assertIn("p", results[0]["plan"])
+
+    def test_retrieval_mode_similarity_returns_question_and_plan(self):
+        """Mode=SIMILARITY returns entries containing both the past question and plan."""
+        mem = PlanMemory(mode=RetrievalMode.SIMILARITY)
+        mem.write_if_success("what is 2+2?", {"plan": "add"}, 1.0)
+        results = mem.retrieve("what is 2+2?", k=1)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["question"], "what is 2+2?")
+        self.assertEqual(results[0]["plan"], {"plan": "add"})
 
 if __name__ == "__main__":
     unittest.main()

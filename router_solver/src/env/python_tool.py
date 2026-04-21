@@ -75,6 +75,11 @@ except Exception as e:
         
     except subprocess.TimeoutExpired:
         process.kill()
+        # Drain pipes so we don't leak file handles (ResourceWarning otherwise).
+        try:
+            process.communicate(timeout=1.0)
+        except Exception:
+            pass
         return ToolResult(
             output="TimeoutExpired",
             is_error=True,

@@ -35,10 +35,11 @@ def main():
         task_type="CAUSAL_LM"
     )
 
-    # Initialize model with Router adapter
-    model = get_peft_model(base_model, lora_config, adapter_name="router")
+    # Initialize model with Router adapter (names must match RouterSolverAgent
+    # which reads them from config.model.router/solver_adapter_name).
+    model = get_peft_model(base_model, lora_config, adapter_name=config.model.router_adapter_name)
     # Add Solver adapter
-    model.add_adapter("solver", lora_config)
+    model.add_adapter(config.model.solver_adapter_name, lora_config)
     model.to(device)
 
     # 2. Dataset

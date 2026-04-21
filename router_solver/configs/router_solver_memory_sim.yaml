@@ -1,5 +1,5 @@
 # configs/router_solver_memory_sim.yaml
-# Condition #4b/c: Hierarchical Agent with Similarity-based Memory
+# Condition #4c: Hierarchical Agent with Similarity-based Memory (our method)
 
 model:
   base_id: "Qwen/Qwen2.5-1.5B-Instruct"

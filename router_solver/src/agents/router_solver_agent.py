@@ -34,16 +34,13 @@ class RouterSolverAgent:
         """
         # 1. Router creates plan
         self._set_adapter(self.router_adapter)
-        past_memory = ""
+        past_memory_entries = []
         if memory:
-            mem_results = memory.retrieve(question, k=self.config.memory.k)
-            # Format memory results as past examples
-            for i, p in enumerate(mem_results):
-                past_memory += f"{i+1}. Problem: ... -> Plan: {p}\n"
-        
-        router_prompt = build_router_prompt(question, past_memory)
+            past_memory_entries = memory.retrieve(question, k=self.config.memory.k)
+
+        router_prompt = build_router_prompt(question, past_memory_entries)
         router_output = self._generate(router_prompt, max_new_tokens=self.config.rollout.router_max_tokens)
-        
+
         plan_dict = parse_plan_json(router_output)
         if not plan_dict:
             return {"question": question, "error": "Invalid plan", "trajectory": router_output}
@@ -52,27 +49,32 @@ class RouterSolverAgent:
         self._set_adapter(self.solver_adapter)
         scratchpad = ""
         trajectory_steps = []
-        
+
         # Limit steps to config
         plan_steps = plan_dict["plan"][:self.config.rollout.max_subgoals]
-        
+
         for step_idx, step in enumerate(plan_steps):
             subgoal = step.get("subgoal", "solve")
             solver_prompt = build_solver_prompt(question, router_output, scratchpad, subgoal)
-            
+
             solver_output = self._generate(solver_prompt, max_new_tokens=self.config.rollout.solver_max_tokens)
-            
+
             code = extract_code_block(solver_output)
-            tool_result = ToolResult("", False, 0.0)
             if code:
                 tool_result = run_python(code)
-            
-            scratchpad += f"\n[Step {step_idx+1}] Output: {tool_res.output}\n"
+            else:
+                # No code extracted — no tool executed. Mark as an error so the
+                # solver reward correctly assigns 0 (docs/04_design.md: +0.3 is
+                # gated on "tool executed cleanly").
+                tool_result = ToolResult("no code block emitted", True, 0.0)
+
+            scratchpad += f"\n[Step {step_idx+1}] Output: {tool_result.output}\n"
             trajectory_steps.append({
                 "subgoal": subgoal,
                 "solver_output": solver_output,
                 "tool_output": tool_result.output,
-                "is_error": tool_result.is_error
+                "is_error": tool_result.is_error,
+                "tool_result": tool_result,
             })
 
         return {
