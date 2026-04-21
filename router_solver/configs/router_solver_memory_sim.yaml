@@ -1,51 +1,25 @@
-# Condition #4c: Router-Solver + similarity-based plan retrieval (our method).
-# Spec: docs/07_plan_memory.md.
-
-run_name: router_solver_memory_sim_v1
-seed: 0
+# configs/router_solver_memory_sim.yaml
+# Condition #4b/c: Hierarchical Agent with Similarity-based Memory
 
 model:
-  base: Qwen/Qwen2.5-1.5B-Instruct
-  router_lora_rank: 16
-  solver_lora_rank: 16
-  lora_alpha: 32
-  lora_dropout: 0.0
-
-env:
-  dataset: gsm8k
-  tool: python
-  tool_timeout_s: 5
-  max_output_chars: 256
-
-agent:
-  type: router_solver
-  max_subgoals: 6
-  router_max_tokens: 256
-  solver_max_tokens: 128
-
-reward:
-  mode: decomposed
-  solver_weights: {tool_valid: 0.3, sensible_output: 0.2, final_outcome: 0.5}
+  base_id: "Qwen/Qwen2.5-1.5B-Instruct"
+  router_adapter_name: "router_lora_memory"
+  solver_adapter_name: "solver_lora_memory"
 
 memory:
   enabled: true
-  mode: similarity
-  embedder: sentence-transformers/all-MiniLM-L6-v2
-  top_k: 3
+  mode: "similarity"
+  k: 3
+  capacity: 1000
   min_similarity: 0.5
-  capacity: 10000
+  write_gate_reward_threshold: 1.0
 
-grpo:
-  group_size: 8
+training:
+  learning_rate: 5.0e-06
   batch_size: 8
-  learning_rate: 5.0e-6
-  kl_beta: 0.04
-  num_steps: 500
-  joint_or_alternating: joint
-
-eval:
-  every_n_steps: 50
-  val_size: 200
+  group_size: 8
+  max_steps: 500
 
 logging:
-  wandb_project: router_solver
+  output_dir: "experiments/router_solver_memory_sim"
+  wandb_project: "router-solver"

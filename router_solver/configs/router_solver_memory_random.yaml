@@ -1,51 +1,20 @@
-# Condition #4b: Router-Solver + random-plan retrieval (memory ablation).
-# Spec: docs/07_plan_memory.md.
-# Inherits defaults from router_solver.yaml; override the memory block.
-
-run_name: router_solver_memory_random_v1
-seed: 0
+# configs/router_solver_memory_random.yaml
+# Condition #4a: Hierarchical Agent with Random Memory (Ablation)
 
 model:
-  base: Qwen/Qwen2.5-1.5B-Instruct
-  router_lora_rank: 16
-  solver_lora_rank: 16
-  lora_alpha: 32
-  lora_dropout: 0.0
-
-env:
-  dataset: gsm8k
-  tool: python
-  tool_timeout_s: 5
-  max_output_chars: 256
-
-agent:
-  type: router_solver
-  max_subgoals: 6
-  router_max_tokens: 256
-  solver_max_tokens: 128
-
-reward:
-  mode: decomposed
-  solver_weights: {tool_valid: 0.3, sensible_output: 0.2, final_outcome: 0.5}
+  base_id: "Qwen/Qwen2.5-1.5B-Instruct"
 
 memory:
   enabled: true
-  mode: random
-  top_k: 3
-  min_similarity: 0.0
-  capacity: 10000
+  mode: "random"
+  k: 3
 
-grpo:
-  group_size: 8
+training:
+  learning_rate: 5.0e-06
   batch_size: 8
-  learning_rate: 5.0e-6
-  kl_beta: 0.04
-  num_steps: 500
-  joint_or_alternating: joint
-
-eval:
-  every_n_steps: 50
-  val_size: 200
+  group_size: 8
+  max_steps: 500
 
 logging:
-  wandb_project: router_solver
+  output_dir: "experiments/router_solver_memory_random"
+  wandb_project: "router-solver"

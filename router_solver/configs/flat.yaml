@@ -1,9 +1,13 @@
-model_id: "Qwen/Qwen2.5-1.5B-Instruct"
-dataset_name: "openai/gsm8k"
-learning_rate: 5.0e-06
-batch_size: 8
-group_size: 8
-max_steps: 500
-beta: 0.04
-output_dir: "experiments/flat_baseline"
-wandb_project: "router-solver"
+model:
+  base_id: "Qwen/Qwen2.5-1.5B-Instruct"
+
+training:
+  learning_rate: 5.0e-06
+  batch_size: 8
+  group_size: 8
+  max_steps: 500
+  beta: 0.04
+
+logging:
+  output_dir: "experiments/flat_baseline"
+  wandb_project: "router-solver"

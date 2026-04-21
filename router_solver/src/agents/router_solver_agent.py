@@ -1,20 +1,22 @@
-# src/agents/router_solver_agent.py
 from typing import List, Dict, Optional
 from src.utils.prompts import build_router_prompt, build_solver_prompt
 from src.utils.parsing import parse_plan_json, extract_code_block
 from src.env.python_tool import run_python, ToolResult
+from src.utils.config import GlobalConfig
 
 class RouterSolverAgent:
     """
     Hierarchical agent with a Router and a Solver.
     Uses two LoRA adapters on a shared base model.
     """
-    def __init__(self, model, tokenizer, router_adapter: str, solver_adapter: str, device: str = "cuda"):
+    def __init__(self, model, tokenizer, config: GlobalConfig, device: str = "cuda"):
         self.model = model
         self.tokenizer = tokenizer
-        self.router_adapter = router_adapter
-        self.solver_adapter = solver_adapter
+        self.config = config
         self.device = device
+        
+        self.router_adapter = config.model.router_adapter_name
+        self.solver_adapter = config.model.solver_adapter_name
 
     def _set_adapter(self, adapter_name: str):
         """Swaps the active LoRA adapter."""
