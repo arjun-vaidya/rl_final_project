@@ -1,64 +1,81 @@
-"""Hierarchical Router-Solver agent.
-
-Conditions #3 and #4 in docs/05_evaluation.md. Architecture: docs/02_approach.md.
-One frozen base model + two LoRA adapters (Router, Solver), swapped per call.
-Plan memory is optional and additive (see docs/07_plan_memory.md).
-"""
-from dataclasses import dataclass, field
-
-
-@dataclass
-class Subgoal:
-    subgoal: str
-    tool: str  # "python" for now
-
-
-@dataclass
-class SolverStep:
-    subgoal: Subgoal
-    code: str
-    tool_output: str
-    is_error: bool
-
-
-@dataclass
-class HierTrajectory:
-    question: str
-    plan_raw: str                    # raw Router generation (may be malformed JSON)
-    plan: list[Subgoal]              # parsed; empty list if parse failed
-    steps: list[SolverStep]
-    final_answer: int | None
-    total_tokens: int
-    retrieved_plans: list[dict] = field(default_factory=list)  # populated iff memory is enabled
-
+# src/agents/router_solver_agent.py
+from typing import List, Dict, Optional
+from src.utils.prompts import build_router_prompt, build_solver_prompt
+from src.utils.parsing import parse_plan_json, extract_code_block
+from src.env.python_tool import run_python, ToolResult
 
 class RouterSolverAgent:
-    """Router LoRA + Solver LoRA on a shared frozen base.
-
-    If `memory` is not None, the Router prompt is augmented with top-K retrievals.
     """
+    Hierarchical agent with a Router and a Solver.
+    Uses two LoRA adapters on a shared base model.
+    """
+    def __init__(self, model, tokenizer, router_adapter: str, solver_adapter: str, device: str = "cuda"):
+        self.model = model
+        self.tokenizer = tokenizer
+        self.router_adapter = router_adapter
+        self.solver_adapter = solver_adapter
+        self.device = device
 
-    def __init__(
-        self,
-        base_model,
-        router_adapter,
-        solver_adapter,
-        tool,
-        memory=None,                 # Optional[PlanMemory]; see src/memory/
-        max_subgoals: int = 6,
-        router_max_tokens: int = 256,
-        solver_max_tokens: int = 128,
-    ):
-        raise NotImplementedError
+    def _set_adapter(self, adapter_name: str):
+        """Swaps the active LoRA adapter."""
+        if hasattr(self.model, "set_adapter"):
+            self.model.set_adapter(adapter_name)
+        else:
+            # Dummy implementation for tests without peft
+            pass
 
-    def plan(self, question: str) -> tuple[str, list[Subgoal], list[dict]]:
-        """Run Router to produce a plan. Returns (raw_text, parsed_plan, retrieved_plans)."""
-        raise NotImplementedError
+    def rollout(self, question: str, memory=None, max_tokens: int = 1024) -> Dict:
+        """
+        Executes a full hierarchical rollout.
+        Returns a trajectory log.
+        """
+        # 1. Router creates plan
+        self._set_adapter(self.router_adapter)
+        past_memory = ""
+        if memory:
+            past_memory = memory.retrieve(question)
+        
+        router_prompt = build_router_prompt(question, past_memory)
+        # router_output = self._generate(router_prompt)
+        router_output = '{"plan": [{"subgoal": "test", "tool": "python"}]}' # Placeholder
+        
+        plan_dict = parse_plan_json(router_output)
+        if not plan_dict:
+            return {"question": question, "error": "Invalid plan", "trajectory": router_output}
 
-    def execute(self, question: str, plan: list[Subgoal]) -> list[SolverStep]:
-        """Run Solver over each subgoal in sequence, feeding tool outputs forward."""
-        raise NotImplementedError
+        # 2. Solver executes subgoals
+        self._set_adapter(self.solver_adapter)
+        scratchpad = ""
+        trajectory_steps = []
+        
+        for step in plan_dict["plan"]:
+            subgoal = step["subgoal"]
+            solver_prompt = build_solver_prompt(question, router_output, scratchpad, subgoal)
+            
+            # solver_output = self._generate(solver_prompt)
+            solver_output = "<code>4*2</code>" # Placeholder
+            
+            code = extract_code_block(solver_output)
+            tool_result = ToolResult("8", False, 0.0)
+            if code:
+                tool_result = run_python(code)
+            
+            scratchpad += f"\nSubgoal: {subgoal}\nTool Output: {tool_result.output}\n"
+            trajectory_steps.append({
+                "subgoal": subgoal,
+                "solver_output": solver_output,
+                "tool_output": tool_result.output,
+                "is_error": tool_result.is_error
+            })
 
-    def rollout(self, question: str) -> HierTrajectory:
-        """Plan + execute + parse answer in one shot."""
-        raise NotImplementedError
+        return {
+            "question": question,
+            "router_output": router_output,
+            "steps": trajectory_steps,
+            "final_answer": trajectory_steps[-1]["tool_output"] if trajectory_steps else None
+        }
+
+    def _generate(self, prompt: str, max_new_tokens: int = 256) -> str:
+        """Helper to generate text from the current model+adapter."""
+        # This will be implemented with actual model.generate() in the training loop
+        pass

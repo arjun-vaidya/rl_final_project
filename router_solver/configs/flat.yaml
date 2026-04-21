@@ -1,38 +1,9 @@
-# Condition #2: Flat GRPO, outcome-only reward.
-# Spec: docs/04_design.md + docs/05_evaluation.md.
-
-run_name: flat_outcome_v1
-seed: 0
-
-model:
-  base: Qwen/Qwen2.5-1.5B-Instruct
-  lora_rank: 16
-  lora_alpha: 32
-  lora_dropout: 0.0
-
-env:
-  dataset: gsm8k
-  tool: python
-  tool_timeout_s: 5
-  max_output_chars: 256
-
-agent:
-  type: flat
-  max_tokens: 1024
-
-reward:
-  type: outcome_only
-
-grpo:
-  group_size: 8
-  batch_size: 8
-  learning_rate: 5.0e-6
-  kl_beta: 0.04
-  num_steps: 500
-
-eval:
-  every_n_steps: 50
-  val_size: 200
-
-logging:
-  wandb_project: router_solver
+model_id: "Qwen/Qwen2.5-1.5B-Instruct"
+dataset_name: "openai/gsm8k"
+learning_rate: 5.0e-06
+batch_size: 8
+group_size: 8
+max_steps: 500
+beta: 0.04
+output_dir: "experiments/flat_baseline"
+wandb_project: "router-solver"

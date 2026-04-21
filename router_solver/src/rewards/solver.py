@@ -1,24 +1,21 @@
-"""Solver per-step reward.
+# src/rewards/solver.py
+from src.env.python_tool import ToolResult, looks_sensible
 
-Spec: docs/04_design.md §"Solver (per step)".
-Decomposed: (a) tool executed cleanly → 0.3, (b) output looks sensible → 0.2,
-            (c) final trajectory succeeded → 0.5. Weights swept in Ablation A.
-"""
-from dataclasses import dataclass
-
-
-@dataclass
-class SolverRewardWeights:
-    tool_valid: float = 0.3
-    sensible_output: float = 0.2
-    final_outcome: float = 0.5
-
-
-def solver_step_reward(
-    tool_output: str,
-    is_error: bool,
-    final_outcome: float,
-    weights: SolverRewardWeights = SolverRewardWeights(),
-) -> float:
-    """Reward for a single Solver step. See spec at top of file."""
-    raise NotImplementedError
+def solver_step_reward(tool_result: ToolResult, final_outcome: float) -> float:
+    """
+    Decomposed per-step Solver reward.
+    Weights: 0.3 (no error) + 0.2 (sensible output) + 0.5 (final outcome)
+    """
+    if tool_result.is_error:
+        return 0.0
+        
+    r = 0.0
+    r += 0.3  # Tool executed cleanly
+    
+    if looks_sensible(tool_result.output):
+        r += 0.2  # Output is non-empty and reasonably sized
+        
+    if final_outcome == 1.0:
+        r += 0.5  # Final answer was correct
+        
+    return r

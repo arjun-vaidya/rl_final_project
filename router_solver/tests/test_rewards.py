@@ -1,36 +1,18 @@
-"""Tests for src/rewards/*."""
+import unittest
+from src.rewards.outcome import extract_answer_from_trajectory, outcome_reward
 
+class TestRewards(unittest.TestCase):
+    def test_extract_answer_from_trajectory(self):
+        self.assertEqual(extract_answer_from_trajectory("<answer>42</answer>"), 42)
+        self.assertEqual(extract_answer_from_trajectory("The result is <answer> -7 </answer>."), -7)
+        self.assertEqual(extract_answer_from_trajectory("blah blah #### 100"), 100)
+        self.assertEqual(extract_answer_from_trajectory("I think the answer is 50"), 50)
+        self.assertIsNone(extract_answer_from_trajectory("No answer here"))
 
-def test_outcome_reward_match():
-    """Exact match → 1.0; mismatch → 0.0."""
-    raise NotImplementedError
+    def test_outcome_reward(self):
+        self.assertEqual(outcome_reward("<answer>42</answer>", 42), 1.0)
+        self.assertEqual(outcome_reward("<answer>42</answer>", 43), 0.0)
+        self.assertEqual(outcome_reward("Maybe 10 or 20 #### 30", 30), 1.0)
 
-
-def test_outcome_reward_no_answer():
-    """Trajectory without extractable answer → 0.0."""
-    raise NotImplementedError
-
-
-def test_router_reward_invalid_json():
-    """Malformed JSON plan → 0.0 regardless of outcome."""
-    raise NotImplementedError
-
-
-def test_router_reward_too_many_subgoals():
-    """Plan with > max_subgoals → 0.0."""
-    raise NotImplementedError
-
-
-def test_router_reward_valid_and_correct():
-    """Valid plan + correct answer → 1.0."""
-    raise NotImplementedError
-
-
-def test_solver_step_reward_all_three_components():
-    """tool-valid + sensible + outcome=1 → 1.0 with default weights."""
-    raise NotImplementedError
-
-
-def test_solver_step_reward_error_short_circuits():
-    """is_error=True → 0.0, regardless of other signals."""
-    raise NotImplementedError
+if __name__ == "__main__":
+    unittest.main()

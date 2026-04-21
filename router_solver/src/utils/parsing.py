@@ -1,24 +1,36 @@
-"""Output parsing utilities.
+import json
+import re
+from typing import Optional, List, Dict
 
-Used by agents, rewards, and eval. Anything that parses an LLM generation lives here.
-"""
+def parse_plan_json(text: str) -> Optional[Dict]:
+    """
+    Attempts to extract and parse a JSON plan from the Router's output.
+    Looks for JSON within { ... } blocks.
+    """
+    # Simple regex to find the first JSON object
+    match = re.search(r"(\{.*\})", text, re.DOTALL)
+    if not match:
+        return None
+    
+    try:
+        data = json.loads(match.group(1))
+        # Basic validation: must have "plan" key and be a list
+        if "plan" in data and isinstance(data["plan"], list):
+            return data
+    except json.JSONDecodeError:
+        pass
+    return None
 
+def extract_code_block(text: str) -> Optional[str]:
+    """
+    Extracts code from <code>...</code> blocks.
+    Returns the first one found.
+    """
+    match = re.search(r"<code>(.*?)</code>", text, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+    return None
 
-def parse_plan_json(raw_text: str) -> dict | None:
-    """Extract and parse the JSON plan from a Router generation. None on failure."""
-    raise NotImplementedError
-
-
-def extract_code_blocks(text: str) -> list[str]:
-    """Return all <code>...</code> contents in order."""
-    raise NotImplementedError
-
-
-def extract_final_answer_tag(text: str) -> int | None:
-    """Flat agent: return int inside <answer>...</answer>, or None."""
-    raise NotImplementedError
-
-
-def extract_trailing_number(text: str) -> int | None:
-    """Fallback answer extractor: last integer in the text."""
-    raise NotImplementedError
+def extract_all_code_blocks(text: str) -> List[str]:
+    """Extracts all code blocks from the trajectory."""
+    return re.findall(r"<code>(.*?)</code>", text, re.DOTALL)

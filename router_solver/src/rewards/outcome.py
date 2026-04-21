@@ -1,19 +1,32 @@
-"""Outcome reward (used by both flat and hierarchical agents).
+import re
 
-Spec: docs/04_design.md §"Outcome reward".
-Exact numeric match against the GSM8K ground-truth integer.
-"""
-
-
-def extract_numeric_answer(trajectory_text: str) -> int | None:
-    """Pull the final integer answer from a trajectory string.
-
-    For flat agent: content of <answer>...</answer>.
-    For hier agent: post-processing of the last Solver step (may need a finalize prompt).
+def extract_answer_from_trajectory(trajectory: str) -> int:
     """
-    raise NotImplementedError
+    Extracts the numeric answer from a model's trajectory.
+    Looks for <answer>X</answer> or the last number in the text as a fallback.
+    """
+    # Try <answer> pattern first
+    match = re.search(r"<answer>\s*(-?\d+)\s*</answer>", trajectory, re.IGNORECASE)
+    if match:
+        return int(match.group(1))
+    
+    # Fallback to looking for "#### X" which models often use on GSM8K
+    match = re.search(r"####\s*(-?\d+)", trajectory)
+    if match:
+        return int(match.group(1))
+    
+    # Last fallback: just find the last integer in the string
+    numbers = re.findall(r"-?\d+", trajectory)
+    if numbers:
+        return int(numbers[-1])
+    
+    return None
 
-
-def outcome_reward(trajectory_text: str, ground_truth: int) -> float:
-    """Returns 1.0 iff extracted answer == ground_truth, else 0.0."""
-    raise NotImplementedError
+def outcome_reward(trajectory: str, ground_truth: int) -> float:
+    """
+    Returns 1.0 if the extracted answer matches the ground truth, else 0.0.
+    """
+    extracted = extract_answer_from_trajectory(trajectory)
+    if extracted is not None and extracted == ground_truth:
+        return 1.0
+    return 0.0
