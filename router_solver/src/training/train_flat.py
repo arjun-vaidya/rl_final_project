@@ -40,11 +40,11 @@ class RewardWeightedTrainer(Trainer):
         )
         seq_loss = token_loss.view(shift_labels.size(0), -1).mean(dim=1)
 
-        # Weight by rewards (higher reward = lower loss contribution)
+        # Weight by rewards (higher reward = higher weight to reinforce correct behavior)
         if rewards is not None:
             rewards = rewards.float().to(seq_loss.device)
             # Scale: reward=1.0 means full weight, reward=0.0 means zero weight
-            loss = (seq_loss * (1 - rewards)).mean()
+            loss = (seq_loss * rewards).mean()
         else:
             loss = seq_loss.mean()
 
