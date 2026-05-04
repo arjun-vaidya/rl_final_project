@@ -63,26 +63,36 @@ class HeuristicRouterReward(RouterReward):
         if not plan_list or len(plan_list) == 0:
             return 0.0
 
+        # Convert plan steps to strings (handle both dict and string formats)
+        steps_as_strings = []
+        for step in plan_list:
+            if isinstance(step, dict):
+                # If step is a dict, extract subgoal or convert to string
+                step_str = step.get("subgoal", str(step))
+            else:
+                step_str = str(step)
+            steps_as_strings.append(step_str)
+
         score = 0.0
 
         # 1. Concreteness: each step should mention numbers/operations (0.33 weight)
         concrete_steps = 0
-        for step in plan_list:
+        for step in steps_as_strings:
             step_lower = step.lower()
             if any(c.isdigit() for c in step) or \
                any(keyword in step_lower for keyword in ['add', 'subtract', 'multiply', 'divide', 'calculate', 'compute', 'total', 'sum', 'product']):
                 concrete_steps += 1
 
-        concreteness_score = concrete_steps / len(plan_list)
+        concreteness_score = concrete_steps / len(steps_as_strings)
         score += 0.33 * concreteness_score
 
         # 2. Logical ordering: steps shouldn't contradict or repeat (0.33 weight)
-        if HeuristicRouterReward._is_logically_ordered(plan_list):
+        if HeuristicRouterReward._is_logically_ordered(steps_as_strings):
             score += 0.33
 
         # 3. Specificity: steps should be detailed (> 10 chars) not vague (0.34 weight)
-        specific_steps = sum(1 for step in plan_list if len(step.strip()) > 10)
-        specificity_score = specific_steps / len(plan_list)
+        specific_steps = sum(1 for step in steps_as_strings if len(step.strip()) > 10)
+        specificity_score = specific_steps / len(steps_as_strings)
         score += 0.34 * specificity_score
 
         return min(score, 1.0)
