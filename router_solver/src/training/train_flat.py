@@ -1,5 +1,6 @@
 import os
 import torch
+import wandb
 from dotenv import load_dotenv
 from datasets import load_dataset
 from transformers import (
@@ -15,6 +16,29 @@ from src.env.gsm8k_loader import extract_numeric_answer
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Initialize Weights & Biases
+wandb_api_key = os.getenv("WANDB_API_KEY")
+if wandb_api_key:
+    wandb.login(key=wandb_api_key)
+    # Entity is determined by the logged-in user, not hardcoded
+    wandb.init(
+        project="router-solver",
+        name="flat-baseline-training",
+        config={
+            "model": "Qwen/Qwen2.5-1.5B-Instruct",
+            "method": "LoRA with reward-weighted loss",
+            "dataset": "GSM8K",
+        }
+    )
+
+
+class WandBLoggingCallback:
+    """Callback to log training metrics to Weights & Biases."""
+
+    def on_log(self, args, state, control, logs=None, **kwargs):
+        if logs:
+            wandb.log(logs, step=state.global_step)
 
 
 class RewardWeightedTrainer(Trainer):
@@ -167,13 +191,23 @@ def main():
         model=model,
         args=training_args,
         train_dataset=train_dataset,
+        callbacks=[WandBLoggingCallback()] if wandb_api_key else [],
     )
 
     # 7. Train
     print("Starting training...")
     trainer.train()
-    trainer.save_model(os.path.join(config.logging["output_dir"], "final_model"))
+    final_model_path = os.path.join(config.logging["output_dir"], "final_model")
+    trainer.save_model(final_model_path)
     print("Training complete!")
+
+    # Log final model to wandb
+    if wandb_api_key:
+        wandb.log({
+            "final_model_path": final_model_path,
+            "training_complete": True,
+        })
+        wandb.finish()
 
 
 if __name__ == "__main__":

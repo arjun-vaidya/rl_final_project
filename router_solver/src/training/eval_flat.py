@@ -1,10 +1,15 @@
+import os
 import torch
+import wandb
+from dotenv import load_dotenv
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import PeftModel
 from datasets import load_dataset
 from src.utils.config import load_config
 from src.rewards.outcome import outcome_reward, extract_answer_from_trajectory
 from src.env.gsm8k_loader import extract_numeric_answer
+
+load_dotenv()
 
 
 def main():
@@ -14,6 +19,17 @@ def main():
     parser.add_argument("--num_samples", type=int, default=25)
     args = parser.parse_args()
 
+    # Initialize wandb for evaluation
+    wandb_api_key = os.getenv("WANDB_API_KEY")
+    if wandb_api_key:
+        wandb.login(key=wandb_api_key)
+
+        wandb.init(
+            project="router-solver",
+            name="eval-flat-baseline",
+            job_type="evaluation"
+        )
+        
     # Load tokenizer and model
     tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-1.5B-Instruct")
     tokenizer.pad_token = tokenizer.eos_token
@@ -71,6 +87,14 @@ def main():
 
     accuracy = correct / min(args.num_samples, len(dataset))
     print(f"\nAccuracy on {min(args.num_samples, len(dataset))} test samples: {accuracy:.1%}")
+
+    if wandb_api_key:
+        wandb.log({
+            "eval_accuracy": accuracy,
+            "num_samples": min(args.num_samples, len(dataset)),
+            "correct_answers": correct,
+        })
+        wandb.finish()
 
 
 if __name__ == "__main__":

@@ -27,10 +27,15 @@ import os
 import argparse
 from collections import defaultdict
 from typing import List, Tuple
+from dotenv import load_dotenv
 
 import numpy as np
 import torch
 import torch.nn.functional as F
+import wandb
+
+# Load environment variables
+load_dotenv()
 
 from src.rewards.router import router_reward
 from src.rewards.solver import solver_step_reward
@@ -158,6 +163,25 @@ def main():
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     os.makedirs(cfg.logging["output_dir"], exist_ok=True)
+
+    # Initialize Weights & Biases
+    wandb_api_key = os.getenv("WANDB_API_KEY")
+    if wandb_api_key:
+        wandb.login(key=wandb_api_key)
+        # Entity is determined by the logged-in user's API key, not hardcoded
+        wandb.init(
+            project="router-solver",
+            name=f"router-solver-{cfg.training.reward_mode}",
+            config={
+                "model": cfg.model.base_id,
+                "batch_size": cfg.training.batch_size,
+                "group_size": cfg.training.group_size,
+                "learning_rate": cfg.training.learning_rate,
+                "beta": cfg.training.beta,
+                "reward_mode": cfg.training.reward_mode,
+                "max_steps": cfg.training.max_steps,
+            }
+        )
 
     # 1. Model + two LoRA adapters on one frozen base
     tokenizer = AutoTokenizer.from_pretrained(cfg.model.base_id)
@@ -295,6 +319,19 @@ def main():
             rr = [r[2] for r in records]
             sr_means = [sum(r[3]) / len(r[3]) if r[3] else 0.0 for r in records]
             invalid_plans = sum(1 for _, ro, *_ in records if ro.plan_dict is None)
+
+            metrics = {
+                "step": step,
+                "loss": loss.item(),
+                "outcome_acc": np.mean(outs),
+                "router_reward": np.mean(rr),
+                "solver_reward": np.mean(sr_means),
+                "invalid_plans": invalid_plans,
+                "total_records": len(records),
+            }
+            if memory:
+                metrics["memory_size"] = len(memory.store.keys)
+
             print(
                 f"step={step:4d} "
                 f"loss={loss.item():+.4f} "
@@ -305,15 +342,27 @@ def main():
                 f"mem={len(memory.store.keys) if memory else 0}"
             )
 
+            if wandb_api_key:
+                wandb.log(metrics)
+
         if step > 0 and step % 50 == 0:
             ckpt = os.path.join(cfg.logging["output_dir"], f"checkpoint-{step}")
             model.save_pretrained(ckpt)
             print(f"[train] saved checkpoint: {ckpt}")
+            if wandb_api_key:
+                wandb.log({"checkpoint_saved": ckpt, "checkpoint_step": step})
 
     # Final save
     final = os.path.join(cfg.logging["output_dir"], "final_hierarchical_model")
     model.save_pretrained(final)
     print(f"[train] done. saved {final}")
+
+    if wandb_api_key:
+        wandb.log({
+            "final_model_path": final,
+            "training_complete": True,
+        })
+        wandb.finish()
 
 
 if __name__ == "__main__":
