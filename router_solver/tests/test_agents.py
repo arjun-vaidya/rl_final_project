@@ -4,7 +4,7 @@ from src.rewards.router import router_reward
 from src.rewards.solver import solver_step_reward
 from src.env.python_tool import ToolResult
 
-class TestPeter(unittest.TestCase):
+class TestAgents(unittest.TestCase):
     def test_parse_plan_json(self):
         valid_log = 'Plan: {"plan": [{"subgoal": "add 2+2", "tool": "python"}]}'
         plan = parse_plan_json(valid_log)
