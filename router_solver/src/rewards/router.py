@@ -20,3 +20,4 @@ def router_reward(plan_output, trajectory, gt) -> float:
         
     # Gated downstream credit: outcome of the trajectory that followed this plan
     return outcome_reward(trajectory, gt)
+
