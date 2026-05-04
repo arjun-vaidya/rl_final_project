@@ -105,7 +105,8 @@ class HeuristicRouterReward(RouterReward):
         keywords_seen = set()
 
         for step in plan_list:
-            words = step.lower().split()
+            text = step.get("subgoal", "") if isinstance(step, dict) else str(step)
+            words = text.lower().split()
             step_keywords = {w for w in words if len(w) > 3 and (any(c.isdigit() for c in w) or w.isalpha())}
 
             overlap = keywords_seen & step_keywords
@@ -159,7 +160,11 @@ class LLMJudgeRouterReward(RouterReward):
         Use Claude to score plan quality 0-10, return as 0.0-1.0.
         """
         try:
-            plan_text = "\n".join([f"{i+1}. {step}" for i, step in enumerate(plan_list)])
+            formatted_steps = []
+            for i, step in enumerate(plan_list):
+                text = step.get("subgoal", "") if isinstance(step, dict) else str(step)
+                formatted_steps.append(f"{i+1}. {text}")
+            plan_text = "\n".join(formatted_steps)
 
             prompt = f"""Evaluate the quality of this mathematical reasoning plan.
 

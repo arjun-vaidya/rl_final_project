@@ -1,0 +1,326 @@
+\documentclass[aspectratio=169,11pt]{beamer}
+
+% ---------- Packages ----------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+
+% ---------- Theme ----------
+\usetheme{Madrid}
+\usecolortheme{default}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize items}[circle]
+\setbeamertemplate{enumerate items}[default]
+
+\definecolor{navy}{RGB}{25,44,82}
+\definecolor{bluegray}{RGB}{83,103,132}
+\definecolor{softblue}{RGB}{232,238,247}
+\definecolor{softgreen}{RGB}{232,244,237}
+\definecolor{softorange}{RGB}{255,244,229}
+\definecolor{softred}{RGB}{252,235,235}
+
+\setbeamercolor{structure}{fg=navy}
+\setbeamercolor{frametitle}{fg=white,bg=navy}
+\setbeamercolor{title}{fg=white,bg=navy}
+\setbeamercolor{block title}{fg=white,bg=navy}
+\setbeamercolor{block body}{bg=softblue,fg=black}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamerfont{title}{size=\Large,series=\bfseries}
+\setbeamerfont{subtitle}{size=\normalsize}
+
+\newcommand{\tagbox}[2]{%
+  \begin{tikzpicture}[baseline=(X.base)]
+    \node[rounded corners=3pt, fill=#1, inner xsep=6pt, inner ysep=3pt] (X) {\small #2};
+  \end{tikzpicture}%
+}
+
+\newcommand{\tightitems}{\setlength{\itemsep}{0.35em}}
+
+% ---------- Metadata ----------
+\title{Router Solver Baseline}
+\subtitle{GSM8K Fine-Tuning, Reward Weighting, and Router Reward Design}
+\author{RL Final Project}
+\date{May 2026}
+
+\begin{document}
+
+% ---------- Slide 1 ----------
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% ---------- Slide 2 ----------
+\begin{frame}{Dataset: GSM8K}
+\begin{columns}[T,onlytextwidth]
+  \begin{column}{0.48\textwidth}
+    \begin{block}{Overview}
+      \begin{itemize}\tightitems
+        \item 8.5K grade-school math word problems.
+        \item Linguistically diverse prompts requiring multi-step reasoning.
+        \item Answers include chain-of-thought style reasoning plus a final numeric target.
+      \end{itemize}
+    \end{block}
+  \end{column}
+  \begin{column}{0.48\textwidth}
+    \begin{block}{Data Structure}
+      \begin{itemize}\tightitems
+        \item \textbf{Question:} math word problem.
+        \item \textbf{Answer / reasoning:} step-by-step solution logic.
+        \item \textbf{Final answer:} numeric label, often marked with \texttt{\#\#\#\#}.
+      \end{itemize}
+    \end{block}
+  \end{column}
+\end{columns}
+
+\vspace{0.8em}
+\begin{block}{How We Use It}
+\begin{itemize}\tightitems
+  \item Fine-tune on the \texttt{train} split.
+  \item Extract exact numeric answers for automated grading and reward computation.
+\end{itemize}
+\end{block}
+\end{frame}
+
+% ---------- Slide 3 ----------
+\begin{frame}{Baseline: Reward-Weighted Supervised Fine-Tuning}
+\begin{columns}[T,onlytextwidth]
+  \begin{column}{0.52\textwidth}
+    \begin{block}{Flat Baseline}
+    \begin{itemize}\tightitems
+      \item Standard causal language model.
+      \item No routing or expert-selection mechanism.
+      \item Custom \texttt{RewardWeightedTrainer} for supervised fine-tuning.
+    \end{itemize}
+    \end{block}
+
+    \begin{block}{Efficiency Choice}
+    \begin{itemize}\tightitems
+      \item LoRA adapters target attention projections.
+      \item Main targets: \texttt{q\_proj} and \texttt{v\_proj}.
+    \end{itemize}
+    \end{block}
+  \end{column}
+  \begin{column}{0.44\textwidth}
+    \begin{block}{Training Objective}
+      \begin{enumerate}\tightitems
+        \item Format examples as: \texttt{Question: [Q] \textbackslash n Reasoning: [A]}.
+        \item Assign binary reward from numeric-answer format.
+        \item Weight sequence cross-entropy by reward.
+      \end{enumerate}
+    \end{block}
+
+    \vspace{0.4em}
+    \centering
+    \tagbox{softorange}{$\mathcal{L}=R(x,y)\,\mathcal{L}_{\mathrm{CE}}(x,y)$}
+  \end{column}
+\end{columns}
+
+\vspace{0.5em}
+\begin{alertblock}{Implementation Note}
+We identified and fixed an inversion bug in the loss calculation so that successful examples are reinforced rather than suppressed.
+\end{alertblock}
+\end{frame}
+
+% ---------- Slide 4 ----------
+\begin{frame}{Why Direct RL Over SFT?}
+\begin{columns}[T,onlytextwidth]
+  \begin{column}{0.47\textwidth}
+    \begin{block}{Computational Efficiency}
+    \begin{itemize}\tightitems
+      \item Skip an intermediate SFT stage.
+      \item Optimize directly against task reward.
+      \item Reduce mismatch between training objective and evaluation objective.
+    \end{itemize}
+    \end{block}
+  \end{column}
+  \begin{column}{0.47\textwidth}
+    \begin{block}{Alignment Benefits}
+    \begin{itemize}\tightitems
+      \item Avoid overfitting to human-curated SFT traces.
+      \item Learn from the reward signal that actually defines success.
+      \item Useful when correct outputs can be automatically checked.
+    \end{itemize}
+    \end{block}
+  \end{column}
+\end{columns}
+
+\vspace{1em}
+\begin{center}
+\begin{tikzpicture}[node distance=1.2cm, every node/.style={font=\small}]
+  \node[draw,rounded corners,fill=softblue,minimum width=2.7cm,minimum height=0.8cm] (q) {Question};
+  \node[draw,rounded corners,fill=softblue,right=of q,minimum width=2.7cm,minimum height=0.8cm] (model) {Policy Model};
+  \node[draw,rounded corners,fill=softgreen,right=of model,minimum width=2.7cm,minimum height=0.8cm] (ans) {Answer};
+  \node[draw,rounded corners,fill=softorange,below=of ans,minimum width=2.7cm,minimum height=0.8cm] (rew) {Reward};
+  \draw[-{Latex}] (q) -- (model);
+  \draw[-{Latex}] (model) -- (ans);
+  \draw[-{Latex}] (ans) -- (rew);
+  \draw[-{Latex}] (rew.west) -| (model.south);
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.4em}
+\footnotesize Reference used in original deck: \url{https://yugeten.github.io/posts/2025/01/ppogrpo/}
+\end{frame}
+
+% ---------- Slide 5 ----------
+\begin{frame}{GRPO: Eliminating the Critic Network}
+\begin{columns}[T,onlytextwidth]
+  \begin{column}{0.48\textwidth}
+    \begin{block}{Traditional PPO}
+    \begin{itemize}\tightitems
+      \item Requires a separate critic network.
+      \item Critic estimates per-step value functions.
+      \item Adds memory, compute, and tuning overhead.
+    \end{itemize}
+    \end{block}
+  \end{column}
+  \begin{column}{0.48\textwidth}
+    \begin{block}{GRPO Idea}
+    \begin{itemize}\tightitems
+      \item Sample a group of responses for the same prompt.
+      \item Compare each response against the group baseline.
+      \item Normalize rewards within the group, avoiding a critic.
+    \end{itemize}
+    \end{block}
+  \end{column}
+\end{columns}
+
+\vspace{1em}
+\begin{center}
+\Large
+\tagbox{softgreen}{$A_i=\dfrac{R(r_i)-\mathrm{mean}(R)}{\mathrm{std}(R)}$}
+\end{center}
+
+\vspace{0.4em}
+\begin{center}
+\begin{tabular}{>{\centering\arraybackslash}p{0.30\textwidth} >{\centering\arraybackslash}p{0.30\textwidth} >{\centering\arraybackslash}p{0.30\textwidth}}
+\tagbox{softblue}{No value model} &
+\tagbox{softgreen}{Lower overhead} &
+\tagbox{softorange}{Sequence-level credit} \\
+\end{tabular}
+\end{center}
+\end{frame}
+
+% ---------- Slide 6 ----------
+\begin{frame}{Router Reward: Outcome-Only vs. Process-Based}
+\begin{columns}[T,onlytextwidth]
+  \begin{column}{0.48\textwidth}
+    \begin{block}{Outcome-Only Reward}
+    \begin{itemize}\tightitems
+      \item $R=1$ if final answer matches ground truth.
+      \item $R=0$ if final answer is incorrect.
+      \item Easy to implement and cheap to compute.
+      \item Weakness: gives no feedback on intermediate planning quality.
+    \end{itemize}
+    \end{block}
+  \end{column}
+  \begin{column}{0.48\textwidth}
+    \begin{block}{Process Reward Models}
+    \begin{itemize}\tightitems
+      \item Score each planning step independently.
+      \item Evaluate clarity, concreteness, and logical order.
+      \item Can detect poor plans before final execution fails.
+      \item Weakness: requires step-level quality metrics.
+    \end{itemize}
+    \end{block}
+  \end{column}
+\end{columns}
+
+\vspace{0.8em}
+\begin{alertblock}{Core Tradeoff}
+Outcome rewards are simple but sparse. Process rewards are richer but harder to define without adding noise or reward hacking.
+\end{alertblock}
+\end{frame}
+
+% ---------- Slide 7 ----------
+\begin{frame}{Conditional and Hybrid Router Rewards}
+\begin{block}{Conditional Reward Modeling}
+\begin{itemize}\tightitems
+  \item Scores a step based on preceding steps and the final outcome.
+  \item Asks whether the plan would work if executed perfectly.
+  \item Checks for necessary quantities, correct decomposition, and logical order.
+  \item Captures inter-step dependencies but makes credit assignment more complex.
+\end{itemize}
+\end{block}
+
+\vspace{0.6em}
+\begin{block}{Practical Hybrid Reward}
+\begin{center}
+\Large
+\tagbox{softorange}{$R_{\mathrm{hybrid}}=0.5\,R_{\mathrm{plan}}+0.5\,R_{\mathrm{outcome}}$}
+\end{center}
+\begin{itemize}\tightitems
+  \item Balances structure and correctness.
+  \item Gives smoother learning signal than outcome-only reward.
+  \item Lowest-cost starting point for router reward development.
+\end{itemize}
+\end{block}
+\end{frame}
+
+% ---------- Slide 8 ----------
+\begin{frame}{LLM-as-Judge: Expert Plan Evaluation}
+\begin{columns}[T,onlytextwidth]
+  \begin{column}{0.48\textwidth}
+    \begin{block}{How It Works}
+    \begin{enumerate}\tightitems
+      \item Router generates a structured plan.
+      \item Send question and plan to Claude with an evaluation prompt.
+      \item Score clarity, completeness, and feasibility from 0 to 10.
+      \item Convert to $[0,1]$ and blend with outcome reward.
+    \end{enumerate}
+    \end{block}
+  \end{column}
+  \begin{column}{0.48\textwidth}
+    \begin{block}{Strengths and Limits}
+    \begin{itemize}\tightitems
+      \item \textbf{Strength:} catches subtle plan errors missed by heuristics.
+      \item \textbf{Strength:} no reward model training required.
+      \item \textbf{Limit:} slower because it requires API calls.
+      \item \textbf{Limit:} cost and non-determinism make it risky for high-volume training.
+    \end{itemize}
+    \end{block}
+  \end{column}
+\end{columns}
+
+\vspace{0.7em}
+\begin{block}{Recommended Use}
+Train with fast heuristic rewards. Validate with an LLM judge to detect reward inflation, reward deflation, and brittle heuristic behavior.
+\end{block}
+\end{frame}
+
+% ---------- Slide 9 ----------
+\begin{frame}{Recommended Implementation Path}
+\begin{enumerate}\tightitems
+  \item \textbf{Stabilize the flat baseline.} Confirm numeric extraction, reward calculation, and loss weighting.
+  \item \textbf{Train a fast router reward.} Start with heuristic plan-quality plus outcome correctness.
+  \item \textbf{Add modular evaluators.} Keep a common \texttt{RouterReward} interface so rewards can be swapped cleanly.
+  \item \textbf{Validate with LLM-as-judge.} Use expert scoring for audits, not high-volume inner-loop training.
+  \item \textbf{Compare reward regimes.} Track outcome accuracy, plan quality, reward calibration, and failure modes.
+\end{enumerate}
+
+\vspace{0.8em}
+\begin{block}{Usage Sketch}
+\texttt{from src.rewards.router import LLMJudgeRouterReward} \\
+\texttt{evaluator = LLMJudgeRouterReward(model='claude-opus-4-1')}
+\end{block}
+\end{frame}
+
+% ---------- Slide 10 ----------
+\begin{frame}{References Mentioned in Original Deck}
+\small
+\begin{itemize}\tightitems
+  \item Zhang et al. \textit{ReST-MCTS*: LLM Self-Training via Process Reward Guided Tree Search}. NeurIPS 2024. \url{https://arxiv.org/abs/2406.03816}
+  \item \textit{HiPRAG: Hierarchical Process Rewards for Efficient Agentic RAG}. \url{https://arxiv.org/abs/2510.07794}
+  \item \textit{Linking Process to Outcome: Conditional Reward Modeling for LLM Reasoning}. \url{https://arxiv.org/abs/2509.26578}
+  \item PPO / GRPO explainer referenced in original deck: \url{https://yugeten.github.io/posts/2025/01/ppogrpo/}
+\end{itemize}
+\end{frame}
+
+\end{document}

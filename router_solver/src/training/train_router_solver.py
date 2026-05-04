@@ -59,9 +59,11 @@ def compute_rewards(rollout: Rollout, gt: int, reward_mode: str):
     if reward_mode == "outcome_only":
         r_router = outcome
         r_steps = [outcome for _ in rollout.steps]
-    else:
+    elif reward_mode == "decomposed":
         r_router = router_reward(rollout.router_output, final_ans, gt)
         r_steps = [solver_step_reward(s.tool_result, outcome) for s in rollout.steps]
+    else:
+        raise ValueError(f"Unsupported reward_mode: {reward_mode}")
 
     return r_router, r_steps, outcome
 
@@ -201,6 +203,14 @@ def main():
     model = get_peft_model(base_model, lora_cfg, adapter_name=cfg.model.router_adapter_name)
     model.add_adapter(cfg.model.solver_adapter_name, lora_cfg)
     model.to(device)
+    model.train()
+    use_compile = os.getenv("ROUTER_SOLVER_TRAIN_COMPILE", "0").lower() in {"1", "true", "yes"}
+    if use_compile and device == "cuda":
+        try:
+            model = torch.compile(model)  # type: ignore[assignment]
+            print("[train] torch.compile enabled")
+        except Exception as e:
+            print(f"[train] torch.compile failed: {e}. Proceeding without compilation.")
 
     agent = RouterSolverAgent(model, tokenizer, cfg, device=device)
 
@@ -243,19 +253,20 @@ def main():
         # -------------------- Rollouts (G per question) ----------------------
         model.eval()  # deterministic forward (no dropout) during sampling
         records = []  # list of (q_index, Rollout, router_r, step_rs, outcome)
-        for qi, (q, gt) in enumerate(batch):
-            for _ in range(G):
-                ro = agent.rollout(q, memory=memory, do_sample=True, temperature=1.0)
-                r_router, r_steps, outcome = compute_rewards(ro, gt, reward_mode)
-                records.append((qi, ro, r_router, r_steps, outcome))
+        with torch.no_grad():
+            for qi, (q, gt) in enumerate(batch):
+                for _ in range(G):
+                    ro = agent.rollout(q, memory=memory, do_sample=True, temperature=1.0)
+                    r_router, r_steps, outcome = compute_rewards(ro, gt, reward_mode)
+                    records.append((qi, ro, r_router, r_steps, outcome))
 
-                # Memory write-gate (docs/07 §Write policy)
-                if memory is not None and outcome == 1.0 and ro.plan_dict is not None:
-                    memory.write_if_success(
-                        q, ro.plan_dict,
-                        reward=outcome,
-                        tool_errors=ro.tool_error_count,
-                    )
+                    # Memory write-gate (docs/07 §Write policy)
+                    if memory is not None and outcome == 1.0 and ro.plan_dict is not None:
+                        memory.write_if_success(
+                            q, ro.plan_dict,
+                            reward=outcome,
+                            tool_errors=ro.tool_error_count,
+                        )
 
         if not records:
             continue
@@ -276,40 +287,47 @@ def main():
                 solver_adv[id(rec[1])] = a_s
 
         # -------------------- Loss computation -------------------------------
-        optimizer.zero_grad()
-        total_router_loss = torch.zeros((), device=device)
-        total_solver_loss = torch.zeros((), device=device)
+        # Precompute reference log-probs once (base policy, all LoRA disabled)
+        ref_logprobs = {}
+        model.eval()
+        with torch.no_grad():
+            for _, ro, _, _, _ in records:
+                ref_key_r = (id(ro), "router")
+                ref_logprobs[ref_key_r] = reference_logprobs(
+                    model, ro.router_prompt_ids, ro.router_completion_ids, device
+                )
+                for si, s in enumerate(ro.steps):
+                    ref_key_s = (id(ro), "solver", si)
+                    ref_logprobs[ref_key_s] = reference_logprobs(
+                        model, s.prompt_ids, s.completion_ids, device
+                    )
 
-        for _qi, ro, _rr, _rs, _out in records:
-            # Router term ── use router adapter for the policy forward pass
-            agent._set_adapter(cfg.model.router_adapter_name)
+        optimizer.zero_grad(set_to_none=True)
+        losses = []
+
+        # Router terms in one adapter context
+        agent._set_adapter(cfg.model.router_adapter_name)
+        model.train()
+        for _, ro, _, _, _ in records:
             r_policy = teacher_forced_logprobs(
                 model, ro.router_prompt_ids, ro.router_completion_ids, device
             )
-            r_ref = reference_logprobs(
-                model, ro.router_prompt_ids, ro.router_completion_ids, device
-            )
-            total_router_loss = total_router_loss + grpo_term(
-                r_policy, r_ref, router_adv[id(ro)], beta
+            losses.append(
+                grpo_term(r_policy, ref_logprobs[(id(ro), "router")], router_adv[id(ro)], beta) / len(records)
             )
 
-            # Solver term ── sum over subgoals under solver adapter
+        # Solver terms in one adapter context
+        agent._set_adapter(cfg.model.solver_adapter_name)
+        for _, ro, _, _, _ in records:
             if ro.steps:
-                agent._set_adapter(cfg.model.solver_adapter_name)
                 s_adv = solver_adv[id(ro)]
-                for s in ro.steps:
-                    s_policy = teacher_forced_logprobs(
-                        model, s.prompt_ids, s.completion_ids, device
-                    )
-                    s_ref = reference_logprobs(
-                        model, s.prompt_ids, s.completion_ids, device
-                    )
-                    total_solver_loss = total_solver_loss + grpo_term(
-                        s_policy, s_ref, s_adv, beta
+                for si, s in enumerate(ro.steps):
+                    s_policy = teacher_forced_logprobs(model, s.prompt_ids, s.completion_ids, device)
+                    losses.append(
+                        grpo_term(s_policy, ref_logprobs[(id(ro), "solver", si)], s_adv, beta) / len(records)
                     )
 
-        # Normalize by rollout count so LR is invariant to batch size
-        loss = (total_router_loss + total_solver_loss) / len(records)
+        loss = torch.stack(losses).sum() if losses else torch.zeros((), device=device)
         loss.backward()
         optimizer.step()
 
