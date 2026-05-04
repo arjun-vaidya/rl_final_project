@@ -3,7 +3,7 @@ model:
 
 training:
   learning_rate: 5.0e-06
-  batch_size: 8
+  batch_size: 2
   group_size: 8
   max_steps: 500
   beta: 0.04
