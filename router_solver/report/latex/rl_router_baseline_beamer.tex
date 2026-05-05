@@ -358,18 +358,18 @@ Train with fast heuristic rewards and validate with an LLM judge to detect rewar
 \begin{frame}{Challenges \& Lessons Learned}
 \begin{columns}[T,onlytextwidth]
   \begin{column}{0.33\textwidth}
-    \begin{block}{W\&B Loss Chart}
-    \includegraphics[width=0.98\linewidth,keepaspectratio]{../../docs/assets/wandb_loss_chart.png}
+    \begin{block}{Loss}
+    \includegraphics[width=0.98\linewidth,keepaspectratio]{../../docs/assets/challenge10_loss_crop.png}
     \end{block}
   \end{column}
   \begin{column}{0.33\textwidth}
-    \begin{block}{W\&B Accuracy Chart}
-    \includegraphics[width=0.98\linewidth,keepaspectratio]{../../docs/assets/wandb_accuracy_chart.png}
+    \begin{block}{Outcome Accuracy}
+    \includegraphics[width=0.98\linewidth,keepaspectratio]{../../docs/assets/challenge10_accuracy_crop.png}
     \end{block}
   \end{column}
   \begin{column}{0.33\textwidth}
-    \begin{block}{W\&B Invalid Ratio Chart}
-    \includegraphics[width=0.98\linewidth,keepaspectratio]{../../docs/assets/wandb_invalid_ratio_chart.png}
+    \begin{block}{Invalid Plan Ratio}
+    \includegraphics[width=0.98\linewidth,keepaspectratio]{../../docs/assets/challenge10_invalid_ratio_crop.png}
     \end{block}
   \end{column}
 \end{columns}
@@ -382,7 +382,6 @@ Train with fast heuristic rewards and validate with an LLM judge to detect rewar
 \begin{quote}
 \textit{A persistent key-value store of (\texttt{problem\_embedding} $\rightarrow$ \texttt{successful\_plan}) pairs. The architecture has one deliberate extension hook where the Router prompt can prepend retrieved plans from similar solved problems.}
 \end{quote}
-\hfill {\tiny\texttt{docs/07\_plan\_memory.md}}
 \end{block}
 
 
