@@ -24,10 +24,17 @@ GRPO specifics:
 Supports both Condition #3 (reward_mode: "outcome_only") and #4 ("decomposed").
 """
 import os
+import sys
 import argparse
 from collections import defaultdict
 from typing import List, Tuple
 from dotenv import load_dotenv
+from tqdm import tqdm
+
+# Fix tokenizer parallelism warning before importing transformers
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+# Fix GPU memory fragmentation
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
 import numpy as np
 import torch
@@ -165,6 +172,8 @@ def main():
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     os.makedirs(cfg.logging["output_dir"], exist_ok=True)
+    print(f"[train] Starting training on device={device}", flush=True)
+    sys.stdout.flush()
 
     # Initialize Weights & Biases
     wandb_api_key = os.getenv("WANDB_API_KEY")
@@ -213,8 +222,12 @@ def main():
             print(f"[train] torch.compile failed: {e}. Proceeding without compilation.")
 
     agent = RouterSolverAgent(model, tokenizer, cfg, device=device)
+    print(f"[train] Model initialized with router={cfg.model.router_adapter_name} and solver={cfg.model.solver_adapter_name}", flush=True)
+    sys.stdout.flush()
 
     # 2. Data
+    print("[train] Loading GSM8K dataset...", flush=True)
+    sys.stdout.flush()
     ds = load_dataset("openai/gsm8k", "main", split="train")
     ds = ds.shuffle(seed=0)
     questions: List[Tuple[str, int]] = []
@@ -222,6 +235,8 @@ def main():
         gt = extract_numeric_answer(ex["answer"])
         if gt is not None:
             questions.append((ex["question"], gt))
+    print(f"[train] Loaded {len(questions)} questions from GSM8K", flush=True)
+    sys.stdout.flush()
 
     # 3. Optional memory (Plan Memory extension, docs/07)
     memory = None
@@ -240,10 +255,13 @@ def main():
     G = cfg.training.group_size
     beta = cfg.training.beta
     reward_mode = cfg.training.reward_mode
-    print(f"[train] device={device} B={B} G={G} reward_mode={reward_mode} beta={beta}")
+    print(f"[train] device={device} B={B} G={G} reward_mode={reward_mode} beta={beta}", flush=True)
+    print(f"[train] Starting {cfg.training.max_steps} training steps...", flush=True)
+    sys.stdout.flush()
 
     cursor = 0
-    for step in range(cfg.training.max_steps):
+    pbar = tqdm(range(cfg.training.max_steps), desc="Training", unit="step")
+    for step in pbar:
         # -------------------- Sample batch of B questions --------------------
         batch = []
         for _ in range(B):
@@ -251,12 +269,28 @@ def main():
             cursor += 1
 
         # -------------------- Rollouts (G per question) ----------------------
+        tqdm.write(f"[train] Step {step}: Generating {B*G} rollouts ({B} questions × {G} rollouts)...")
         model.eval()  # deterministic forward (no dropout) during sampling
         records = []  # list of (q_index, Rollout, router_r, step_rs, outcome)
+
+        # Use BF16 precision for faster sampling inference (FP8 not supported with LoRA)
+        use_bf16 = hasattr(cfg.training, 'inference_dtype') and cfg.training.inference_dtype == "float8"
+
         with torch.no_grad():
+            if use_bf16 and device == "cuda":
+                with torch.amp.autocast('cuda', dtype=torch.bfloat16):
+                    batch_questions = [q for q, gt in batch]
+                    batch_rollouts = agent.batch_rollouts(batch_questions, num_rollouts=G, memory=memory, do_sample=True, temperature=1.0)
+            else:
+                batch_questions = [q for q, gt in batch]
+                batch_rollouts = agent.batch_rollouts(batch_questions, num_rollouts=G, memory=memory, do_sample=True, temperature=1.0)
+
+            # Process rollouts and compute rewards
+            rollout_idx = 0
             for qi, (q, gt) in enumerate(batch):
                 for _ in range(G):
-                    ro = agent.rollout(q, memory=memory, do_sample=True, temperature=1.0)
+                    ro = batch_rollouts[rollout_idx]
+                    rollout_idx += 1
                     r_router, r_steps, outcome = compute_rewards(ro, gt, reward_mode)
                     records.append((qi, ro, r_router, r_steps, outcome))
 
@@ -286,49 +320,56 @@ def main():
                 router_adv[id(rec[1])] = a_r
                 solver_adv[id(rec[1])] = a_s
 
-        # -------------------- Loss computation -------------------------------
-        # Precompute reference log-probs once (base policy, all LoRA disabled)
-        ref_logprobs = {}
-        model.eval()
-        with torch.no_grad():
-            for _, ro, _, _, _ in records:
-                ref_key_r = (id(ro), "router")
-                ref_logprobs[ref_key_r] = reference_logprobs(
+        # -------------------- Loss computation (per-rollout with backward) -------
+        tqdm.write(f"[train] Computing loss from {len(records)} records...")
+        optimizer.zero_grad(set_to_none=True)
+        avg_loss = 0.0
+
+        # Process each rollout separately and backward immediately to free memory
+        for idx, (_, ro, _, _, _) in enumerate(records):
+            # Compute reference log-probs (base policy, no LoRA)
+            model.eval()
+            with torch.no_grad():
+                # Router reference
+                ref_r_lp = reference_logprobs(
                     model, ro.router_prompt_ids, ro.router_completion_ids, device
                 )
+                # Solver references
+                ref_s_lps = []
                 for si, s in enumerate(ro.steps):
-                    ref_key_s = (id(ro), "solver", si)
-                    ref_logprobs[ref_key_s] = reference_logprobs(
-                        model, s.prompt_ids, s.completion_ids, device
-                    )
+                    ref_s_lp = reference_logprobs(model, s.prompt_ids, s.completion_ids, device)
+                    ref_s_lps.append(ref_s_lp)
 
-        optimizer.zero_grad(set_to_none=True)
-        losses = []
+            # Compute policy log-probs and loss
+            model.train()
+            rollout_loss = torch.zeros((), device=device)
 
-        # Router terms in one adapter context
-        agent._set_adapter(cfg.model.router_adapter_name)
-        model.train()
-        for _, ro, _, _, _ in records:
+            # Router policy
+            agent._set_adapter(cfg.model.router_adapter_name)
             r_policy = teacher_forced_logprobs(
                 model, ro.router_prompt_ids, ro.router_completion_ids, device
             )
-            losses.append(
-                grpo_term(r_policy, ref_logprobs[(id(ro), "router")], router_adv[id(ro)], beta) / len(records)
-            )
+            router_loss = grpo_term(r_policy, ref_r_lp, router_adv[id(ro)], beta)
+            rollout_loss = rollout_loss + router_loss
 
-        # Solver terms in one adapter context
-        agent._set_adapter(cfg.model.solver_adapter_name)
-        for _, ro, _, _, _ in records:
+            # Solver policies
+            agent._set_adapter(cfg.model.solver_adapter_name)
             if ro.steps:
                 s_adv = solver_adv[id(ro)]
                 for si, s in enumerate(ro.steps):
                     s_policy = teacher_forced_logprobs(model, s.prompt_ids, s.completion_ids, device)
-                    losses.append(
-                        grpo_term(s_policy, ref_logprobs[(id(ro), "solver", si)], s_adv, beta) / len(records)
-                    )
+                    solver_loss = grpo_term(s_policy, ref_s_lps[si], s_adv, beta)
+                    rollout_loss = rollout_loss + solver_loss
 
-        loss = torch.stack(losses).sum() if losses else torch.zeros((), device=device)
-        loss.backward()
+            # Backward immediately to free memory (accumulated gradient)
+            (rollout_loss / len(records)).backward()
+            avg_loss += rollout_loss.item() / len(records)
+
+            # Clear cache and delete references
+            torch.cuda.empty_cache()
+            del rollout_loss, ref_r_lp, ref_s_lps
+
+        loss_value = avg_loss
         optimizer.step()
 
         # -------------------- Logging ---------------------------------------
@@ -340,7 +381,7 @@ def main():
 
             metrics = {
                 "step": step,
-                "loss": loss.item(),
+                "loss": loss_value,
                 "outcome_acc": np.mean(outs),
                 "router_reward": np.mean(rr),
                 "solver_reward": np.mean(sr_means),
@@ -350,30 +391,35 @@ def main():
             if memory:
                 metrics["memory_size"] = len(memory.store.keys)
 
-            print(
+            log_msg = (
                 f"step={step:4d} "
-                f"loss={loss.item():+.4f} "
+                f"loss={loss_value:+.4f} "
                 f"outcome_acc={np.mean(outs):.3f} "
                 f"router_r={np.mean(rr):.3f} "
                 f"solver_r={np.mean(sr_means):.3f} "
                 f"invalid_plans={invalid_plans}/{len(records)} "
                 f"mem={len(memory.store.keys) if memory else 0}"
             )
+            tqdm.write(log_msg)
+            pbar.set_postfix({"loss": f"{loss_value:+.4f}", "acc": f"{np.mean(outs):.3f}"})
 
             if wandb_api_key:
                 wandb.log(metrics)
 
         if step > 0 and step % 50 == 0:
             ckpt = os.path.join(cfg.logging["output_dir"], f"checkpoint-{step}")
+            tqdm.write(f"[train] Saving checkpoint to {ckpt}...")
             model.save_pretrained(ckpt)
-            print(f"[train] saved checkpoint: {ckpt}")
+            tqdm.write(f"[train] Checkpoint saved")
             if wandb_api_key:
                 wandb.log({"checkpoint_saved": ckpt, "checkpoint_step": step})
 
+    pbar.close()
     # Final save
     final = os.path.join(cfg.logging["output_dir"], "final_hierarchical_model")
+    print(f"[train] Training complete! Saving final model to {final}...")
     model.save_pretrained(final)
-    print(f"[train] done. saved {final}")
+    print(f"[train] Final model saved at {final}")
 
     if wandb_api_key:
         wandb.log({
@@ -381,6 +427,7 @@ def main():
             "training_complete": True,
         })
         wandb.finish()
+        print(f"[train] W&B run finished")
 
 
 if __name__ == "__main__":
