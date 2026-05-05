@@ -354,28 +354,23 @@ Train with fast heuristic rewards and validate with an LLM judge to detect rewar
 \end{block}
 \end{frame}
 
-% ---------- Slide 9: Challenges & Lessons Learned ----------
-\begin{frame}{Challenges \& Lessons Learned}
-\begin{columns}[T,onlytextwidth]
-  \begin{column}{0.33\textwidth}
-    \begin{block}{Loss}
-    \includegraphics[width=0.98\linewidth,keepaspectratio]{../../docs/assets/challenge10_loss_crop.png}
-    \end{block}
-  \end{column}
-  \begin{column}{0.33\textwidth}
-    \begin{block}{Outcome Accuracy}
-    \includegraphics[width=0.98\linewidth,keepaspectratio]{../../docs/assets/challenge10_accuracy_crop.png}
-    \end{block}
-  \end{column}
-  \begin{column}{0.33\textwidth}
-    \begin{block}{Invalid Plan Ratio}
-    \includegraphics[width=0.98\linewidth,keepaspectratio]{../../docs/assets/challenge10_invalid_ratio_crop.png}
-    \end{block}
-  \end{column}
-\end{columns}
+% ---------- Slide 10 ----------
+\begin{frame}{Training Results \& Key Challenges}
+\begin{enumerate}\tightitems
+  \item \textbf{Memory Constraints:} Long-sequence decoding (512+ tokens) causes OOM. Hierarchical agent multiplies the problem.
+
+  \item \textbf{Solution:} Per-rollout backward passes (B=1, G=2) and CodeBatcher for parallel CPU code execution.
+
+  \item \textbf{RL Training:} Reward design and group size heavily impact convergence. Evaluation cost dominates.
+\end{enumerate}
+
+\vspace{0.3em}
+\begin{center}
+\includegraphics[width=0.85\textwidth,height=0.45\textheight,keepaspectratio]{../../docs/assets/training_loss_plot.png}
+\end{center}
 \end{frame}
 
-% ---------- Slide 10 ----------
+% ---------- Slide 11 ----------
 \begin{frame}{Future Work: Graph for Self-Improvement}
 \begin{block}{From original proposal}
 \footnotesize
@@ -406,7 +401,7 @@ Train with fast heuristic rewards and validate with an LLM judge to detect rewar
 \end{columns}
 \end{frame}
 
-% % ---------- Slide 11 ----------
+% % ---------- Slide 12 ----------
 % \begin{frame}{Recommended Implementation Path}
 % \begin{enumerate}\tightitems
 %   \item \textbf{Stabilize the flat baseline.} Confirm numeric extraction, reward calculation, and loss weighting.
