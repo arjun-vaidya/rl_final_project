@@ -28,6 +28,7 @@ class TrainingConfig:
     group_size: int = 8
     max_steps: int = 500
     reward_mode: str = "decomposed" # outcome_only, decomposed
+    inference_dtype: str = "float32" # float32, float8 for faster sampling
 
 @dataclass
 class RolloutConfig:

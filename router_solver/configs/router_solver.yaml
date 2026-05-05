@@ -12,10 +12,11 @@ training:
   algorithm: "GRPO"
   learning_rate: 5.0e-06
   beta: 0.04
-  batch_size: 4
-  group_size: 4
+  batch_size: 1
+  group_size: 2
   max_steps: 500
   reward_mode: "decomposed" # vs "outcome_only" for Condition #3
+  inference_dtype: "float8"  # fp8 precision for faster sampling
 
 rollout:
   max_subgoals: 6
