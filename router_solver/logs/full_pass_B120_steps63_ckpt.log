@@ -1,0 +1,7 @@
+[train] gradient checkpointing enabled
+[train] profiler_steps=0 profile_output_dir=experiments/router_solver_decomposed/profiles
+[train] device=cuda B=120 G=4 reward_mode=decomposed beta=0.04
+[train][step=0] start
+[train][step=0] collected_rollouts n_records=480 rollout_time_sec=351.15
+[train] loss chunking disabled
+[train][oom] full-batch backward OOM, retrying with chunk_size=4

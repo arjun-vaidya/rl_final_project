@@ -1,0 +1,19 @@
+wandb: [wandb.login()] Using explicit session credentials for https://api.wandb.ai.
+wandb: Appending key for api.wandb.ai to your netrc file: /home/machina/.netrc
+wandb: Currently logged in as: peterdriscoll27 (peterdriscoll27-columbia-university) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /home/pvd2112/rl_final_project/router_solver/wandb/run-20260505_002132-iadzoml5
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run router-solver-decomposed
+wandb: ⭐️ View project at https://wandb.ai/peterdriscoll27-columbia-university/router-solver
+wandb: 🚀 View run at https://wandb.ai/peterdriscoll27-columbia-university/router-solver/runs/iadzoml5
+wandb: Detected [anthropic] in use.
+wandb: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+wandb: For more information, check out the docs at: https://weave-docs.wandb.ai
+/home/pvd2112/rl_final_project/router_solver/.venv/lib/python3.11/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+[train] gradient checkpointing enabled
+[train] profiler_steps=1 profile_output_dir=experiments/router_solver_decomposed/profiles
+[train] device=cuda B=4 G=4 reward_mode=decomposed beta=0.04
+[train][step=0] start

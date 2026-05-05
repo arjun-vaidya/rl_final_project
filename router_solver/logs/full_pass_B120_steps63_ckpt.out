@@ -1,0 +1,24 @@
+wandb: [wandb.login()] Using explicit session credentials for https://api.wandb.ai.
+wandb: Appending key for api.wandb.ai to your netrc file: /home/machina/.netrc
+wandb: Currently logged in as: peterdriscoll27 (peterdriscoll27-columbia-university) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run 4hy7zdte
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /home/pvd2112/rl_final_project/router_solver/wandb/run-20260505_071744-4hy7zdte
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run router-solver-decomposed
+wandb: ⭐️ View project at https://wandb.ai/peterdriscoll27-columbia-university/router-solver
+wandb: 🚀 View run at https://wandb.ai/peterdriscoll27-columbia-university/router-solver/runs/4hy7zdte
+wandb: Detected [anthropic] in use.
+wandb: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+wandb: For more information, check out the docs at: https://weave-docs.wandb.ai
+`torch_dtype` is deprecated! Use `dtype` instead!
+[train] gradient checkpointing enabled
+[train] profiler_steps=0 profile_output_dir=experiments/router_solver_decomposed/profiles
+[train] device=cuda B=120 G=4 reward_mode=decomposed beta=0.04
+Training:   0%|          | 0/63 [00:00<?, ?step/s]                                                  [train][step=0] start
+Training:   0%|          | 0/63 [00:00<?, ?step/s]                                                  [train][step=0] collected_rollouts n_records=480 rollout_time_sec=351.15
+Training:   0%|          | 0/63 [05:51<?, ?step/s]                                                  [train] loss chunking disabled
+Training:   0%|          | 0/63 [05:51<?, ?step/s]/home/pvd2112/rl_final_project/router_solver/.venv/lib/python3.11/site-packages/torch/utils/checkpoint.py:87: UserWarning: None of the inputs have requires_grad=True. Gradients will be None
+  warnings.warn(
+                                                  [train][oom] full-batch backward OOM, retrying with chunk_size=4
+Training:   0%|          | 0/63 [06:10<?, ?step/s]

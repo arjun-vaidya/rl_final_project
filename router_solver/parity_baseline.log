@@ -1,0 +1,14 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+[train] gradient checkpointing enabled
+[train] profiler_steps=0 profile_output_dir=experiments/router_solver_decomposed/profiles
+[train] device=cuda B=2 G=4 reward_mode=decomposed beta=0.04
+[train][step=0] start
+/home/pvd2112/rl_final_project/router_solver/.venv/lib/python3.11/site-packages/torch/utils/checkpoint.py:87: UserWarning: None of the inputs have requires_grad=True. Gradients will be None
+  warnings.warn(
+[train][step=0] collected_rollouts n_records=8 rollout_time_sec=146.77
+[train] loss chunking requested: chunk_size=4 total_records=8
+[train] chunked backward will use 2 chunk(s)
+[train][step=0] step_time_sec=148.83 max_mem_mb=4961.06
+[train][step=0] throughput_est=avg_step_sec=148.83 eta_seconds=0.0 eta_minutes=0.00 eta_hours=0.00
+step=   0 loss=+43.1484 outcome_acc=0.000 router_r=0.266 solver_r=0.102 invalid_plans=3/8 mem=0
+[train] done. saved experiments/router_solver_decomposed/final_hierarchical_model

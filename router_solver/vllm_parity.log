@@ -1,0 +1,47 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+[train] gradient checkpointing enabled
+[train] initializing vLLM engine for generation...
+INFO 05-05 02:57:48 config.py:350] This model supports multiple tasks: {'embedding', 'generate'}. Defaulting to 'generate'.
+WARNING 05-05 02:57:48 config.py:503] To see benefits of async output processing, enable CUDA graph. Since, enforce-eager is enabled, async output processor cannot be used
+INFO 05-05 02:57:48 llm_engine.py:249] Initializing an LLM engine (v0.6.4.post1) with config: model='Qwen/Qwen2.5-1.5B-Instruct', speculative_config=None, tokenizer='Qwen/Qwen2.5-1.5B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=32768, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=True, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='outlines'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=Qwen/Qwen2.5-1.5B-Instruct, num_scheduler_steps=1, chunked_prefill_enabled=False multi_step_stream_outputs=True, enable_prefix_caching=True, use_async_output_proc=False, use_cached_outputs=False, chat_template_text_format=string, mm_processor_kwargs=None, pooler_config=None)
+INFO 05-05 02:57:49 selector.py:135] Using Flash Attention backend.
+INFO 05-05 02:57:49 model_runner.py:1072] Starting to load model Qwen/Qwen2.5-1.5B-Instruct...
+INFO 05-05 02:57:50 weight_utils.py:243] Using model weights format ['*.safetensors']
+INFO 05-05 02:57:50 weight_utils.py:288] No model.safetensors.index.json found in remote.
+Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  1.21it/s]
+Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  1.21it/s]
+
+INFO 05-05 02:57:51 model_runner.py:1077] Loading model weights took 2.8875 GB
+INFO 05-05 02:57:56 worker.py:232] Memory profiling results: total_gpu_memory=21.96GiB initial_memory_usage=14.57GiB peak_torch_memory=7.83GiB memory_usage_post_profile=14.59GiB non_torch_memory=8.77GiB kv_cache_size=-6.72GiB gpu_memory_utilization=0.45
+INFO 05-05 02:57:56 gpu_executor.py:113] # GPU blocks: 0, # CPU blocks: 9362
+INFO 05-05 02:57:56 gpu_executor.py:117] Maximum concurrency for 32768 tokens per request: 0.00x
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "<frozen runpy>", line 198, in _run_module_as_main
+[rank0]:   File "<frozen runpy>", line 88, in _run_code
+[rank0]:   File "/home/pvd2112/rl_final_project/router_solver/src/training/train_router_solver.py", line 712, in <module>
+[rank0]:     main()
+[rank0]:   File "/home/pvd2112/rl_final_project/router_solver/src/training/train_router_solver.py", line 401, in main
+[rank0]:     vllm_engine = LLM(
+[rank0]:                   ^^^^
+[rank0]:   File "/home/pvd2112/rl_final_project/router_solver/.venv/lib/python3.11/site-packages/vllm/utils.py", line 1028, in inner
+[rank0]:     return fn(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/pvd2112/rl_final_project/router_solver/.venv/lib/python3.11/site-packages/vllm/entrypoints/llm.py", line 210, in __init__
+[rank0]:     self.llm_engine = self.engine_class.from_engine_args(
+[rank0]:                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/pvd2112/rl_final_project/router_solver/.venv/lib/python3.11/site-packages/vllm/engine/llm_engine.py", line 585, in from_engine_args
+[rank0]:     engine = cls(
+[rank0]:              ^^^^
+[rank0]:   File "/home/pvd2112/rl_final_project/router_solver/.venv/lib/python3.11/site-packages/vllm/engine/llm_engine.py", line 350, in __init__
+[rank0]:     self._initialize_kv_caches()
+[rank0]:   File "/home/pvd2112/rl_final_project/router_solver/.venv/lib/python3.11/site-packages/vllm/engine/llm_engine.py", line 500, in _initialize_kv_caches
+[rank0]:     self.model_executor.initialize_cache(num_gpu_blocks, num_cpu_blocks)
+[rank0]:   File "/home/pvd2112/rl_final_project/router_solver/.venv/lib/python3.11/site-packages/vllm/executor/gpu_executor.py", line 120, in initialize_cache
+[rank0]:     self.driver_worker.initialize_cache(num_gpu_blocks, num_cpu_blocks)
+[rank0]:   File "/home/pvd2112/rl_final_project/router_solver/.venv/lib/python3.11/site-packages/vllm/worker/worker.py", line 268, in initialize_cache
+[rank0]:     raise_if_cache_size_invalid(num_gpu_blocks,
+[rank0]:   File "/home/pvd2112/rl_final_project/router_solver/.venv/lib/python3.11/site-packages/vllm/worker/worker.py", line 493, in raise_if_cache_size_invalid
+[rank0]:     raise ValueError("No available memory for the cache blocks. "
+[rank0]: ValueError: No available memory for the cache blocks. Try increasing `gpu_memory_utilization` when initializing the engine.
+[rank0]:[W505 02:57:56.435930287 ProcessGroupNCCL.cpp:1250] Warning: WARNING: process group has NOT been destroyed before we destruct ProcessGroupNCCL. On normal program exit, the application should call destroy_process_group to ensure that any pending NCCL operations have finished in this process. In rare cases this process can exit before this point and block the progress of another member of the process group. This constraint has always been present,  but this warning has only been added since PyTorch 2.4 (function operator())

@@ -242,105 +242,210 @@ class RouterSolverAgent:
         Returns a Rollout with prompt/completion token tensors so the caller
         can recompute log-probs for GRPO.
         """
-        # 1. Router creates plan
-        self._set_adapter(self.router_adapter)
-        past_memory_entries = []
-        if memory is not None:
-            past_memory_entries = memory.retrieve(question, k=self.config.memory.k)
+        # We wrap the single question into batched_rollout
+        return self.batched_rollout([question], memory, do_sample, temperature, batch_size=1)[0]
 
-        router_prompt = build_router_prompt(question, past_memory_entries)
-        router_text, router_prompt_ids, router_completion_ids = self._generate(
-            router_prompt,
+    @torch.no_grad()
+    def _batched_generate(
+        self,
+        prompts: List[str],
+        max_new_tokens: int,
+        do_sample: bool = True,
+        temperature: float = 1.0,
+        batch_size: int = 8,
+        vllm_engine=None,
+        lora_request=None,
+    ) -> Tuple[List[str], List[torch.Tensor], List[torch.Tensor]]:
+        """Batched generation using vLLM if provided, else HF with left-padding."""
+        if vllm_engine is not None:
+            from vllm import SamplingParams
+            sampling_params = SamplingParams(
+                temperature=temperature if do_sample else 0.0,
+                max_tokens=max_new_tokens,
+            )
+            # vLLM handles batching optimally, so we just submit everything
+            outputs = vllm_engine.generate(
+                prompts,
+                sampling_params=sampling_params,
+                use_tqdm=False,
+                lora_request=lora_request
+            )
+            all_texts = []
+            all_prompt_ids = []
+            all_comp_ids = []
+            for out in outputs:
+                all_texts.append(out.outputs[0].text)
+                all_prompt_ids.append(torch.tensor(out.prompt_token_ids, device="cpu"))
+                all_comp_ids.append(torch.tensor(out.outputs[0].token_ids, device="cpu"))
+            return all_texts, all_prompt_ids, all_comp_ids
+
+        self.tokenizer.padding_side = "left"
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+            
+        all_texts = []
+        all_prompt_ids = []
+        all_comp_ids = []
+        
+        for i in range(0, len(prompts), batch_size):
+            batch_prompts = prompts[i:i+batch_size]
+            inputs = self.tokenizer(batch_prompts, return_tensors="pt", padding=True).to(self.device)
+            
+            outputs = self.model.generate(
+                **inputs,
+                max_new_tokens=max_new_tokens,
+                do_sample=do_sample,
+                temperature=temperature,
+                pad_token_id=self.tokenizer.eos_token_id,
+            )
+            
+            comp_slice = outputs[:, inputs.input_ids.size(1):]
+            
+            for j in range(len(batch_prompts)):
+                mask = inputs.attention_mask[j] == 1
+                p_ids = inputs.input_ids[j][mask]
+                all_prompt_ids.append(p_ids.detach().cpu() if p_ids.device.type == "cuda" else p_ids.detach())
+                
+                c_ids = comp_slice[j]
+                eos_idx = (c_ids == self.tokenizer.eos_token_id).nonzero(as_tuple=True)[0]
+                if len(eos_idx) > 0:
+                    c_ids = c_ids[:eos_idx[0] + 1]
+                all_comp_ids.append(c_ids.detach().cpu() if c_ids.device.type == "cuda" else c_ids.detach())
+                
+                text = self.tokenizer.decode(c_ids, skip_special_tokens=True)
+                all_texts.append(text)
+                
+        return all_texts, all_prompt_ids, all_comp_ids
+
+    def batched_rollout(
+        self,
+        questions: List[str],
+        memory=None,
+        do_sample: bool = True,
+        temperature: float = 1.0,
+        batch_size: int = 8,
+        vllm_engine=None,
+        lora_base_path=None,
+    ) -> List[Rollout]:
+        """
+        Executes a batched hierarchical rollout (Router → N × Solver+tool).
+        Generates plans for all questions concurrently, then executes solvers concurrently
+        layer by layer (step 1 for all, step 2 for all, etc.).
+        """
+        router_lora_req = None
+        solver_lora_req = None
+        if vllm_engine is not None and lora_base_path is not None:
+            import os
+            from vllm.lora.request import LoRARequest
+            router_lora_req = LoRARequest(self.router_adapter, 1, os.path.join(lora_base_path, self.router_adapter, self.router_adapter))
+            solver_lora_req = LoRARequest(self.solver_adapter, 2, os.path.join(lora_base_path, self.solver_adapter, self.solver_adapter))
+
+        self._set_adapter(self.router_adapter)
+        
+        router_prompts = []
+        for q in questions:
+            past_mem = memory.retrieve(q, k=self.config.memory.k) if memory is not None else []
+            router_prompts.append(build_router_prompt(q, past_mem))
+            
+        r_texts, r_p_ids, r_c_ids = self._batched_generate(
+            router_prompts,
             max_new_tokens=self.config.rollout.router_max_tokens,
             do_sample=do_sample,
             temperature=temperature,
+            batch_size=batch_size,
+            vllm_engine=vllm_engine,
+            lora_request=router_lora_req,
         )
-        plan_dict = parse_plan_json(router_text)
-
-        if not plan_dict:
-            return Rollout(
-                question=question,
-                router_prompt_ids=router_prompt_ids,
-                router_completion_ids=router_completion_ids,
-                router_output=router_text,
-                plan_dict=None,
+        
+        rollouts = []
+        active_solvers = []
+        
+        for i, (q, r_text, p_ids, c_ids) in enumerate(zip(questions, r_texts, r_p_ids, r_c_ids)):
+            plan_dict = parse_plan_json(r_text)
+            ro = Rollout(
+                question=q,
+                router_prompt_ids=p_ids.to(self.device),
+                router_completion_ids=c_ids.to(self.device),
+                router_output=r_text,
+                plan_dict=plan_dict,
                 steps=[],
-                final_answer=None,
-                tool_error_count=0,
+                tool_error_count=0
             )
-
-        # 2. Solver executes subgoals with batch code execution
+            rollouts.append(ro)
+            if plan_dict and "plan" in plan_dict:
+                plan_steps = plan_dict["plan"][:self.config.rollout.max_subgoals]
+                if plan_steps:
+                    active_solvers.append({"idx": i, "steps": plan_steps, "scratchpad": "", "step_idx": 0})
+                
         self._set_adapter(self.solver_adapter)
-        scratchpad = ""
-        steps: List[SolverStepRecord] = []
-        code_batcher = CodeBatcher(num_workers=4, timeout=5.0)
-
-        # First pass: generate all solver steps and queue code
-        step_records = []  # (step_idx, subgoal, solver_text, prompt_ids, comp_ids)
-        code_to_step_idx = {}  # Maps code task_id to step index
-
-        plan_steps = plan_dict["plan"][: self.config.rollout.max_subgoals]
-
-        for step_idx, step in enumerate(plan_steps):
-            subgoal = step.get("subgoal", "solve") if isinstance(step, dict) else str(step)
-            solver_prompt = build_solver_prompt(question, router_text, scratchpad, subgoal)
-            solver_text, s_prompt_ids, s_comp_ids = self._generate(
-                solver_prompt,
+        
+        while active_solvers:
+            solver_prompts = []
+            for solver in active_solvers:
+                ro = rollouts[solver["idx"]]
+                step = solver["steps"][solver["step_idx"]]
+                subgoal = step.get("subgoal", "solve") if isinstance(step, dict) else str(step)
+                prompt = build_solver_prompt(ro.question, ro.router_output, solver["scratchpad"], subgoal)
+                solver_prompts.append(prompt)
+                
+            s_texts, s_p_ids, s_c_ids = self._batched_generate(
+                solver_prompts,
                 max_new_tokens=self.config.rollout.solver_max_tokens,
                 do_sample=do_sample,
                 temperature=temperature,
+                batch_size=batch_size,
+                vllm_engine=vllm_engine,
+                lora_request=solver_lora_req,
             )
-
-            code = extract_code_block(solver_text)
-            if code:
-                # Queue code for batch execution
-                task_id = code_batcher.queue_code(code)
-                code_to_step_idx[task_id] = step_idx
-
-            step_records.append((step_idx, subgoal, solver_text, s_prompt_ids, s_comp_ids, code))
-
-        # Execute all code in parallel on CPU cores
-        code_results = code_batcher.execute_batch()
-
-        # Second pass: build step records with results
-        tool_errs = 0
-        for step_idx, subgoal, solver_text, s_prompt_ids, s_comp_ids, code in step_records:
-            if code:
-                # Look up result from batch execution
-                task_id = None
-                for tid, step_id in code_to_step_idx.items():
-                    if step_id == step_idx:
-                        task_id = tid
-                        break
-
-                if task_id is not None and task_id in code_results:
-                    tool_result = code_results[task_id]
+            
+            # Execute all tool calls concurrently via multiprocessing pool
+            codes = [extract_code_block(s_texts[i]) for i in range(len(active_solvers))]
+            tool_results = []
+            from src.env.python_tool import _get_pool
+            pool = _get_pool()
+            futures = []
+            for code in codes:
+                if code:
+                    futures.append(pool.apply_async(run_python, (code,)))
                 else:
-                    tool_result = ToolResult("Code execution failed", True, 0.0)
-            else:
-                # No code extracted → no tool was executed
-                tool_result = ToolResult("no code block emitted", True, 0.0)
-
-            if tool_result.is_error:
-                tool_errs += 1
-
-            scratchpad += f"\n[Step {step_idx+1}] Output: {tool_result.output}\n"
-            steps.append(SolverStepRecord(
-                subgoal=subgoal,
-                prompt_ids=s_prompt_ids,
-                completion_ids=s_comp_ids,
-                output=solver_text,
-                tool_result=tool_result,
-            ))
-
-        final = steps[-1].tool_result.output if steps else None
-        return Rollout(
-            question=question,
-            router_prompt_ids=router_prompt_ids,
-            router_completion_ids=router_completion_ids,
-            router_output=router_text,
-            plan_dict=plan_dict,
-            steps=steps,
-            final_answer=final,
-            tool_error_count=tool_errs,
-        )
+                    futures.append(None)
+            for j, fut in enumerate(futures):
+                if fut is not None:
+                    try:
+                        tool_results.append(fut.get(timeout=5.0))
+                    except Exception:
+                        tool_results.append(ToolResult("TimeoutExpired", True, 5000.0))
+                else:
+                    tool_results.append(ToolResult("no code block emitted", True, 0.0))
+            
+            next_active = []
+            for i, solver in enumerate(active_solvers):
+                text = s_texts[i]
+                res = tool_results[i]
+                    
+                ro = rollouts[solver["idx"]]
+                if res.is_error:
+                    ro.tool_error_count += 1
+                    
+                solver["scratchpad"] += f"\n[Step {solver['step_idx']+1}] Output: {res.output}\n"
+                
+                step = solver["steps"][solver["step_idx"]]
+                subgoal = step.get("subgoal", "solve") if isinstance(step, dict) else str(step)
+                
+                ro.steps.append(SolverStepRecord(
+                    subgoal=subgoal,
+                    prompt_ids=s_p_ids[i].to(self.device),
+                    completion_ids=s_c_ids[i].to(self.device),
+                    output=text,
+                    tool_result=res
+                ))
+                
+                solver["step_idx"] += 1
+                if solver["step_idx"] < len(solver["steps"]):
+                    next_active.append(solver)
+                else:
+                    ro.final_answer = res.output
+                    
+            active_solvers = next_active
+            
+        return rollouts
