@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Router-Solver: SFT vs GRPO Pipeline Metrics</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+  <style>
+    body {font-family: Arial, sans-serif; margin: 24px; color: #122; background: #f7f8fb;}
+    .grid {display: grid; grid-template-columns: 1fr; gap: 28px; max-width: 1400px;}
+    canvas { background: #fff; border: 1px solid #d7dce2; border-radius: 8px; padding: 10px;}
+    pre {background: #fff; border: 1px solid #d7dce2; border-radius: 8px; padding: 10px; max-width: 1400px; overflow: auto;}
+  </style>
+</head>
+<body>
+  <h1>Router-Solver: SFT vs GRPO Training Pipeline Metrics</h1>
+  <p>
+    Source logs:
+    <ul>
+      <li><code>/home/pvd2112/rl_final_project/router_solver/logs/flat_baseline_training.log</code></li>
+      <li><code>/home/pvd2112/rl_final_project/router_solver/logs/final_fullpass_B120_G2_steps35.out</code></li>
+    </ul>
+    Parsed at generation time from raw training outputs.
+  </p>
+  <div class="grid">
+    <div>
+      <h3>Optimizer step time (seconds)</h3>
+      <canvas id="stepTimeChart" height="320"></canvas>
+    </div>
+    <div>
+      <h3>Cumulative wall-clock time (hours)</h3>
+      <canvas id="cumulativeChart" height="320"></canvas>
+    </div>
+    <div>
+      <h3>GRPO outcome trajectory</h3>
+      <canvas id="qualityChart" height="320"></canvas>
+    </div>
+  </div>
+  <script>
+    const xStep = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35];
+    const grpoStepTime = [192.36, 203.43, 205.99, 206.77, 210.49, 188.6, 194.81, 193.15, 186.25, 197.51, 183.35, 201.71, 197.92, 206.07, 189.85, 221.63, 207.88, 181.7, 216.04, 205.35, 200.78, 194.19, 176.78, 190.87, 189.73, 183.05, 187.35, 203.39, 199.61, 205.41, 200.14, 203.95, 193.81, 223.71, 197.83];
+    const xCmp = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35];
+    const sftStepTime = [0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001, 0.5865524000000001];
+
+    const xCmpHours = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35];
+    const grpoCumHours = [0.05343333333333334, 0.10994166666666667, 0.1671611111111111, 0.2245972222222222, 0.28306666666666663, 0.3354555555555555, 0.3895694444444444, 0.4432222222222222, 0.49495833333333333, 0.5498222222222222, 0.6007527777777778, 0.6567833333333334, 0.7117611111111112, 0.7690027777777778, 0.8217388888888889, 0.8833027777777779, 0.9410472222222224, 0.9915194444444445, 1.0515305555555556, 1.1085722222222223, 1.1643444444444446, 1.2182861111111112, 1.2673916666666665, 1.320411111111111, 1.3731138888888887, 1.423961111111111, 1.4760027777777778, 1.5325, 1.5879472222222222, 1.6450055555555554, 1.7006, 1.7572527777777778, 1.811088888888889, 1.8732305555555555, 1.9281833333333334];
+    const sftCumHours = [0.00016293122222222223, 0.00032586244444444447, 0.0004887936666666668, 0.0006517248888888889, 0.0008146561111111112, 0.0009775873333333336, 0.0011405185555555556, 0.0013034497777777779, 0.0014663810000000003, 0.0016293122222222223, 0.0017922434444444448, 0.0019551746666666672, 0.002118105888888889, 0.0022810371111111113, 0.0024439683333333335, 0.0026068995555555557, 0.0027698307777777784, 0.0029327620000000006, 0.0030956932222222225, 0.0032586244444444447, 0.003421555666666667, 0.0035844868888888896, 0.003747418111111112, 0.0039103493333333345, 0.004073280555555556, 0.004236211777777778, 0.004399143, 0.0045620742222222226, 0.004725005444444446, 0.004887936666666667, 0.00505086788888889, 0.0052137991111111115, 0.005376730333333334, 0.005539661555555557, 0.005702592777777778];
+
+    const xLoss = [1, 11, 21, 31, 35];
+    const grpoLoss = [-4.4656, -0.0677, -5.7667, 0.3365, -3.1875];
+    const grpoAcc = [0.013, 0.013, 0.013, 0.017, 0.008];
+
+    const commonGrid = {
+      color: "#ddd",
+      drawBorder: false,
+    };
+
+    new Chart(document.getElementById('stepTimeChart'), {
+      type: 'line',
+      data: {
+        labels: xStep,
+        datasets: [
+          {label: 'GRPO step_time_sec', data: grpoStepTime, borderColor: '#0e5db8', backgroundColor: '#0e5db8', tension: 0.2, fill: false},
+          {label: 'SFT avg step_time_sec (constant)', data: xCmp.map(() => sftStepTime[0]), borderColor: '#0ea95f', backgroundColor: '#0ea95f', borderDash: [6, 6], pointRadius: 0, fill: false},
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {legend: {position: 'top'}, title: {display: true, text: 'Per-step cost comparison (seconds)'}},
+        scales: {x: {title: {display: true, text: 'Optimizer step (1-indexed)'}, grid: commonGrid}, y: {title: {display: true, text: 'Step time (s)'}, grid: commonGrid}}
+      }
+    });
+
+    new Chart(document.getElementById('cumulativeChart'), {
+      type: 'line',
+      data: {
+        labels: xCmpHours,
+        datasets: [
+          {label: 'GRPO cumulative hours', data: grpoCumHours, borderColor: '#f28f1f', backgroundColor: '#f28f1f', tension: 0.25, fill: false},
+          {label: 'SFT projected cumulative hours', data: sftCumHours, borderColor: '#0ea95f', backgroundColor: '#0ea95f', borderDash: [5,5], tension: 0.25, pointRadius: 0, fill:false},
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {legend: {position: 'top'}, title: {display: true, text: 'Cumulative elapsed training time'}},
+        scales: {x: {title: {display: true, text: 'Optimizer steps'}, grid: commonGrid}, y: {title: {display: true, text: 'Hours'}, grid: commonGrid}}
+      }
+    });
+
+    new Chart(document.getElementById('qualityChart'), {
+      type: 'line',
+      data: {
+        labels: xLoss,
+        datasets: [
+          {
+            label: 'GRPO outcome_acc',
+            data: grpoAcc,
+            borderColor: '#7b2cbf',
+            backgroundColor: '#7b2cbf',
+            yAxisID: 'y2',
+            tension: 0.2,
+            fill: false,
+          },
+          {
+            label: 'GRPO loss',
+            data: grpoLoss,
+            borderColor: '#0e5db8',
+            backgroundColor: '#0e5db8',
+            yAxisID: 'y',
+            tension: 0.2,
+            fill: false,
+          },
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {legend: {position: 'top'}, title: {display: true, text: 'GRPO quality trajectory (logged checkpoints)'}},
+        scales: {
+          x: {title: {display: true, text: 'Optimizer step'}, grid: commonGrid},
+          y: {type: 'linear', position: 'left', title: {display: true, text: 'GRPO loss'}, grid: commonGrid},
+          y2: {type: 'linear', position: 'right', title: {display: true, text: 'outcome_acc'}, grid: {drawOnChartArea: false}},
+        }
+      }
+    });
+  </script>
+  <pre>
+Source summary:
+{
+  "sft_total_steps": 500,
+  "sft_train_runtime_sec": 293.28,
+  "sft_avg_step_time_sec": 0.5866,
+  "grpo_total_steps": 35,
+  "grpo_avg_step_time_sec": 198.3274,
+  "grpo_final_outcome_acc": {
+    "step": 34,
+    "loss": -3.1875,
+    "outcome_acc": 0.008,
+    "invalid_plans": "142/240"
+  }
+}
+  </pre>
+</body>
+</html>

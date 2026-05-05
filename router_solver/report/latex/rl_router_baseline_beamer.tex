@@ -8,6 +8,7 @@
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{xcolor}
+\usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric}
@@ -77,6 +78,7 @@
 }
 
 \newcommand{\tightitems}{\setlength{\itemsep}{0.25em}\setlength{\parskip}{0pt}}
+\newlength{\grpoformulawidth}
 
 % ---------- Metadata ----------
 \title{Reinforcement Learning for Long-Context Reasoning}
@@ -185,11 +187,6 @@ Chain-of-thought helps, but better training methods are needed.
     \tagbox{softorange}{$\mathcal{L}=R(x,y)\,\mathcal{L}_{\mathrm{CE}}(x,y)$}
   \end{column}
 \end{columns}
-
-\vspace{0.5em}
-\begin{alertblock}{Implementation Note}
-We identified and fixed an inversion bug in the loss calculation so that successful examples are reinforced rather than suppressed.
-\end{alertblock}
 \end{frame}
 
 % ---------- Slide 4 ----------
@@ -234,7 +231,7 @@ We identified and fixed an inversion bug in the loss calculation so that success
 % ---------- Slide 5 ----------
 \begin{frame}{GRPO: Eliminating the Critic Network}
 \begin{columns}[T,onlytextwidth]
-  \begin{column}{0.48\textwidth}
+  \begin{column}{0.40\textwidth}
     \begin{block}{Traditional PPO}
     \begin{itemize}\tightitems
       \item Requires a separate critic network.
@@ -243,31 +240,32 @@ We identified and fixed an inversion bug in the loss calculation so that success
     \end{itemize}
     \end{block}
   \end{column}
-  \begin{column}{0.48\textwidth}
+  \begin{column}{0.58\textwidth}
     \begin{block}{GRPO Idea}
     \begin{itemize}\tightitems
       \item Sample a group of responses for the same prompt.
-      \item Compare each response against the group baseline.
-      \item Normalize rewards within the group, avoiding a critic.
+      \item Compare within-group and normalize rewards.
     \end{itemize}
     \end{block}
+
+    \vspace{0.6em}
+    \settowidth{\grpoformulawidth}{\tagbox{softgreen}{$A_i=\dfrac{R(r_i)-\mathrm{mean}(R)}{\mathrm{std}(R)}$}}
+    \begin{center}
+    \small\tagbox{softgreen}{$A_i=\dfrac{R(r_i)-\mathrm{mean}(R)}{\mathrm{std}(R)}$}
+    \end{center}
+    \vspace{0.6em}
+    \noindent\hspace*{\dimexpr0.5\linewidth-0.5\grpoformulawidth\relax}
+    \begin{minipage}[t]{\grpoformulawidth}
+    \raggedright
+    \small
+    \tagbox{softblue}{No value model}\\[1.3em]
+    \tagbox{softgreen}{Lower overhead}\\[1.3em]
+    \tagbox{softorange}{Sequence-level credit}
+    \end{minipage}
+
+    
   \end{column}
 \end{columns}
-
-\vspace{1em}
-\begin{center}
-\Large
-\tagbox{softgreen}{$A_i=\dfrac{R(r_i)-\mathrm{mean}(R)}{\mathrm{std}(R)}$}
-\end{center}
-
-\vspace{0.4em}
-\begin{center}
-\begin{tabular}{>{\centering\arraybackslash}p{0.30\textwidth} >{\centering\arraybackslash}p{0.30\textwidth} >{\centering\arraybackslash}p{0.30\textwidth}}
-\tagbox{softblue}{No value model} &
-\tagbox{softgreen}{Lower overhead} &
-\tagbox{softorange}{Sequence-level credit} \\
-\end{tabular}
-\end{center}
 \end{frame}
 
 % ---------- Slide 6 ----------
@@ -350,10 +348,9 @@ Outcome rewards are simple but sparse. Process rewards are richer but harder to 
     \end{block}
   \end{column}
 \end{columns}
-
 \vspace{0.7em}
-\begin{block}{Recommended Use}
-Train with fast heuristic rewards. Validate with an LLM judge to detect reward inflation, reward deflation, and brittle heuristic behavior.
+\begin{block}{Practical Strategy}
+Train with fast heuristic rewards and validate with an LLM judge to detect reward inflation, reward deflation, and brittle heuristic behavior.
 \end{block}
 \end{frame}
 
@@ -371,6 +368,36 @@ Train with fast heuristic rewards. Validate with an LLM judge to detect reward i
 \end{frame}
 
 % ---------- Slide 10 ----------
+\begin{frame}{W\&B Training Results}
+\begin{block}{Logged source}
+\small
+W\&B run: \texttt{run-20260505\_080608-j7h3rnpx} (slim pass, \texttt{B=120}, \texttt{G=2}, 35 steps).
+\end{block}
+
+\vspace{0.4em}
+\begin{center}
+\includegraphics[width=\textwidth]{../../docs/assets/wandb_training_results_chart.png}
+\end{center}
+
+\vspace{0.2em}
+\begin{columns}[T,onlytextwidth]
+  \begin{column}{0.58\textwidth}
+    \begin{itemize}\tightitems
+      \item Loss moved rapidly in the first 10 steps but stays high-variance, consistent with sparse reward feedback.
+      \item Outcome accuracy remains low and flat (roughly 0.8\%--1.7\% on this run), indicating little signal-to-signal generalization yet.
+      \item Invalid plans hover in the same band as rollout volume rises, confirming a quality-control bottleneck before reward optimization.
+    \end{itemize}
+  \end{column}
+  \begin{column}{0.40\textwidth}
+    \begin{alertblock}{Operational takeaway}
+      Use this as the throughput/perf baseline:
+      keep the same rollout infrastructure, and focus next on reward shaping and planner quality before scaling steps.
+    \end{alertblock}
+  \end{column}
+\end{columns}
+\end{frame}
+
+% ---------- Slide 11 ----------
 \begin{frame}{Recommended Implementation Path}
 \begin{enumerate}\tightitems
   \item \textbf{Stabilize the flat baseline.} Confirm numeric extraction, reward calculation, and loss weighting.
@@ -387,7 +414,7 @@ Train with fast heuristic rewards. Validate with an LLM judge to detect reward i
 \end{block}
 \end{frame}
 
-% ---------- Slide 11 ----------
+% ---------- Slide 12 ----------
 \begin{frame}{References}
 \small
 \begin{itemize}\tightitems
