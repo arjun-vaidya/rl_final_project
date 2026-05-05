@@ -91,25 +91,22 @@ def linmap(v, v0, v1, t0, t1):
 
 def draw_series(draw, bbox, xs, ys, xlim, ylim, color, width=5):
     x0, y0, x1, y1 = bbox
-    if len(xs) < 2:
+    points = [(x, y) for x, y in zip(xs, ys) if y is not None]
+    if len(points) < 1:
         return
-    for a, b in zip(range(len(xs) - 1), range(1, len(xs))):
-        if ys[a] is None or ys[b] is None:
-            continue
-        x_a = x0 + linmap(xs[a], xlim[0], xlim[1], 0, x1 - x0)
-        x_b = x0 + linmap(xs[b], xlim[0], xlim[1], 0, x1 - x0)
-        y_a = y1 - linmap(ys[a], ylim[0], ylim[1], 0, y1 - y0)
-        y_b = y1 - linmap(ys[b], ylim[0], ylim[1], 0, y1 - y0)
+    for (xa, ya), (xb, yb) in zip(points, points[1:]):
+        x_a = x0 + linmap(xa, xlim[0], xlim[1], 0, x1 - x0)
+        x_b = x0 + linmap(xb, xlim[0], xlim[1], 0, x1 - x0)
+        y_a = y1 - linmap(ya, ylim[0], ylim[1], 0, y1 - y0)
+        y_b = y1 - linmap(yb, ylim[0], ylim[1], 0, y1 - y0)
         draw.line((x_a, y_a, x_b, y_b), fill=color, width=width)
-        r = width * 2
+        r = max(4, width)
         draw.ellipse((x_a - r, y_a - r, x_a + r, y_a + r), fill=color, outline=color)
-    if len(xs) > 0 and ys:
-        idx = len(xs) - 1
-        if ys[idx] is not None:
-            x_last = x0 + linmap(xs[idx], xlim[0], xlim[1], 0, x1 - x0)
-            y_last = y1 - linmap(ys[idx], ylim[0], ylim[1], 0, y1 - y0)
-            r = width * 2
-            draw.ellipse((x_last - r, y_last - r, x_last + r, y_last + r), fill=color, outline=color)
+    x_last, y_last_val = points[-1]
+    x_last = x0 + linmap(x_last, xlim[0], xlim[1], 0, x1 - x0)
+    y_last = y1 - linmap(y_last_val, ylim[0], ylim[1], 0, y1 - y0)
+    r = max(4, width)
+    draw.ellipse((x_last - r, y_last - r, x_last + r, y_last + r), fill=color, outline=color)
 
 
 def draw_axis(draw, bbox, x_min, x_max, y_min, y_max, title, ylabel, font):
@@ -131,6 +128,10 @@ def render_panel(out_png: Path, title: str, y_values, x_values=None, color="#336
     if y_min == y_max:
         y_min -= 0.5
         y_max += 0.5
+    else:
+        pad = max((y_max - y_min) * 0.08, 0.01)
+        y_min -= pad
+        y_max += pad
 
     W, H = 1800, 1100
     left, right = 90, 1710
@@ -146,7 +147,7 @@ def render_panel(out_png: Path, title: str, y_values, x_values=None, color="#336
     x_lim = (0, x_max)
     y_lim = (y_min, y_max)
     draw_axis(draw, (left, top, right, bottom), x_lim[0], x_lim[1], y_lim[0], y_lim[1], title, "", small_font)
-    draw_series(draw, (left, top, right, bottom), x_values, y_values, x_lim, y_lim, color, width=26)
+    draw_series(draw, (left, top, right, bottom), x_values, y_values, x_lim, y_lim, color, width=7)
     img.save(out_png)
 
 
