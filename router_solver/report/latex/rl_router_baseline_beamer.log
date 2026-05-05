@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  5 MAY 2026 08:07
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  5 MAY 2026 08:30
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1052,96 +1052,95 @@ Dictionary: translator-theorem-dictionary, Language: English
 
 {/usr/local/texlive/2025basic/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/us
 r/local/texlive/2025basic/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}]
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
-24.
-
-(/usr/local/texlive/2025basic/texmf-dist/tex/latex/lm/t1lmtt.fd
-File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
 
 [2
 
 ]
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
+53.
+ (/usr/local/texlive/2025basic/texmf-dist/tex/latex/lm/t1lmtt.fd
+File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+
+[3
+
+]
 LaTeX Font Info:    Trying to load font information for OT1+lmss on input line 
-164.
+193.
  (/usr/local/texlive/2025basic/texmf-dist/tex/latex/lm/ot1lmss.fd
 File: ot1lmss.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OML+lmm on input line 1
-64.
+93.
 
 (/usr/local/texlive/2025basic/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
-164.
+193.
 
 (/usr/local/texlive/2025basic/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
-164.
+193.
 
 (/usr/local/texlive/2025basic/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 164.
+(Font)              <10> on input line 193.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 164.
+(Font)              <7> on input line 193.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 164.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 164
+(Font)              <5> on input line 193.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 193
 .
 
 (/usr/local/texlive/2025basic/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 164
+LaTeX Font Info:    Trying to load font information for U+msb on input line 193
 .
 
 (/usr/local/texlive/2025basic/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <10> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 164.
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 193.
 LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <7> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 164.
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 193.
 LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <5> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 164.
-LaTeX Font Info:    Trying to load font information for T1+lmr on input line 16
-4.
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 193.
+LaTeX Font Info:    Trying to load font information for T1+lmr on input line 19
+3.
 
 (/usr/local/texlive/2025basic/texmf-dist/tex/latex/lm/t1lmr.fd
 File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 
-[3
+[4
 
 {/usr/local/texlive/2025basic/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr
 /local/texlive/2025basic/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/local/te
 xlive/2025basic/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}]
 
-[4
-
-]
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 242.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 242.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 242.
-LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <10.95> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 242.
-LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <8> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 242.
-LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <6> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 242.
-
-
 [5
 
 ]
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10.95> on input line 271.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <8> on input line 271.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <6> on input line 271.
+LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <10.95> not available
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 271.
+LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <8> not available
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 271.
+LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <6> not available
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 271.
+
 
 [6
 
@@ -1160,6 +1159,10 @@ LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <6> not available
 ]
 
 [10
+
+]
+
+[11
 
 ]
 \tf@nav=\write6
@@ -1181,10 +1184,10 @@ ed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 25923 strings out of 474662
- 516117 string characters out of 5751110
- 886425 words of memory out of 5000000
- 48414 multiletter control sequences out of 15000+600000
+ 25927 strings out of 474662
+ 516152 string characters out of 5751110
+ 886484 words of memory out of 5000000
+ 48416 multiletter control sequences out of 15000+600000
  654625 words of font info for 97 fonts, out of 8000000 for 9000
  319 hyphenation exceptions out of 8191
  101i,15n,107p,400b,1020s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1198,10 +1201,10 @@ texmf-dist/fonts/type1/public/lm/lmsso10.pfb></usr/local/texlive/2025basic/texm
 f-dist/fonts/type1/public/lm/lmsso8.pfb></usr/local/texlive/2025basic/texmf-dis
 t/fonts/type1/public/lm/lmsy10.pfb></usr/local/texlive/2025basic/texmf-dist/fon
 ts/type1/public/lm/lmtt10.pfb>
-Output written on rl_router_baseline_beamer.pdf (10 pages, 216044 bytes).
+Output written on rl_router_baseline_beamer.pdf (11 pages, 217782 bytes).
 PDF statistics:
- 135 PDF objects out of 1000 (max. 8388607)
- 95 compressed objects within 1 object stream
- 21 named destinations out of 1000 (max. 500000)
+ 141 PDF objects out of 1000 (max. 8388607)
+ 100 compressed objects within 1 object stream
+ 23 named destinations out of 1000 (max. 500000)
  43 words of extra memory for PDF output out of 10000 (max. 10000000)
 

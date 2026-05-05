@@ -58,11 +58,11 @@
 
 % Minimal frame header with tight spacing
 \setbeamertemplate{frametitle}{
-  \vskip0.2em
+  \vskip0.5em
   \insertframetitle
-  \vskip-0.2em
+  \vskip-0.6em
   {\color{accent}\rule{\textwidth}{1.5pt}}
-  \vskip-0.5em
+  \vskip-0.1em
 }
 
 % Add slide numbers in bottom right
@@ -91,7 +91,36 @@
   \titlepage
 \end{frame}
 
-% ---------- Slide 2 ----------
+% ---------- Slide 2: Introduction ----------
+\begin{frame}{The Problem}
+\begin{block}{Mathematical Reasoning Challenge}
+Large language models struggle with multi-step reasoning [1]. \newline
+Chain-of-thought helps, but better training methods are needed.
+\end{block}
+
+\vspace{0.8em}
+\begin{columns}[T,onlytextwidth]
+  \begin{column}{0.48\textwidth}
+    \begin{block}{Our Solution}
+      Use RL to incentivize the model towards the right distribution of reasoning and solving behaviors, without a separate value network.
+
+      \vspace{0.6em}
+      \textbf{Methods:} \\ Hierarchical decomposition, GRPO [2], decomposed rewards
+      \vfill
+    \end{block}
+  \end{column}
+  \begin{column}{0.48\textwidth}
+    \begin{block}{The Bigger Challenge}
+      Prior work (CoT [1], GRPO [2], hierarchical agents [3]) show promise.
+
+      \vspace{1.5em}
+      \textbf{Challenge:} \\ Decoupling rewards between reasoning and solving phases while maintaining signal flow.
+    \end{block}
+  \end{column}
+\end{columns}
+\end{frame}
+
+% ---------- Slide 3: Dataset ----------
 \begin{frame}{Dataset: GSM8K}
 \begin{columns}[T,onlytextwidth]
   \begin{column}{0.48\textwidth}
@@ -346,13 +375,18 @@ Train with fast heuristic rewards. Validate with an LLM judge to detect reward i
 \end{frame}
 
 % ---------- Slide 10 ----------
-\begin{frame}{References Mentioned in Original Deck}
+\begin{frame}{References}
 \small
 \begin{itemize}\tightitems
-  \item Zhang et al. \textit{ReST-MCTS*: LLM Self-Training via Process Reward Guided Tree Search}. NeurIPS 2024. \url{https://arxiv.org/abs/2406.03816}
-  \item \textit{HiPRAG: Hierarchical Process Rewards for Efficient Agentic RAG}. \url{https://arxiv.org/abs/2510.07794}
-  \item \textit{Linking Process to Outcome: Conditional Reward Modeling for LLM Reasoning}. \url{https://arxiv.org/abs/2509.26578}
-  \item PPO / GRPO explainer referenced in original deck: \url{https://yugeten.github.io/posts/2025/01/ppogrpo/}
+  \item [1] Wei, J., Wang, X., et al. \textit{Chain-of-Thought Prompting Elicits Reasoning in Large Language Models}. NeurIPS 2023. \url{https://arxiv.org/abs/2201.11903}
+
+  \item [2] DeepSeek Team. \textit{DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning}. 2025. \url{https://arxiv.org/pdf/2501.12948}
+
+  \item [3] Weng, L. \textit{LLM Powered Autonomous Agents}. Blog Post, 2023. \url{https://lilianweng.github.io/posts/2023-06-23-agent/}
+
+  \item [4] Zhang et al. \textit{ReST-MCTS*: LLM Self-Training via Process Reward Guided Tree Search}. NeurIPS 2024. \url{https://arxiv.org/abs/2406.03816}
+
+  \item [5] \textit{Linking Process to Outcome: Conditional Reward Modeling for LLM Reasoning}. \url{https://arxiv.org/abs/2509.26578}
 \end{itemize}
 \end{frame}
 
