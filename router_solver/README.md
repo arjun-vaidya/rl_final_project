@@ -29,6 +29,9 @@ Signed: Peter Driscoll (peterdriscoll27), RL Project Team
 
 - Optimization and training run summary (post-overwrite and benchmarking): [train_router_solver_8c5eafc_summary.md](/home/pvd2112/rl_final_project/router_solver/train_router_solver_8c5eafc_summary.md)
 - Overnight full-run manifest and observed final configuration: [overnight_run_manifest.md](/home/pvd2112/rl_final_project/router_solver/overnight_run_manifest.md)
+- Slim benchmark dataset provenance and HF pointer: [slim_dataset_provenance.md](/home/pvd2112/rl_final_project/router_solver/slim_dataset_provenance.md)
+  - Hugging Face dataset folder: https://huggingface.co/datasets/pvd232/rlfp/tree/main/rlfp_router_solver_slim_v1
+  - HF commit: https://huggingface.co/datasets/pvd232/rlfp/commit/41181ad0cd1031e20a8e50cd1169d2627e4129fe
 - Versioned experiment package (weights + journal + manifest + benchmark/parity references): [experiments/router_solver_decomposed/versioned/final_fullpass_B120_G2_steps35](/home/pvd2112/rl_final_project/router_solver/experiments/router_solver_decomposed/versioned/final_fullpass_B120_G2_steps35)
 
 ## Has this been done?
