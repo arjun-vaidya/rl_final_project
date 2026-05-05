@@ -12,36 +12,71 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric}
 
-% ---------- Theme ----------
-\usetheme{Madrid}
+% ---------- Minimal Theme ----------
+\usetheme{default}
 \usecolortheme{default}
 \setbeamertemplate{navigation symbols}{}
-\setbeamertemplate{itemize items}[circle]
+\setbeamertemplate{itemize items}[square]
 \setbeamertemplate{enumerate items}[default]
 
-\definecolor{navy}{RGB}{25,44,82}
-\definecolor{bluegray}{RGB}{83,103,132}
-\definecolor{softblue}{RGB}{232,238,247}
-\definecolor{softgreen}{RGB}{232,244,237}
-\definecolor{softorange}{RGB}{255,244,229}
-\definecolor{softred}{RGB}{252,235,235}
+% Reduce margins
+\setbeamersize{text margin left=0.5cm, text margin right=0.5cm}
 
-\setbeamercolor{structure}{fg=navy}
-\setbeamercolor{frametitle}{fg=white,bg=navy}
-\setbeamercolor{title}{fg=white,bg=navy}
-\setbeamercolor{block title}{fg=white,bg=navy}
-\setbeamercolor{block body}{bg=softblue,fg=black}
+% Color palette: professional and minimal
+\definecolor{darkgray}{RGB}{45,45,45}
+\definecolor{accent}{RGB}{15,75,145}
+\definecolor{lightgray}{RGB}{240,240,240}
+% Keep old colors mapped to minimal palette for backward compatibility
+\definecolor{softorange}{RGB}{245,235,220}
+\definecolor{softblue}{RGB}{230,240,250}
+\definecolor{softgreen}{RGB}{230,245,240}
+
+% Minimal frame styling
+\setbeamercolor{structure}{fg=darkgray}
+\setbeamercolor{frametitle}{fg=darkgray,bg=}
+\setbeamercolor{title}{fg=darkgray,bg=}
+\setbeamercolor{subtitle}{fg=darkgray}
+\setbeamercolor{block title}{fg=white,bg=accent}
+\setbeamercolor{block body}{bg=lightgray!15,fg=darkgray}
+
+% Reduce spacing around blocks
+\addtobeamertemplate{block begin}{\vskip-0.5em}{}
+\addtobeamertemplate{block end}{\vskip-0.3em}{}
+
+% Alert block styling
+\setbeamercolor{alerted text}{fg=darkgray}
+\setbeamercolor{alertblock title}{fg=white,bg=darkgray}
+\setbeamercolor{alertblock body}{bg=lightgray!10,fg=darkgray}
+\addtobeamertemplate{alertblock begin}{\vskip-0.5em}{}
+\addtobeamertemplate{alertblock end}{\vskip-0.3em}{}
+\setbeamercolor{background canvas}{bg=white}
+
 \setbeamerfont{frametitle}{size=\large,series=\bfseries}
 \setbeamerfont{title}{size=\Large,series=\bfseries}
 \setbeamerfont{subtitle}{size=\normalsize}
+\setbeamerfont{block title}{size=\normalsize,series=\bfseries}
+
+% Minimal frame header with tight spacing
+\setbeamertemplate{frametitle}{
+  \vskip0.2em
+  \insertframetitle
+  \vskip-0.2em
+  {\color{accent}\rule{\textwidth}{1.5pt}}
+  \vskip-0.5em
+}
+
+% Add slide numbers in bottom right
+\setbeamertemplate{footline}{
+  \hfill\insertframenumber\hspace{0.5em}\vspace{0.3em}
+}
 
 \newcommand{\tagbox}[2]{%
   \begin{tikzpicture}[baseline=(X.base)]
-    \node[rounded corners=3pt, fill=#1, inner xsep=6pt, inner ysep=3pt] (X) {\small #2};
+    \node[rounded corners=2pt, fill=#1, inner xsep=5pt, inner ysep=2pt] (X) {\small\bfseries #2};
   \end{tikzpicture}%
 }
 
-\newcommand{\tightitems}{\setlength{\itemsep}{0.35em}}
+\newcommand{\tightitems}{\setlength{\itemsep}{0.25em}\setlength{\parskip}{0pt}}
 
 % ---------- Metadata ----------
 \title{Router Solver Baseline}
@@ -151,7 +186,7 @@ We identified and fixed an inversion bug in the loss calculation so that success
   \end{column}
 \end{columns}
 
-\vspace{1em}
+\vfill
 \begin{center}
 \begin{tikzpicture}[node distance=1.2cm, every node/.style={font=\small}]
   \node[draw,rounded corners,fill=softblue,minimum width=2.7cm,minimum height=0.8cm] (q) {Question};
@@ -164,9 +199,7 @@ We identified and fixed an inversion bug in the loss calculation so that success
   \draw[-{Latex}] (rew.west) -| (model.south);
 \end{tikzpicture}
 \end{center}
-
-\vspace{0.4em}
-\footnotesize Reference used in original deck: \url{https://yugeten.github.io/posts/2025/01/ppogrpo/}
+\vfill
 \end{frame}
 
 % ---------- Slide 5 ----------
