@@ -1,11 +1,11 @@
 # Fdb version 4
-["pdflatex"] 1777987767 "/home/pvd2112/rl_final_project/router_solver/report/latex/rl_router_baseline_beamer.tex" "rl_router_baseline_beamer.pdf" "rl_router_baseline_beamer" 1777987768 0
+["pdflatex"] 1777987933 "/home/pvd2112/rl_final_project/router_solver/report/latex/rl_router_baseline_beamer.tex" "rl_router_baseline_beamer.pdf" "rl_router_baseline_beamer" 1777987934 0
   "../../docs/assets/plan_graph_self_improvement.png" 1777986061 47045 c6a09db1b89e084444dc2e10cac81a82 ""
   "../../docs/assets/wandb_accuracy_chart.png" 1777987188 8917 3c50d7ff77be036f97485a3413fb571a ""
   "../../docs/assets/wandb_invalid_ratio_chart.png" 1777987188 14733 b603e4224b9a8082f605a4b53119a0fe ""
   "../../docs/assets/wandb_loss_chart.png" 1777987188 8904 f12c933417f9f874ac49a079c3ac78cf ""
   "/etc/texmf/web2c/texmf.cnf" 1777938252 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/pvd2112/rl_final_project/router_solver/report/latex/rl_router_baseline_beamer.tex" 1777987766 16128 f57f34956b326c4f492f0a548c48bbbf ""
+  "/home/pvd2112/rl_final_project/router_solver/report/latex/rl_router_baseline_beamer.tex" 1777987931 16158 3a65d18581f2bb87d5c6ab4dc718f5e2 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecss1095.tfm" 1136768653 3584 8ece407347b270c252c46fdfaef5a9ef ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam10.tfm" 1246382020 916 f87d7c45f9c908e672703b83b72241a3 ""
@@ -252,10 +252,10 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1681034085 39561 34c98e380bf7c7201ee6a7909aff625a ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1777938260 128028 f533b797fba58d231669ea19e894e23e ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1777938297 6475490 bf59dc5765e22fe268098c697aa1b207 ""
-  "rl_router_baseline_beamer.aux" 1777987768 2501 52068e34249d3649eed5dd920b703da8 "pdflatex"
-  "rl_router_baseline_beamer.nav" 1777987768 1388 37fb167c90003b6656a249083ce3750a "pdflatex"
-  "rl_router_baseline_beamer.out" 1777987768 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "rl_router_baseline_beamer.tex" 1777987766 16128 f57f34956b326c4f492f0a548c48bbbf ""
+  "rl_router_baseline_beamer.aux" 1777987934 2372 17da32272a86cca66a76332c971fbc08 "pdflatex"
+  "rl_router_baseline_beamer.nav" 1777987934 1295 ef040a83926d85743749b42a2275f515 "pdflatex"
+  "rl_router_baseline_beamer.out" 1777987934 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "rl_router_baseline_beamer.tex" 1777987931 16158 3a65d18581f2bb87d5c6ab4dc718f5e2 ""
   (generated)
   "rl_router_baseline_beamer.aux"
   "rl_router_baseline_beamer.log"

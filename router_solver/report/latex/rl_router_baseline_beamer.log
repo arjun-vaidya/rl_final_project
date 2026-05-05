@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Debian) (preloaded format=pdflatex 2026.5.4)  5 MAY 2026 13:29
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Debian) (preloaded format=pdflatex 2026.5.4)  5 MAY 2026 13:32
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -914,8 +914,6 @@ Package pdftex.def Info: ../../docs/assets/plan_graph_self_improvement.png  used
 
  <../../docs/assets/plan_graph_self_improvement.png (PNG copy)>] [12
 
-] [13
-
 ]
 \tf@nav=\write6
 \openout6 = `rl_router_baseline_beamer.nav'.
@@ -931,18 +929,18 @@ Package rerunfilecheck Info: File `rl_router_baseline_beamer.out' has not change
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 26067 strings out of 478051
- 521045 string characters out of 5840944
+ 26063 strings out of 478051
+ 521010 string characters out of 5840944
  1863330 words of memory out of 5000000
- 45625 multiletter control sequences out of 15000+600000
+ 45623 multiletter control sequences out of 15000+600000
  621094 words of font info for 103 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  101i,11n,104p,458b,1109s stack positions out of 10000i,1000n,20000p,200000b,200000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}</usr/share/texmf/fonts/type1/public/lm/lmmi10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr7.pfb></usr/share/texmf/fonts/type1/public/lm/lmss10.pfb></usr/share/texmf/fonts/type1/public/lm/lmss8.pfb></usr/share/texmf/fonts/type1/public/lm/lmssbx10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsso10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsso8.pfb></usr/share/texmf/fonts/type1/public/lm/lmsso9.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy9.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt8.pfb></usr/share/texmf/fonts/type1/public/lm/lmtti10.pfb>
-Output written on rl_router_baseline_beamer.pdf (13 pages, 372031 bytes).
+Output written on rl_router_baseline_beamer.pdf (12 pages, 368939 bytes).
 PDF statistics:
- 178 PDF objects out of 1000 (max. 8388607)
- 122 compressed objects within 2 object streams
- 27 named destinations out of 1000 (max. 500000)
+ 172 PDF objects out of 1000 (max. 8388607)
+ 117 compressed objects within 2 object streams
+ 25 named destinations out of 1000 (max. 500000)
  63 words of extra memory for PDF output out of 10000 (max. 10000000)
 

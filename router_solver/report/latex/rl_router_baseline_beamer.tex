@@ -407,22 +407,22 @@ Train with fast heuristic rewards and validate with an LLM judge to detect rewar
 \end{columns}
 \end{frame}
 
-% ---------- Slide 11 ----------
-\begin{frame}{Recommended Implementation Path}
-\begin{enumerate}\tightitems
-  \item \textbf{Stabilize the flat baseline.} Confirm numeric extraction, reward calculation, and loss weighting.
-  \item \textbf{Train a fast router reward.} Start with heuristic plan-quality plus outcome correctness.
-  \item \textbf{Add modular evaluators.} Keep a common \texttt{RouterReward} interface so rewards can be swapped cleanly.
-  \item \textbf{Validate with LLM-as-judge.} Use expert scoring for audits, not high-volume inner-loop training.
-  \item \textbf{Compare reward regimes.} Track outcome accuracy, plan quality, reward calibration, and failure modes.
-\end{enumerate}
+% % ---------- Slide 11 ----------
+% \begin{frame}{Recommended Implementation Path}
+% \begin{enumerate}\tightitems
+%   \item \textbf{Stabilize the flat baseline.} Confirm numeric extraction, reward calculation, and loss weighting.
+%   \item \textbf{Train a fast router reward.} Start with heuristic plan-quality plus outcome correctness.
+%   \item \textbf{Add modular evaluators.} Keep a common \texttt{RouterReward} interface so rewards can be swapped cleanly.
+%   \item \textbf{Validate with LLM-as-judge.} Use expert scoring for audits, not high-volume inner-loop training.
+%   \item \textbf{Compare reward regimes.} Track outcome accuracy, plan quality, reward calibration, and failure modes.
+% \end{enumerate}
 
-\vspace{0.8em}
-\begin{block}{Usage Sketch}
-\texttt{from src.rewards.router import LLMJudgeRouterReward} \\
-\texttt{evaluator = LLMJudgeRouterReward(model='claude-opus-4-1')}
-\end{block}
-\end{frame}
+% \vspace{0.8em}
+% \begin{block}{Usage Sketch}
+% \texttt{from src.rewards.router import LLMJudgeRouterReward} \\
+% \texttt{evaluator = LLMJudgeRouterReward(model='claude-opus-4-1')}
+% \end{block}
+% \end{frame}
 
 % ---------- Slide 12 ----------
 \begin{frame}{References}
