@@ -1,0 +1,69 @@
+{
+  "experiment_id": "final_fullpass_B120_G2_steps35",
+  "date": "2026-05-05",
+  "project_root": "router_solver",
+  "git_commit": "5630ab59fb04da7adeb60a2b323fc69758a9ad2d",
+  "status": "completed",
+  "config": {
+    "ROUTER_SOLVER_BATCH_SIZE": 120,
+    "ROUTER_SOLVER_GROUP_SIZE": 2,
+    "ROUTER_SOLVER_MAX_STEPS": 35,
+    "ROUTER_SOLVER_GEN_BATCH_SIZE": 32,
+    "ROUTER_SOLVER_LOSS_CHUNK_SIZE": 4,
+    "ROUTER_SOLVER_GRADIENT_CHECKPOINTING": true,
+    "ROUTER_SOLVER_TRAIN_COMPILE": 0,
+    "ROUTER_SOLVER_USE_VLLM": 0,
+    "ROUTER_SOLVER_SLIM_DATASET": 0,
+    "ROUTER_SOLVER_REWARD_MODE": "decomposed",
+    "ROUTER_SOLVER_BETA": 0.04,
+    "ROUTER_SOLVER_PARITY_VERIFY": 1
+  },
+  "artifacts": {
+    "primary_checkpoint": "artifacts/final_hierarchical_model",
+    "router_lora": "artifacts/final_hierarchical_model/router_lora",
+    "solver_lora": "artifacts/final_hierarchical_model/solver_lora",
+    "run_log": "logs/final_fullpass_B120_G2_steps35.out",
+    "run_log_alias": "logs/final_fullpass_B120_G2_steps35.log",
+    "optimization_summary": "train_router_solver_8c5eafc_summary.md",
+    "overnight_manifest": "overnight_run_manifest.md",
+    "benchmark": {
+      "baseline": "baseline.log",
+      "optimized": "optimized.log",
+      "slim": "slim_benchmark.log",
+      "b2": "b2_benchmark.sh",
+      "mini": "mini_benchmark.sh",
+      "smoke": "smoke_run.log",
+      "parity": {
+        "baseline": "parity_baseline.log",
+        "optimized": "parity_optimized.log",
+        "vllm": "vllm_parity.log",
+        "smoke_parity": "train_router_solver_nohup_foreground_run.log"
+      },
+      "scripts": [
+        "run_b2_benchmark.sh",
+        "run_mini_benchmark.sh",
+        "run_slim_benchmark.sh",
+        "run_parity_check.sh",
+        "run_smoke.sh"
+      ],
+      "full_pass": [
+        "full_pass_B120_G2_steps35_pilot.out",
+        "full_pass_B120_G2_steps54_ckpt.out",
+        "full_pass_B120_G2_steps63_ckpt.out",
+        "full_pass_B120_G3_steps63_ckpt.out"
+      ]
+    },
+    "primary_checkpoint_source": "experiments/router_solver_decomposed/final_hierarchical_model"
+  },
+  "checks": {
+    "loss_gap": "[train][parity] live_data_gap=0.0000000000",
+    "checkpointed": true,
+    "oom_events": false
+  },
+  "wandb": {
+    "run_id": "j7h3rnpx",
+    "run_name": "router-solver-decomposed",
+    "project": "peterdriscoll27-columbia-university/router-solver",
+    "run_url": "https://wandb.ai/peterdriscoll27-columbia-university/router-solver/runs/j7h3rnpx"
+  }
+}

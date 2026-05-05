@@ -1,0 +1,1 @@
+/home/pvd2112/rl_final_project/router_solver/run_slim_benchmark.sh

@@ -22,6 +22,15 @@
 
 Docs only — no code yet. **Deadlines:** slides May 3 · talk May 4–6 · report May 15.
 
+## Team Notes — Runtime and Optimization Summary
+
+DATE: 2026-05-05  
+Signed: Peter Driscoll (peterdriscoll27), RL Project Team
+
+- Optimization and training run summary (post-overwrite and benchmarking): [train_router_solver_8c5eafc_summary.md](/home/pvd2112/rl_final_project/router_solver/train_router_solver_8c5eafc_summary.md)
+- Overnight full-run manifest and observed final configuration: [overnight_run_manifest.md](/home/pvd2112/rl_final_project/router_solver/overnight_run_manifest.md)
+- Versioned experiment package (weights + journal + manifest + benchmark/parity references): [experiments/router_solver_decomposed/versioned/final_fullpass_B120_G2_steps35](/home/pvd2112/rl_final_project/router_solver/experiments/router_solver_decomposed/versioned/final_fullpass_B120_G2_steps35)
+
 ## Has this been done?
 
 **Partly, yes.** The high-level idea — hierarchical planner/executor LLM agents trained with GRPO-style RL — has recent published work (Agent-as-Tool, ArCHer, AgentPRM, Tree-GRPO). Our contributions are:
