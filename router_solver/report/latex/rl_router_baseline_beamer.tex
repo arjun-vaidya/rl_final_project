@@ -357,7 +357,20 @@ Train with fast heuristic rewards. Validate with an LLM judge to detect reward i
 \end{block}
 \end{frame}
 
-% ---------- Slide 9 ----------
+% ---------- Slide 9: Challenges & Lessons Learned ----------
+\begin{frame}{Challenges \& Lessons Learned}
+\begin{enumerate}\tightitems
+  \item \textbf{Memory Constraints:} Long-sequence decoding (512+ tokens) causes OOM. Hierarchical agent multiplies the problem.
+
+  \vspace{0.5em}
+  \item \textbf{Solution:} Per-rollout backward passes (B=1, G=2) and CodeBatcher for parallel CPU code execution.
+
+  \vspace{0.5em}
+  \item \textbf{RL Training:} Reward design and group size heavily impact convergence. Evaluation cost dominates. Process vs. outcome rewards need careful balance.
+\end{enumerate}
+\end{frame}
+
+% ---------- Slide 10 ----------
 \begin{frame}{Recommended Implementation Path}
 \begin{enumerate}\tightitems
   \item \textbf{Stabilize the flat baseline.} Confirm numeric extraction, reward calculation, and loss weighting.
@@ -374,7 +387,7 @@ Train with fast heuristic rewards. Validate with an LLM judge to detect reward i
 \end{block}
 \end{frame}
 
-% ---------- Slide 10 ----------
+% ---------- Slide 11 ----------
 \begin{frame}{References}
 \small
 \begin{itemize}\tightitems
