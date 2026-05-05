@@ -17,6 +17,7 @@
 | 05 | [Evaluation](docs/05_evaluation.md) | Conditions, metrics, ablations, success criteria |
 | 06 | [References](docs/06_references.md) | Prior work + novelty statement |
 | 07 | [Plan Memory](docs/07_plan_memory.md) | **Uniqueness angle** — optional cross-problem plan retrieval extension |
+| 08 | [Training Pipeline Chart](docs/08_training_pipeline_chart.md) | SFT vs GRPO flow comparison |
 
 ## Status
 
