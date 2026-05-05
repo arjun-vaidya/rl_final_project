@@ -27,12 +27,14 @@ import os
 import argparse
 from collections import defaultdict
 from typing import List, Tuple
+from time import time
 from dotenv import load_dotenv
 
 import numpy as np
 import torch
 import torch.nn.functional as F
 import wandb
+from tqdm import tqdm
 
 # Load environment variables
 load_dotenv()
@@ -82,46 +84,71 @@ def group_normalize(values: List[float]) -> List[float]:
 # Log-prob + KL helpers
 # --------------------------------------------------------------------------- #
 
-def teacher_forced_logprobs(
+def batched_teacher_forced_logprobs(
     model,
-    prompt_ids: torch.Tensor,
-    completion_ids: torch.Tensor,
+    prompt_ids_list: List[torch.Tensor],
+    completion_ids_list: List[torch.Tensor],
     device: str,
-) -> torch.Tensor:
-    """Return per-token log-probs of `completion_ids` given `prompt_ids`. Grad flows."""
-    prompt_ids = prompt_ids.to(device)
-    completion_ids = completion_ids.to(device)
-    if completion_ids.numel() == 0:
-        return torch.zeros(0, device=device)
+) -> List[torch.Tensor]:
+    """Return per-token log-probs in a batched pass. Grad flows."""
+    if not prompt_ids_list:
+        return []
+    
+    inputs_list = [torch.cat([p.to(device), c.to(device)], dim=0) for p, c in zip(prompt_ids_list, completion_ids_list)]
+    max_len = max(t.size(0) for t in inputs_list)
+    
+    pad_id = getattr(model.config, "pad_token_id", 0)
+    if pad_id is None: pad_id = 0
+    
+    input_ids = torch.full((len(inputs_list), max_len), pad_id, dtype=torch.long, device=device)
+    attention_mask = torch.zeros((len(inputs_list), max_len), dtype=torch.long, device=device)
+    
+    for i, t in enumerate(inputs_list):
+        input_ids[i, :t.size(0)] = t
+        attention_mask[i, :t.size(0)] = 1
 
-    input_ids = torch.cat([prompt_ids, completion_ids], dim=0).unsqueeze(0)  # [1, L]
-    outputs = model(input_ids=input_ids)
-    logits = outputs.logits[0]                                               # [L, V]
+    try:
+        outputs = model(input_ids=input_ids, attention_mask=attention_mask, use_cache=False)
+    except TypeError:
+        outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+    logits = outputs.logits  # [B, L, V]
 
-    prompt_len = prompt_ids.size(0)
-    comp_len = completion_ids.size(0)
+    log_probs_list = []
+    for i, (p, c) in enumerate(zip(prompt_ids_list, completion_ids_list)):
+        p_len = p.size(0)
+        c_len = c.size(0)
+        if c_len == 0:
+            log_probs_list.append(torch.zeros(0, device=device))
+            continue
+            
+        shift_logits = logits[i, p_len - 1 : p_len - 1 + c_len, :]
+        log_probs = F.log_softmax(shift_logits, dim=-1)
+        lps = log_probs.gather(-1, c.to(device).unsqueeze(-1)).squeeze(-1)
+        log_probs_list.append(lps)
+        
+    return log_probs_list
 
-    # Logits at positions [prompt_len-1, prompt_len+comp_len-1) predict the
-    # completion tokens at [prompt_len, prompt_len+comp_len).
-    shift_logits = logits[prompt_len - 1: prompt_len - 1 + comp_len, :]      # [L_c, V]
-    log_probs = F.log_softmax(shift_logits, dim=-1)
-    return log_probs.gather(-1, completion_ids.unsqueeze(-1)).squeeze(-1)     # [L_c]
 
-
-def reference_logprobs(
+def batched_reference_logprobs(
     model,
-    prompt_ids: torch.Tensor,
-    completion_ids: torch.Tensor,
+    prompt_ids_list: List[torch.Tensor],
+    completion_ids_list: List[torch.Tensor],
     device: str,
-) -> torch.Tensor:
-    """Same as above but with all LoRA adapters disabled (= frozen base model).
-    No grad, since the reference policy is not being trained."""
+) -> List[torch.Tensor]:
+    """Same as above but with all LoRA adapters disabled."""
+    was_training = model.training
+    if was_training:
+        model.eval()
     with torch.no_grad():
         if hasattr(model, "disable_adapter"):
             with model.disable_adapter():
-                return teacher_forced_logprobs(model, prompt_ids, completion_ids, device).detach()
-        return teacher_forced_logprobs(model, prompt_ids, completion_ids, device).detach()
-
+                out = batched_teacher_forced_logprobs(model, prompt_ids_list, completion_ids_list, device)
+        else:
+            out = batched_teacher_forced_logprobs(model, prompt_ids_list, completion_ids_list, device)
+    out = [o.detach() for o in out]
+    if was_training:
+        model.train()
+    return out
 
 def grpo_term(
     policy_lp: torch.Tensor,
@@ -141,6 +168,153 @@ def grpo_term(
         kl = torch.exp(logratio) - 1.0 - logratio
         pg = pg + beta * kl.sum()
     return pg
+
+
+def _chunked(items, size: int):
+    for i in range(0, len(items), size):
+        yield items[i : i + size]
+
+
+def _live_data_objective_no_grad(
+    model,
+    agent,
+    records,
+    router_adv,
+    solver_adv,
+    beta: float,
+    chunk_size: int,
+    device: str,
+) -> torch.Tensor:
+    """Compute the full GRPO objective on real rollout data with no-grad."""
+    scale = 1.0 / max(1, len(records))
+    total = torch.zeros((), device=device)
+
+    # Router pass
+    agent._set_adapter(agent.router_adapter)
+    with torch.no_grad():
+        for chunk in _chunked(records, chunk_size):
+            chunk_sum = torch.tensor(0.0, device=device)
+            for _, ro, _, _, _ in chunk:
+                policy_lp = batched_teacher_forced_logprobs(
+                    model, [ro.router_prompt_ids], [ro.router_completion_ids], device
+                )
+                ref_lp = batched_reference_logprobs(
+                    model, [ro.router_prompt_ids], [ro.router_completion_ids], device
+                )
+                chunk_sum = chunk_sum + grpo_term(
+                    policy_lp[0],
+                    ref_lp[0],
+                    router_adv[id(ro)],
+                    beta,
+                )
+            total = total + chunk_sum
+
+    # Solver pass
+    agent._set_adapter(agent.solver_adapter)
+    with torch.no_grad():
+        for chunk in _chunked(records, chunk_size):
+            chunk_sum = torch.tensor(0.0, device=device)
+        for _, ro, _, _, _ in chunk:
+            if ro.steps:
+                s_adv = solver_adv[id(ro)]
+                for si, s in enumerate(ro.steps):
+                    s_policy = batched_teacher_forced_logprobs(
+                        model, [s.prompt_ids], [s.completion_ids], device
+                    )
+                    s_ref = batched_reference_logprobs(
+                        model, [s.prompt_ids], [s.completion_ids], device
+                    )
+                    chunk_sum = chunk_sum + grpo_term(
+                        s_policy[0],
+                        s_ref[0],
+                        s_adv,
+                        beta,
+                    )
+            total = total + chunk_sum
+
+    return total * scale
+
+
+def _run_backward_terms(
+    model,
+    agent,
+    records,
+    router_adv,
+    solver_adv,
+    beta: float,
+    chunked: bool,
+    chunk_size: int,
+    scale: float,
+    device: str,
+    router_adapter: str,
+    solver_adapter: str,
+) -> torch.Tensor:
+    """
+    Compute router+solver GRPO loss terms and run backward.
+    Returns a detached total loss value for logging.
+    """
+    total_loss = torch.zeros((), device=device)
+
+    def chunk_iter():
+        if (not chunked) or (chunk_size <= 0) or (chunk_size >= len(records)):
+            yield records
+        else:
+            yield from _chunked(records, chunk_size)
+
+    # Router terms (single adapter context)
+    agent._set_adapter(router_adapter)
+    model.train()
+    for chunk in chunk_iter():
+        chunk_sum = torch.zeros((), device=device)
+        valid_chunk = [(ro, router_adv[id(ro)]) for _, ro, _, _, _ in chunk]
+        if not valid_chunk:
+            continue
+            
+        p_ids = [ro.router_prompt_ids for ro, _ in valid_chunk]
+        c_ids = [ro.router_completion_ids for ro, _ in valid_chunk]
+        advs = [adv for _, adv in valid_chunk]
+        
+        r_policies = batched_teacher_forced_logprobs(model, p_ids, c_ids, device)
+        r_refs = batched_reference_logprobs(model, p_ids, c_ids, device)
+        
+        for r_pol, r_ref, adv in zip(r_policies, r_refs, advs):
+            r_term = grpo_term(r_pol, r_ref, adv, beta)
+            chunk_sum = chunk_sum + r_term
+            total_loss = total_loss + r_term.detach()
+            
+        if chunk_sum.requires_grad:
+            (chunk_sum * scale).backward()
+
+    # Solver terms (single adapter context)
+    agent._set_adapter(solver_adapter)
+    for chunk in chunk_iter():
+        chunk_sum = torch.zeros((), device=device)
+        valid_steps = []
+        for _, ro, _, _, _ in chunk:
+            if not ro.steps: continue
+            adv = solver_adv[id(ro)]
+            for s in ro.steps:
+                valid_steps.append((s, adv))
+                
+        if not valid_steps: continue
+        
+        # Batching solver passes (up to chunk_size * max_subgoals sequences)
+        p_ids = [s.prompt_ids for s, _ in valid_steps]
+        c_ids = [s.completion_ids for s, _ in valid_steps]
+        advs = [adv for _, adv in valid_steps]
+        
+        s_policies = batched_teacher_forced_logprobs(model, p_ids, c_ids, device)
+        s_refs = batched_reference_logprobs(model, p_ids, c_ids, device)
+        
+        for s_pol, s_ref, adv in zip(s_policies, s_refs, advs):
+            s_term = grpo_term(s_pol, s_ref, adv, beta)
+            chunk_sum = chunk_sum + s_term
+            total_loss = total_loss + s_term.detach()
+            
+        if chunk_sum.requires_grad:
+            (chunk_sum * scale).backward()
+
+    return total_loss * scale
 
 
 # --------------------------------------------------------------------------- #
@@ -193,6 +367,7 @@ def main():
     base_model = AutoModelForCausalLM.from_pretrained(
         cfg.model.base_id,
         torch_dtype=torch.bfloat16 if device == "cuda" else torch.float32,
+        attn_implementation="sdpa" if device == "cuda" else None,
     )
     lora_cfg = LoraConfig(
         r=cfg.model.lora_r,
@@ -204,6 +379,15 @@ def main():
     model.add_adapter(cfg.model.solver_adapter_name, lora_cfg)
     model.to(device)
     model.train()
+    enable_gradient_checkpointing = os.getenv(
+        "ROUTER_SOLVER_GRADIENT_CHECKPOINTING",
+        "1",
+    ).lower() in {"1", "true", "yes"}
+    if enable_gradient_checkpointing and hasattr(model, "gradient_checkpointing_enable"):
+        model.gradient_checkpointing_enable()
+        print("[train] gradient checkpointing enabled")
+    else:
+        print("[train] gradient checkpointing disabled")
     use_compile = os.getenv("ROUTER_SOLVER_TRAIN_COMPILE", "0").lower() in {"1", "true", "yes"}
     if use_compile and device == "cuda":
         try:
@@ -212,10 +396,28 @@ def main():
         except Exception as e:
             print(f"[train] torch.compile failed: {e}. Proceeding without compilation.")
 
+    use_vllm = os.getenv("ROUTER_SOLVER_USE_VLLM", "0").lower() in {"1", "true", "yes"}
+    vllm_engine = None
+    if use_vllm:
+        from vllm import LLM
+        print("[train] initializing vLLM engine for generation...")
+        vllm_engine = LLM(
+            model=cfg.model.base_id,
+            enable_lora=True,
+            max_lora_rank=cfg.model.lora_r,
+            max_model_len=4096,
+            gpu_memory_utilization=0.45,
+            enable_prefix_caching=True,
+            enforce_eager=True,
+        )
+
     agent = RouterSolverAgent(model, tokenizer, cfg, device=device)
 
     # 2. Data
     ds = load_dataset("openai/gsm8k", "main", split="train")
+    if os.getenv("ROUTER_SOLVER_SLIM_DATASET", "0") == "1":
+        ds = ds.select(range(len(ds) // 8))
+        print(f"[train] running on slim dataset, size={len(ds)}")
     ds = ds.shuffle(seed=0)
     questions: List[Tuple[str, int]] = []
     for ex in ds:
@@ -236,14 +438,45 @@ def main():
     optim_params = [p for p in model.parameters() if p.requires_grad]
     optimizer = torch.optim.AdamW(optim_params, lr=cfg.training.learning_rate)
 
-    B = cfg.training.batch_size
-    G = cfg.training.group_size
+    B = int(os.getenv("ROUTER_SOLVER_BATCH_SIZE", str(cfg.training.batch_size)))
+    G = int(os.getenv("ROUTER_SOLVER_GROUP_SIZE", str(cfg.training.group_size)))
     beta = cfg.training.beta
     reward_mode = cfg.training.reward_mode
+    loss_chunk_size = int(os.getenv("ROUTER_SOLVER_LOSS_CHUNK_SIZE", "0"))
+    lora_synced = False  # Track whether LoRA weights need re-sync to /dev/shm
+    max_steps = int(os.getenv("ROUTER_SOLVER_MAX_STEPS", str(cfg.training.max_steps)))
+    parity_verify = os.getenv("ROUTER_SOLVER_PARITY_VERIFY", "0").lower() in {"1", "true", "yes"}
+    profile_steps = int(os.getenv("ROUTER_SOLVER_PROFILE_STEPS", "0"))
+    profile_output_dir = os.getenv(
+        "ROUTER_SOLVER_PROFILE_OUTPUT",
+        os.path.join(cfg.logging["output_dir"], "profiles"),
+    )
+    os.makedirs(profile_output_dir, exist_ok=True)
+    print(
+        f"[train] profiler_steps={profile_steps} profile_output_dir={profile_output_dir}"
+    )
     print(f"[train] device={device} B={B} G={G} reward_mode={reward_mode} beta={beta}")
 
     cursor = 0
-    for step in range(cfg.training.max_steps):
+    completed_steps = 0
+    seen_step_time = 0.0
+    pbar = tqdm(range(max_steps), desc="Training", unit="step")
+    for step in pbar:
+        profile_ctx = None
+        if profile_steps > 0 and step < profile_steps:
+            from torch.profiler import ProfilerActivity, profile
+
+            profile_ctx = profile(
+                activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
+                with_stack=True,
+                record_shapes=True,
+                profile_memory=True,
+                with_modules=True,
+            )
+            profile_ctx.__enter__()
+
+        step_start = time()
+        tqdm.write(f"[train][step={step}] start")
         # -------------------- Sample batch of B questions --------------------
         batch = []
         for _ in range(B):
@@ -251,22 +484,53 @@ def main():
             cursor += 1
 
         # -------------------- Rollouts (G per question) ----------------------
+        rollout_start = time()
         model.eval()  # deterministic forward (no dropout) during sampling
         records = []  # list of (q_index, Rollout, router_r, step_rs, outcome)
-        with torch.no_grad():
-            for qi, (q, gt) in enumerate(batch):
-                for _ in range(G):
-                    ro = agent.rollout(q, memory=memory, do_sample=True, temperature=1.0)
-                    r_router, r_steps, outcome = compute_rewards(ro, gt, reward_mode)
-                    records.append((qi, ro, r_router, r_steps, outcome))
+        
+        queries = []
+        qis = []
+        gts = []
+        for qi, (q, gt) in enumerate(batch):
+            for _ in range(G):
+                queries.append(q)
+                qis.append(qi)
+                gts.append(gt)
 
-                    # Memory write-gate (docs/07 §Write policy)
-                    if memory is not None and outcome == 1.0 and ro.plan_dict is not None:
-                        memory.write_if_success(
-                            q, ro.plan_dict,
-                            reward=outcome,
-                            tool_errors=ro.tool_error_count,
-                        )
+        # Use a safe batch size for generation so we don't overwhelm GPU
+        gen_batch_size = int(os.getenv("ROUTER_SOLVER_GEN_BATCH_SIZE", "4"))
+        
+        lora_base_path = None
+        if use_vllm:
+            lora_base_path = "/dev/shm/router_solver_lora"
+            os.makedirs(lora_base_path, exist_ok=True)
+            # Only sync LoRA weights when they've changed (after optimizer.step())
+            if not lora_synced:
+                for adapter in [cfg.model.router_adapter_name, cfg.model.solver_adapter_name]:
+                    model.save_pretrained(os.path.join(lora_base_path, adapter), selected_adapters=[adapter])
+                lora_synced = True
+        
+        with torch.no_grad():
+            rollouts = agent.batched_rollout(
+                queries, memory=memory, do_sample=True, temperature=1.0, batch_size=gen_batch_size,
+                vllm_engine=vllm_engine, lora_base_path=lora_base_path
+            )
+            for qi, ro, gt in zip(qis, rollouts, gts):
+                r_router, r_steps, outcome = compute_rewards(ro, gt, reward_mode)
+                records.append((qi, ro, r_router, r_steps, outcome))
+
+                # Memory write-gate (docs/07 §Write policy)
+                if memory is not None and outcome == 1.0 and ro.plan_dict is not None:
+                    memory.write_if_success(
+                        ro.question, ro.plan_dict,
+                        reward=outcome,
+                        tool_errors=ro.tool_error_count,
+                    )
+        rollout_time = time() - rollout_start
+        tqdm.write(
+            f"[train][step={step}] collected_rollouts n_records={len(records)} "
+            f"rollout_time_sec={rollout_time:.2f}"
+        )
 
         if not records:
             continue
@@ -287,52 +551,129 @@ def main():
                 solver_adv[id(rec[1])] = a_s
 
         # -------------------- Loss computation -------------------------------
-        # Precompute reference log-probs once (base policy, all LoRA disabled)
-        ref_logprobs = {}
-        model.eval()
-        with torch.no_grad():
-            for _, ro, _, _, _ in records:
-                ref_key_r = (id(ro), "router")
-                ref_logprobs[ref_key_r] = reference_logprobs(
-                    model, ro.router_prompt_ids, ro.router_completion_ids, device
-                )
-                for si, s in enumerate(ro.steps):
-                    ref_key_s = (id(ro), "solver", si)
-                    ref_logprobs[ref_key_s] = reference_logprobs(
-                        model, s.prompt_ids, s.completion_ids, device
-                    )
+        total_records = max(1, len(records))
+        chunking_requested = loss_chunk_size > 0
+        chunk_size = max(1, min(loss_chunk_size, total_records)) if chunking_requested else total_records
+        scale = 1.0 / total_records
+        if chunking_requested:
+            tqdm.write(f"[train] loss chunking requested: chunk_size={chunk_size} total_records={total_records}")
+        else:
+            tqdm.write("[train] loss chunking disabled")
+
+        if chunking_requested:
+            chunk_count = ((total_records + chunk_size - 1) // chunk_size)
+            tqdm.write(f"[train] chunked backward will use {chunk_count} chunk(s)")
 
         optimizer.zero_grad(set_to_none=True)
-        losses = []
-
-        # Router terms in one adapter context
-        agent._set_adapter(cfg.model.router_adapter_name)
-        model.train()
-        for _, ro, _, _, _ in records:
-            r_policy = teacher_forced_logprobs(
-                model, ro.router_prompt_ids, ro.router_completion_ids, device
+        try:
+            loss = _run_backward_terms(
+                model,
+                agent,
+                records,
+                router_adv,
+                solver_adv,
+                beta,
+                chunking_requested,
+                chunk_size,
+                scale,
+                device,
+                cfg.model.router_adapter_name,
+                cfg.model.solver_adapter_name,
             )
-            losses.append(
-                grpo_term(r_policy, ref_logprobs[(id(ro), "router")], router_adv[id(ro)], beta) / len(records)
+        except torch.cuda.OutOfMemoryError:
+            # Fall back to chunked backward only if needed. This preserves baseline
+            # path for speed when memory allows, while remaining safe under pressure.
+            torch.cuda.empty_cache()
+            optimizer.zero_grad(set_to_none=True)
+            fallback_size = min(4, total_records)
+            tqdm.write(
+                f"[train][oom] full-batch backward OOM, retrying with chunk_size={fallback_size}"
             )
-
-        # Solver terms in one adapter context
-        agent._set_adapter(cfg.model.solver_adapter_name)
-        for _, ro, _, _, _ in records:
-            if ro.steps:
-                s_adv = solver_adv[id(ro)]
-                for si, s in enumerate(ro.steps):
-                    s_policy = teacher_forced_logprobs(model, s.prompt_ids, s.completion_ids, device)
-                    losses.append(
-                        grpo_term(s_policy, ref_logprobs[(id(ro), "solver", si)], s_adv, beta) / len(records)
-                    )
-
-        loss = torch.stack(losses).sum() if losses else torch.zeros((), device=device)
-        loss.backward()
+            loss = _run_backward_terms(
+                model,
+                agent,
+                records,
+                router_adv,
+                solver_adv,
+                beta,
+                True,
+                fallback_size,
+                scale,
+                device,
+                cfg.model.router_adapter_name,
+                cfg.model.solver_adapter_name,
+            )
+        if parity_verify:
+            with torch.no_grad():
+                was_training = model.training
+                model.eval()
+                single_chunk = _live_data_objective_no_grad(
+                    model,
+                    agent,
+                    records,
+                    router_adv,
+                    solver_adv,
+                    beta,
+                    len(records),
+                    device,
+                )
+                chunked_pass = _live_data_objective_no_grad(
+                    model,
+                    agent,
+                    records,
+                    router_adv,
+                    solver_adv,
+                    beta,
+                    chunk_size if chunking_requested else total_records,
+                    device,
+                )
+                parity_gap = (single_chunk - chunked_pass).abs().item()
+                tqdm.write(f"[train][parity] live_data_gap={parity_gap:.10f}")
+                if was_training:
+                    model.train()
         optimizer.step()
+        lora_synced = False  # Weights changed, re-sync LoRA on next step
+        step_time = time() - step_start
+        if profile_ctx is not None:
+            profile_ctx.__exit__(None, None, None)
+            profile_json = os.path.join(profile_output_dir, f"step_{step}.json")
+            profile_ctx.export_chrome_trace(profile_json)
+            try:
+                tqdm.write(
+                    f"[train][step={step}] profile_top_cpu_cuda="
+                    + profile_ctx.key_averages().table(
+                        sort_by="self_cuda_time_total", row_limit=20
+                    ).replace("\n", " | ")
+                )
+            except Exception:
+                pass
+
+        seen_step_time += step_time
+        completed_steps += 1
+        avg_step_time = seen_step_time / completed_steps
+        remaining_steps = max_steps - step - 1
+        eta_seconds = avg_step_time * max(0, remaining_steps)
+        eta_minutes = eta_seconds / 60.0
+        eta_hours = eta_seconds / 3600.0
+        max_mem_mb = torch.cuda.max_memory_allocated() / 1024**2 if device == "cuda" else 0
+        tqdm.write(f"[train][step={step}] step_time_sec={step_time:.2f} max_mem_mb={max_mem_mb:.2f}")
+        print(
+            f"[train][step={step}] throughput_est="
+            f"avg_step_sec={avg_step_time:.2f} "
+            f"eta_seconds={eta_seconds:.1f} "
+            f"eta_minutes={eta_minutes:.2f} "
+            f"eta_hours={eta_hours:.2f}"
+        )
+        pbar.set_postfix(
+            {
+                "step": step,
+                "mem_gb": f"{max_mem_mb/1024:.2f}",
+                "eta_h": f"{eta_hours:.2f}",
+            }
+        )
 
         # -------------------- Logging ---------------------------------------
-        if step % 10 == 0 or step == cfg.training.max_steps - 1:
+        if step % 10 == 0 or step == max_steps - 1:
             outs = [r[4] for r in records]
             rr = [r[2] for r in records]
             sr_means = [sum(r[3]) / len(r[3]) if r[3] else 0.0 for r in records]
@@ -350,7 +691,7 @@ def main():
             if memory:
                 metrics["memory_size"] = len(memory.store.keys)
 
-            print(
+            tqdm.write(
                 f"step={step:4d} "
                 f"loss={loss.item():+.4f} "
                 f"outcome_acc={np.mean(outs):.3f} "
@@ -366,9 +707,10 @@ def main():
         if step > 0 and step % 50 == 0:
             ckpt = os.path.join(cfg.logging["output_dir"], f"checkpoint-{step}")
             model.save_pretrained(ckpt)
-            print(f"[train] saved checkpoint: {ckpt}")
+            tqdm.write(f"[train] saved checkpoint: {ckpt}")
             if wandb_api_key:
                 wandb.log({"checkpoint_saved": ckpt, "checkpoint_step": step})
+    pbar.close()
 
     # Final save
     final = os.path.join(cfg.logging["output_dir"], "final_hierarchical_model")

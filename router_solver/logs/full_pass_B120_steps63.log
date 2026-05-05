@@ -1,0 +1,36 @@
+wandb: [wandb.login()] Using explicit session credentials for https://api.wandb.ai.
+wandb: Appending key for api.wandb.ai to your netrc file: /home/machina/.netrc
+wandb: Currently logged in as: peterdriscoll27 (peterdriscoll27-columbia-university) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /home/pvd2112/rl_final_project/router_solver/wandb/run-20260505_065453-2430036a
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run router-solver-decomposed
+wandb: ⭐️ View project at https://wandb.ai/peterdriscoll27-columbia-university/router-solver
+wandb: 🚀 View run at https://wandb.ai/peterdriscoll27-columbia-university/router-solver/runs/2430036a
+wandb: Detected [anthropic] in use.
+wandb: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+wandb: For more information, check out the docs at: https://weave-docs.wandb.ai
+`torch_dtype` is deprecated! Use `dtype` instead!
+[train] gradient checkpointing enabled
+[train] profiler_steps=0 profile_output_dir=experiments/router_solver_decomposed/profiles
+[train] device=cuda B=120 G=4 reward_mode=decomposed beta=0.04
+Training:   0%|          | 0/63 [00:00<?, ?step/s]                                                  [train][step=0] start
+Training:   0%|          | 0/63 [00:00<?, ?step/s]                                                  [train][step=0] collected_rollouts n_records=480 rollout_time_sec=405.60
+Training:   0%|          | 0/63 [06:45<?, ?step/s]                                                  [train] loss chunking requested: chunk_size=4 total_records=480
+Training:   0%|          | 0/63 [06:45<?, ?step/s]                                                  [train] chunked backward will use 120 chunk(s)
+Training:   0%|          | 0/63 [06:45<?, ?step/s]/home/pvd2112/rl_final_project/router_solver/.venv/lib/python3.11/site-packages/torch/utils/checkpoint.py:87: UserWarning: None of the inputs have requires_grad=True. Gradients will be None
+  warnings.warn(
+                                                  [train][step=0] step_time_sec=498.51 max_mem_mb=5289.27
+Training:   0%|          | 0/63 [08:18<?, ?step/s][train][step=0] throughput_est=avg_step_sec=498.51 eta_seconds=30907.4 eta_minutes=515.12 eta_hours=8.59
+Training:   0%|          | 0/63 [08:18<?, ?step/s, step=0, mem_gb=5.17, eta_h=8.59]                                                                                   step=   0 loss=-3.5925 outcome_acc=0.013 router_r=0.177 solver_r=0.000 invalid_plans=271/480 mem=0
+Training:   0%|          | 0/63 [08:18<?, ?step/s, step=0, mem_gb=5.17, eta_h=8.59]Training:   2%|▏         | 1/63 [08:18<8:35:28, 498.84s/step, step=0, mem_gb=5.17, eta_h=8.59]                                                                                              [train][step=1] start
+Training:   2%|▏         | 1/63 [08:18<8:35:28, 498.84s/step, step=0, mem_gb=5.17, eta_h=8.59]                                                                                              [train][step=1] collected_rollouts n_records=480 rollout_time_sec=430.09
+Training:   2%|▏         | 1/63 [15:28<8:35:28, 498.84s/step, step=0, mem_gb=5.17, eta_h=8.59]                                                                                              [train] loss chunking requested: chunk_size=4 total_records=480
+Training:   2%|▏         | 1/63 [15:28<8:35:28, 498.84s/step, step=0, mem_gb=5.17, eta_h=8.59]                                                                                              [train] chunked backward will use 120 chunk(s)
+Training:   2%|▏         | 1/63 [15:28<8:35:28, 498.84s/step, step=0, mem_gb=5.17, eta_h=8.59]                                                                                              [train][step=1] step_time_sec=533.02 max_mem_mb=6176.02
+Training:   2%|▏         | 1/63 [17:11<8:35:28, 498.84s/step, step=0, mem_gb=5.17, eta_h=8.59][train][step=1] throughput_est=avg_step_sec=515.76 eta_seconds=31461.5 eta_minutes=524.36 eta_hours=8.74
+Training:   2%|▏         | 1/63 [17:11<8:35:28, 498.84s/step, step=1, mem_gb=6.03, eta_h=8.74]Training:   3%|▎         | 2/63 [17:11<8:47:35, 518.95s/step, step=1, mem_gb=6.03, eta_h=8.74]                                                                                              [train][step=2] start
+Training:   3%|▎         | 2/63 [17:11<8:47:35, 518.95s/step, step=1, mem_gb=6.03, eta_h=8.74]                                                                                              [train][step=2] collected_rollouts n_records=480 rollout_time_sec=463.20
+Training:   3%|▎         | 2/63 [24:55<8:47:35, 518.95s/step, step=1, mem_gb=6.03, eta_h=8.74]                                                                                              [train] loss chunking requested: chunk_size=4 total_records=480
+Training:   3%|▎         | 2/63 [24:55<8:47:35, 518.95s/step, step=1, mem_gb=6.03, eta_h=8.74]                                                                                              [train] chunked backward will use 120 chunk(s)
+Training:   3%|▎         | 2/63 [24:55<8:47:35, 518.95s/step, step=1, mem_gb=6.03, eta_h=8.74]

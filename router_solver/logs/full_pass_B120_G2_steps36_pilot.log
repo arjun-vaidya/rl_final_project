@@ -1,0 +1,27 @@
+wandb: [wandb.login()] Using explicit session credentials for https://api.wandb.ai.
+wandb: Appending key for api.wandb.ai to your netrc file: /home/machina/.netrc
+wandb: Currently logged in as: peterdriscoll27 (peterdriscoll27-columbia-university) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /home/pvd2112/rl_final_project/router_solver/wandb/run-20260505_075735-016lmhl0
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run router-solver-decomposed
+wandb: ⭐️ View project at https://wandb.ai/peterdriscoll27-columbia-university/router-solver
+wandb: 🚀 View run at https://wandb.ai/peterdriscoll27-columbia-university/router-solver/runs/016lmhl0
+wandb: Detected [anthropic] in use.
+wandb: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+wandb: For more information, check out the docs at: https://weave-docs.wandb.ai
+`torch_dtype` is deprecated! Use `dtype` instead!
+[train] gradient checkpointing enabled
+[train] profiler_steps=0 profile_output_dir=experiments/router_solver_decomposed/profiles
+[train] device=cuda B=120 G=2 reward_mode=decomposed beta=0.04
+Training:   0%|          | 0/36 [00:00<?, ?step/s]                                                  [train][step=0] start
+Training:   0%|          | 0/36 [00:00<?, ?step/s]                                                  [train][step=0] collected_rollouts n_records=240 rollout_time_sec=165.61
+Training:   0%|          | 0/36 [02:45<?, ?step/s]                                                  [train] loss chunking requested: chunk_size=4 total_records=240
+Training:   0%|          | 0/36 [02:45<?, ?step/s]                                                  [train] chunked backward will use 60 chunk(s)
+Training:   0%|          | 0/36 [02:45<?, ?step/s]/home/pvd2112/rl_final_project/router_solver/.venv/lib/python3.11/site-packages/torch/utils/checkpoint.py:87: UserWarning: None of the inputs have requires_grad=True. Gradients will be None
+  warnings.warn(
+                                                  [train][step=0] step_time_sec=218.32 max_mem_mb=7683.26
+Training:   0%|          | 0/36 [03:38<?, ?step/s][train][step=0] throughput_est=avg_step_sec=218.32 eta_seconds=7641.4 eta_minutes=127.36 eta_hours=2.12
+Training:   0%|          | 0/36 [03:38<?, ?step/s, step=0, mem_gb=7.50, eta_h=2.12]                                                                                   step=   0 loss=-2.2052 outcome_acc=0.017 router_r=0.203 solver_r=0.000 invalid_plans=119/240 mem=0
+Training:   0%|          | 0/36 [03:38<?, ?step/s, step=0, mem_gb=7.50, eta_h=2.12]Training:   3%|▎         | 1/36 [03:38<2:07:32, 218.63s/step, step=0, mem_gb=7.50, eta_h=2.12]                                                                                              [train][step=1] start
+Training:   3%|▎         | 1/36 [03:38<2:07:32, 218.63s/step, step=0, mem_gb=7.50, eta_h=2.12]

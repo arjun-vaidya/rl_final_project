@@ -12,3 +12,4 @@ sentence-transformers
 pytest>=6.0
 numpy
 anthropic
+vllm

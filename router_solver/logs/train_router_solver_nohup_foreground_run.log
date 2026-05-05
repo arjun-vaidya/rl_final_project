@@ -1,0 +1,54 @@
+wandb: [wandb.login()] Using explicit session credentials for https://api.wandb.ai.
+wandb: Appending key for api.wandb.ai to your netrc file: /home/machina/.netrc
+wandb: Currently logged in as: peterdriscoll27 (peterdriscoll27-columbia-university) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run 2zr3blwy
+wandb: Tracking run with wandb version 0.26.1
+wandb: Run data is saved locally in /home/pvd2112/rl_final_project/router_solver/wandb/run-20260505_001828-2zr3blwy
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run router-solver-decomposed
+wandb: ⭐️ View project at https://wandb.ai/peterdriscoll27-columbia-university/router-solver
+wandb: 🚀 View run at https://wandb.ai/peterdriscoll27-columbia-university/router-solver/runs/2zr3blwy
+wandb: Detected [anthropic] in use.
+wandb: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+wandb: For more information, check out the docs at: https://weave-docs.wandb.ai
+/home/pvd2112/rl_final_project/router_solver/.venv/lib/python3.11/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+[train] gradient checkpointing enabled
+[train] device=cuda B=4 G=4 reward_mode=decomposed beta=0.04
+[train][step=0] start
+[train][step=0] collected_rollouts n_records=16 duration_sec=274.07
+[train] loss chunking disabled
+/home/pvd2112/rl_final_project/router_solver/.venv/lib/python3.11/site-packages/torch/utils/checkpoint.py:87: UserWarning: None of the inputs have requires_grad=True. Gradients will be None
+  warnings.warn(
+[train][parity] live_data_gap=0.0000000000
+[train][step=0] step_time_sec=288.28
+step=   0 loss=+79.4844 outcome_acc=0.188 router_r=0.243 solver_r=0.124 invalid_plans=8/16 mem=0
+[train] done. saved experiments/router_solver_decomposed/final_hierarchical_model
+wandb: updating run metadata
+wandb: uploading history steps 0-1, summary, console lines 13-16
+wandb: 
+wandb: Run history:
+wandb: invalid_plans ▁
+wandb:          loss ▁
+wandb:   outcome_acc ▁
+wandb: router_reward ▁
+wandb: solver_reward ▁
+wandb:          step ▁
+wandb: total_records ▁
+wandb: 
+wandb: Run summary:
+wandb:  final_model_path experiments/router_s...
+wandb:     invalid_plans 8
+wandb:              loss 79.4844
+wandb:       outcome_acc 0.1875
+wandb:     router_reward 0.24292
+wandb:     solver_reward 0.12406
+wandb:              step 0
+wandb:     total_records 16
+wandb: training_complete True
+wandb: 
+wandb: 🚀 View run router-solver-decomposed at: https://wandb.ai/peterdriscoll27-columbia-university/router-solver/runs/2zr3blwy
+wandb: ⭐️ View project at: https://wandb.ai/peterdriscoll27-columbia-university/router-solver
+wandb: Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20260505_001828-2zr3blwy/logs
