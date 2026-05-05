@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  5 MAY 2026 08:00
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  5 MAY 2026 08:07
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1183,7 +1183,7 @@ ed.
 Here is how much of TeX's memory you used:
  25923 strings out of 474662
  516117 string characters out of 5751110
- 886011 words of memory out of 5000000
+ 886425 words of memory out of 5000000
  48414 multiletter control sequences out of 15000+600000
  654625 words of font info for 97 fonts, out of 8000000 for 9000
  319 hyphenation exceptions out of 8191
@@ -1198,7 +1198,7 @@ texmf-dist/fonts/type1/public/lm/lmsso10.pfb></usr/local/texlive/2025basic/texm
 f-dist/fonts/type1/public/lm/lmsso8.pfb></usr/local/texlive/2025basic/texmf-dis
 t/fonts/type1/public/lm/lmsy10.pfb></usr/local/texlive/2025basic/texmf-dist/fon
 ts/type1/public/lm/lmtt10.pfb>
-Output written on rl_router_baseline_beamer.pdf (10 pages, 215841 bytes).
+Output written on rl_router_baseline_beamer.pdf (10 pages, 216044 bytes).
 PDF statistics:
  135 PDF objects out of 1000 (max. 8388607)
  95 compressed objects within 1 object stream
