@@ -432,23 +432,23 @@ def _draw_line(
 def write_png(output_path: Path, sft: Dict, grpo: Dict) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    width = 2600
-    height = 2200
-    margin = 90
-    panel_h = 560
-    gap = 80
-    panel_left = 170
-    panel_right = width - 90
-    plot_h = 360
+    width = 3600
+    height = 3000
+    margin = 120
+    panel_h = 780
+    gap = 110
+    panel_left = 220
+    panel_right = width - 120
+    plot_h = 520
 
     img = Image.new("RGB", (width, height), color="white")
     draw = ImageDraw.Draw(img)
     try:
-        font = ImageFont.truetype("DejaVuSans.ttf", 22)
+        font = ImageFont.truetype("DejaVuSans.ttf", 32)
     except Exception:
         font = ImageFont.load_default()
 
-    draw.text((margin, 30), "Router-Solver: SFT vs GRPO Training Pipeline Metrics", fill="#111111", font=font)
+    draw.text((margin, 40), "Router-Solver: SFT vs GRPO Training Pipeline Metrics", fill="#111111", font=font)
 
     # 1) step time
     grpo_step_times = sorted(grpo["step_times"], key=lambda r: r["step"])
