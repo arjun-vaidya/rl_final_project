@@ -108,10 +108,6 @@ def main():
     # Load model
     model, tokenizer = load_model(cfg)
 
-    if args.checkpoint:
-        print(f"Loading checkpoint: {args.checkpoint}")
-        model.load_state_dict(torch.load(args.checkpoint))
-
     agent = Agent(model, tokenizer)
 
     # Load data
