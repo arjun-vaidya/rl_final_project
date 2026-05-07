@@ -89,7 +89,7 @@ def linmap(v, v0, v1, t0, t1):
     return t0 + (v - v0) * (t1 - t0) / (v1 - v0)
 
 
-def draw_series(draw, bbox, xs, ys, xlim, ylim, color, width=3):
+def draw_series(draw, bbox, xs, ys, xlim, ylim, color, width=5):
     x0, y0, x1, y1 = bbox
     if len(xs) < 2:
         return
@@ -101,17 +101,53 @@ def draw_series(draw, bbox, xs, ys, xlim, ylim, color, width=3):
         y_a = y1 - linmap(ys[a], ylim[0], ylim[1], 0, y1 - y0)
         y_b = y1 - linmap(ys[b], ylim[0], ylim[1], 0, y1 - y0)
         draw.line((x_a, y_a, x_b, y_b), fill=color, width=width)
+        r = width * 2
+        draw.ellipse((x_a - r, y_a - r, x_a + r, y_a + r), fill=color, outline=color)
+    if len(xs) > 0 and ys:
+        idx = len(xs) - 1
+        if ys[idx] is not None:
+            x_last = x0 + linmap(xs[idx], xlim[0], xlim[1], 0, x1 - x0)
+            y_last = y1 - linmap(ys[idx], ylim[0], ylim[1], 0, y1 - y0)
+            r = width * 2
+            draw.ellipse((x_last - r, y_last - r, x_last + r, y_last + r), fill=color, outline=color)
 
 
 def draw_axis(draw, bbox, x_min, x_max, y_min, y_max, title, ylabel, font):
     x0, y0, x1, y1 = bbox
     draw.rectangle((x0, y0, x1, y1), outline="#222222", width=2)
-    draw.text((x0, y0 - 30), title, fill="#111111", font=font)
-    draw.text((x0, y1 + 22), ylabel, fill="#444444", font=font)
-    draw.text((x0 - 52, y0 + 4), f"{y_max:.2f}", fill="#444444", font=font)
-    draw.text((x0 - 52, y1 - 8), f"{y_min:.2f}", fill="#444444", font=font)
-    draw.text((x0 + 2, y1 + 6), f"{int(x_min)}", fill="#444444", font=font)
-    draw.text((x1 - 24, y1 + 6), f"{int(x_max)}", fill="#444444", font=font)
+    # remove in-chart text for legibility at slide scale
+    _ = (title, ylabel, font, x_min, x_max, y_min, y_max)
+
+
+def render_panel(out_png: Path, title: str, y_values, x_values=None, color="#3366cc", font=None, small_font=None):
+    if x_values is None:
+        x_values = list(range(len(y_values)))
+    finite_y = [y for y in y_values if y is not None]
+    if not finite_y:
+        finite_y = [0.0]
+
+    y_min = min(finite_y)
+    y_max = max(finite_y)
+    if y_min == y_max:
+        y_min -= 0.5
+        y_max += 0.5
+
+    W, H = 1800, 1100
+    left, right = 90, 1710
+    top, bottom = 95, 1025
+    img = Image.new("RGB", (W, H), "white")
+    draw = ImageDraw.Draw(img)
+
+    if font is None or small_font is None:
+        font = ImageFont.load_default()
+        small_font = ImageFont.load_default()
+
+    x_max = max(1, len(x_values) - 1)
+    x_lim = (0, x_max)
+    y_lim = (y_min, y_max)
+    draw_axis(draw, (left, top, right, bottom), x_lim[0], x_lim[1], y_lim[0], y_lim[1], title, "", small_font)
+    draw_series(draw, (left, top, right, bottom), x_values, y_values, x_lim, y_lim, color, width=26)
+    img.save(out_png)
 
 
 def summarize(values):
@@ -140,19 +176,23 @@ def plot(data, out_png: Path, out_csv: Path):
     # compact chart with 2 rows:
     # top: objective/quality trajectories
     # bottom: step-time and invalid-plan rate
-    W, H = 1800, 1050
-    left = 90
-    right = 1700
-    row1_top = 120
-    row1_bottom = 470
-    row2_top = 560
-    row2_bottom = 900
-    margin_bottom = 980
+    W, H = 4200, 2800
+    left = 120
+    right = 4080
+    row1_top = 160
+    row1_bottom = 1350
+    row2_top = 1490
+    row2_bottom = 2670
+    margin_bottom = 2720
 
     img = Image.new("RGB", (W, H), "white")
     draw = ImageDraw.Draw(img)
-    font = ImageFont.load_default()
-    small_font = ImageFont.load_default()
+    try:
+        font = ImageFont.truetype("DejaVuSans.ttf", 54)
+        small_font = ImageFont.truetype("DejaVuSans.ttf", 42)
+    except Exception:
+        font = ImageFont.load_default()
+        small_font = ImageFont.load_default()
 
     cfg = data["cfg"]
     title = (
@@ -200,8 +240,8 @@ def plot(data, out_png: Path, out_csv: Path):
     valid_acc = [v for v in acc if v is not None]
     draw.text((acc_bbox[2] - 180, acc_bbox[1] + 6), f"final {valid_acc[-1]*100:.2f}%" if valid_acc else "final n/a", fill="#16a085", font=small_font)
 
-    # Bottom-left: invalid-plan ratio and step time
-    ir_bbox = (left, row2_top, (left + right - 220) // 2 - 8, row2_bottom)
+    # Bottom: invalid-plan ratio only (remove step-time panel text for readability)
+    ir_bbox = (left, row2_top, right, row2_bottom)
     ratios = invalid_ratio
     xvals = list(range(len(ratios)))
     draw_axis(
@@ -217,43 +257,34 @@ def plot(data, out_png: Path, out_csv: Path):
     )
     draw_series(draw, ir_bbox, xvals, ratios, (0, max(1, len(ratios) - 1)), (0.0, 1.0), "#e67e22", width=3)
 
-    # Bottom-right: step time
-    t_bbox = ((left + right + 8) // 2, row2_top, right, row2_bottom)
-    tvals = [v for v in times if v > 0]
-    if not tvals:
-        tvals = [0.0]
-    t_min = min(tvals)
-    t_max = max(tvals)
-    if t_max == t_min:
-        t_max += 1.0
-    draw_axis(
-        draw,
-        t_bbox,
-        0,
-        max(1, len(times) - 1),
-        t_min,
-        t_max,
-        "Step time",
-        "sec",
-        small_font,
-    )
-    draw_series(draw, t_bbox, list(range(len(times))), times, (0, max(1, len(times) - 1)), (t_min, t_max), "#2e86de", width=3)
-    draw.text((t_bbox[2] - 120, t_bbox[1] + 6), f"median {sorted(tvals)[len(tvals)//2]:.1f}s", fill="#2e86de", font=small_font)
-
-    # Legend / caption
-    comments = [
-        f"Final throughput: loss={loss[-1]:.4f}" if loss and loss[-1] is not None else "Final throughput: n/a",
-        f"Final outcome accuracy: {acc[-1]*100:.2f}%" if acc and acc[-1] is not None else "Final outcome accuracy: n/a",
-        f"Final invalid plan ratio: {ratios[-1]*100:.2f}% if data available" if ratios and ratios[-1] is not None else "Final invalid plan ratio: n/a",
-        f"Steps logged: {len([s for s in x if s is not None])}",
-        "Interpretation: model reached stable loss in first few iterations but accuracy remains low on this 934-row slim run",
-    ]
-    y_note = 935
-    for line in comments:
-        draw.text((left, y_note), line, fill="#222222", font=small_font)
-        y_note += 22
-
     img.save(out_png)
+
+    # Export single-panel PNGs so each metric can be displayed as a separate readable chart.
+    out_dir = out_png.parent
+    render_panel(
+        out_dir / "wandb_loss_chart.png",
+        "Loss",
+        loss,
+        color="#a43",
+        font=font,
+        small_font=small_font,
+    )
+    render_panel(
+        out_dir / "wandb_accuracy_chart.png",
+        "Outcome Accuracy",
+        acc,
+        color="#16a085",
+        font=font,
+        small_font=small_font,
+    )
+    render_panel(
+        out_dir / "wandb_invalid_ratio_chart.png",
+        "Invalid Plan Ratio",
+        invalid_ratio,
+        color="#e67e22",
+        font=font,
+        small_font=small_font,
+    )
 
     # CSV for reproducibility and future edits
     with out_csv.open("w", encoding="utf-8") as f:
