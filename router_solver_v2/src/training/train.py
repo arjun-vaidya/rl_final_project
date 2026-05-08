@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import os
 import logging
-from typing import List, Tuple
+from typing import List
 from tqdm import tqdm
 
 from src.agents.agent import Agent
@@ -57,6 +57,7 @@ def train_epoch(
     optimizer,
     cfg: Config,
     epoch: int,
+    start_q_idx: int = 0,
 ):
     """Train one epoch using GRPO."""
 
@@ -66,9 +67,12 @@ def train_epoch(
     num_questions = 0
     total_rollouts = 0
 
-    print(f"Starting epoch {epoch+1}: {len(questions)} questions")
+    print(f"Starting epoch {epoch+1}: {len(questions) - start_q_idx} questions")
 
     for q_idx, (question, gt) in enumerate(zip(questions, ground_truths)):
+        if q_idx < start_q_idx:
+            continue
+
         # GRPO: Generate G=4 rollouts per question
         rollouts = []
         for rollout_i in range(cfg.rollouts_per_q):
@@ -84,19 +88,28 @@ def train_epoch(
 
         num_questions += 1
 
-        # Batch judge plans for all rollouts in this group
-        plan_batch = [(rollout.question, rollout.plan) for rollout in rollouts]
-        plan_scores = shaper.judge.batch_judge_plans(plan_batch) if plan_batch else []
+        judge = shaper.judge
 
-        # Batch judge all steps for all rollouts
-        step_batch = []
-        step_batch_map = {}
-        for r_idx, rollout in enumerate(rollouts):
-            for step_idx, step in enumerate(rollout.steps):
-                step_batch.append((rollout.question, rollout.plan, step_idx, step.reasoning))
-                step_batch_map[(r_idx, step_idx)] = len(step_batch) - 1
+        if judge:
+            plan_batch = [(rollout.question, rollout.plan) for rollout in rollouts]
+            plan_scores = judge.batch_judge_plans(plan_batch) if plan_batch else []
 
-        step_scores = shaper.judge.batch_judge_steps(step_batch) if step_batch else []
+            step_batch = []
+            step_batch_map = {}
+            for r_idx, rollout in enumerate(rollouts):
+                for step_idx, step in enumerate(rollout.steps):
+                    step_batch.append((rollout.question, rollout.plan, step_idx, step.reasoning))
+                    step_batch_map[(r_idx, step_idx)] = len(step_batch) - 1
+
+            step_scores = judge.batch_judge_steps(step_batch) if step_batch else []
+        else:
+            plan_scores = [min(len(rollout.plan) / 8.0, 1.0) for rollout in rollouts]
+            step_scores = []
+            step_batch_map = {}
+            for r_idx, rollout in enumerate(rollouts):
+                for step_idx, step in enumerate(rollout.steps):
+                    step_batch_map[(r_idx, step_idx)] = len(step_scores)
+                    step_scores.append(0.3 if len(step.reasoning) > 50 else 0.1)
 
         # Assign scores back to rollouts
         total_rollouts_processed = 0
@@ -118,7 +131,10 @@ def train_epoch(
                 else:
                     step_rewards.append(0.0)
             rollout._step_rewards = step_rewards
-            rollout._outcome_reward = shaper.judge.judge_answer("", rollout.final_answer, rollout.ground_truth)
+            if judge:
+                rollout._outcome_reward = judge.judge_answer("", rollout.final_answer, rollout.ground_truth)
+            else:
+                rollout._outcome_reward = shaper._outcome_reward(rollout.final_answer, rollout.ground_truth)
 
         # Compute rewards for all rollouts in group
         group_rewards = {
@@ -194,7 +210,8 @@ def train_epoch(
             print(f"  Rewards: router={np.mean(group_rewards['router']):.3f}, steps={np.mean(group_rewards['steps']):.3f}")
 
         if (q_idx + 1) % cfg.checkpoint_every == 0:
-            ckpt_path = f"checkpoint_epoch{epoch}_q{q_idx+1}.pt"
+            os.makedirs(cfg.output_dir, exist_ok=True)
+            ckpt_path = os.path.join(cfg.output_dir, f"checkpoint_epoch{epoch}_q{q_idx+1}.pt")
             checkpoint = {
                 "epoch": epoch,
                 "q_idx": q_idx,
@@ -227,6 +244,8 @@ def train(
     train_gts: List[str],
     cfg: Config,
     optimizer,
+    start_epoch: int = 0,
+    start_q_idx: int = 0,
 ):
     """Train for full Phase 4."""
 
@@ -249,8 +268,9 @@ def train(
     print(f"LoRA adapters: default, router, solver (rank={cfg.lora_rank})")
     print(f"="*70 + "\n")
 
-    for epoch in range(cfg.epochs):
+    for epoch in range(start_epoch, cfg.epochs):
         print(f"\nEpoch {epoch+1}/{cfg.epochs}")
+        epoch_start_q_idx = start_q_idx if epoch == start_epoch else 0
         loss, acc = train_epoch(
             agent=agent,
             shaper=shaper,
@@ -260,6 +280,7 @@ def train(
             optimizer=optimizer,
             cfg=cfg,
             epoch=epoch,
+            start_q_idx=epoch_start_q_idx,
         )
         print(f"Epoch {epoch+1} complete: loss={loss:.3f}, acc={acc:.1%}")
 

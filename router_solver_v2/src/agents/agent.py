@@ -33,11 +33,25 @@ class Rollout:
 
 
 class Agent:
-    def __init__(self, model, tokenizer, router_adapter: str = "router", solver_adapter: str = "solver"):
+    def __init__(
+        self,
+        model,
+        tokenizer,
+        router_adapter: str = "router",
+        solver_adapter: str = "solver",
+        router_max_tokens: int = 300,
+        solver_max_tokens: int = 200,
+        router_temperature: float = 1.0,
+        solver_temperature: float = 1.0,
+    ):
         self.model = model
         self.tokenizer = tokenizer
         self.router_adapter = router_adapter
         self.solver_adapter = solver_adapter
+        self.router_max_tokens = router_max_tokens
+        self.solver_max_tokens = solver_max_tokens
+        self.router_temperature = router_temperature
+        self.solver_temperature = solver_temperature
 
     def _set_adapter(self, name: str):
         if hasattr(self.model, "set_adapter"):
@@ -90,7 +104,7 @@ class Agent:
                 return line
         return text.strip()
 
-    def rollout(self, question: str, ground_truth: str, temp: float = 1.0) -> Rollout:
+    def rollout(self, question: str, ground_truth: str) -> Rollout:
         self._set_adapter(self.router_adapter)
         router_prompt = f"""Decompose this math problem into clear steps.
 
@@ -101,7 +115,9 @@ Respond with JSON: {{"plan": ["step 1", "step 2", ...]}}
 JSON:"""
 
         router_text, router_prompt_ids, router_comp_ids = self._generate(
-            router_prompt, max_tokens=300, temp=temp
+            router_prompt,
+            max_tokens=self.router_max_tokens,
+            temp=self.router_temperature,
         )
         plan = self._parse_plan(router_text)
 
@@ -142,7 +158,9 @@ Solve this step. Show work, then state your answer.
 Answer:"""
 
             solver_text, s_prompt_ids, s_comp_ids = self._generate(
-                prompt, max_tokens=200, temp=temp
+                prompt,
+                max_tokens=self.solver_max_tokens,
+                temp=self.solver_temperature,
             )
             answer = self._extract_answer(solver_text)
             previous_answers.append(answer)

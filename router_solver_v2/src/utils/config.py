@@ -5,10 +5,15 @@ from dataclasses import dataclass
 class Config:
     batch_size: int = 32
     rollouts_per_q: int = 4
+    train_questions: int = 400
+    eval_questions: int = 500
+    dataset_variant: str = "full"
 
     router_max_tokens: int = 300
     solver_max_tokens: int = 200
     max_subgoals: int = 8
+    router_temperature: float = 1.0
+    solver_temperature: float = 1.0
 
     router_weight: float = 0.3
     solver_weight: float = 0.5
@@ -30,6 +35,7 @@ class Config:
     batch_judge_size: int = 10
 
     device: str = "cuda"
+    output_dir: str = "."
 
     @property
     def total_per_batch(self) -> int:

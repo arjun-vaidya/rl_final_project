@@ -1,6 +1,11 @@
 # Router-Solver V2
 
-Text-based hierarchical RL with GPT-4o mini judge for step-level reward signals.
+Text-based hierarchical RL with an OpenAI-compatible remote judge for step-level reward signals.
+
+Current repo note:
+- the runtime judge client is configurable through `OLLAMA_*` env vars and can point to a remote `vLLM` deployment;
+- the deployment assets for that judge live under [judge_ops](./judge_ops/README.md).
+- `--dataset slim` mirrors the original slim-dataset selection rule from `router_solver`.
 
 ## Architecture
 

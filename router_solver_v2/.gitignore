@@ -50,3 +50,6 @@ phase4_final.pt
 # Training artifacts
 *.log
 training_metrics.jsonl
+
+# Judge ops local env/state
+judge_ops/env/*.local
