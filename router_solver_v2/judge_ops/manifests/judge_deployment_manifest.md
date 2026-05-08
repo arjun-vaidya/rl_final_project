@@ -52,7 +52,7 @@
 - Active run:
   - output dir: `/home/pvd2112/rl_final_project/router_solver_v2/experiments/slim_g6_20260508_112455`
   - pid file: `/home/pvd2112/rl_final_project/router_solver_v2/experiments/slim_g6_20260508_112455/train.pid`
-  - launch status: process alive after judge batching fix; initial rollout generation in progress
+  - launch status: process alive after judge batching fix; first judged question completed cleanly with judge batch size `3`
 
 ## Validation
 
