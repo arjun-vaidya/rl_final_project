@@ -120,6 +120,11 @@ def main():
     # Load data
     train_qs, train_gts, test_qs, test_gts = load_data()
 
+    # Limit to 400 questions for faster training
+    train_qs = train_qs[:400]
+    train_gts = train_gts[:400]
+    print(f"Limited training to {len(train_qs)} questions")
+
     # Train
     if args.mode in ["train", "train_eval"]:
         print("\nStarting training...")

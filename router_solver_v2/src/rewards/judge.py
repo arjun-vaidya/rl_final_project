@@ -2,32 +2,43 @@ import json
 import os
 import logging
 import time
-from openai import OpenAI, RateLimitError
+import requests
 from typing import List, Dict, Tuple
+from dotenv import load_dotenv
 
+load_dotenv()
 logger = logging.getLogger(__name__)
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+OLLAMA_URL = os.getenv("OLLAMA_API_URL", "http://localhost:11434/v1/chat/completions")
+MODEL = os.getenv("OLLAMA_MODEL", "qwen:7b")
 
 
-def _retry_with_backoff(func, max_retries=5, initial_delay=1.0):
-    """Retry with exponential backoff for rate limit errors."""
+def _call_ollama(messages, max_retries=3, initial_delay=1.0):
+    """Call Ollama API with retry logic."""
     for attempt in range(max_retries):
         try:
-            return func()
-        except RateLimitError as e:
+            response = requests.post(
+                OLLAMA_URL,
+                json={"model": MODEL, "messages": messages, "temperature": 0.0},
+                timeout=30,
+            )
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.ConnectionError:
             if attempt < max_retries - 1:
                 delay = initial_delay * (2 ** attempt)
-                logger.warning(f"Rate limited. Retrying in {delay:.1f}s (attempt {attempt+1}/{max_retries})")
+                logger.warning(f"Ollama connection failed. Retrying in {delay:.1f}s (attempt {attempt+1}/{max_retries})")
                 time.sleep(delay)
             else:
-                logger.error(f"Rate limit exceeded after {max_retries} retries")
+                logger.error("Could not connect to Ollama after retries")
                 raise
         except Exception as e:
+            logger.error(f"Ollama API error: {e}")
             raise
 
 
 class Judge:
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "qwen:7b"):
         self.model = model
 
     def judge_plan(self, question: str, plan: list) -> float:
@@ -41,24 +52,15 @@ class Judge:
         if not items:
             return []
 
-        batch_prompt = "Rate each plan 0-10. Respond with JSON array: [{\"idx\": 0, \"score\": <0-10>}, ...]\n\n"
+        batch_prompt = "Rate each plan 0-10 on clarity, independence, completeness.\nRespond ONLY with JSON array of numbers: [<score1>, <score2>, ...]\n\n"
         for idx, (question, plan) in enumerate(items):
             plan_text = "\n".join([f"{i+1}. {s}" for i, s in enumerate(plan)])
-            batch_prompt += f"PLAN {idx}:\nQuestion: {question}\nPlan:\n{plan_text}\n\n"
-
-        batch_prompt += "Rate based on: clarity, independence, completeness.\n"
-        batch_prompt += "Respond: [{\"idx\": <0-" + str(len(items)-1) + ">, \"score\": <0-10>}, ...]"
-
-        def api_call():
-            return client.chat.completions.create(
-                model=self.model,
-                messages=[{"role": "user", "content": batch_prompt}],
-                temperature=0.0,
-            )
+            batch_prompt += f"PLAN {idx}:\nQ: {question}\n{plan_text}\n\n"
 
         try:
-            response = _retry_with_backoff(api_call, max_retries=5, initial_delay=1.0)
-            text = response.choices[0].message.content
+            response = _call_ollama([{"role": "user", "content": batch_prompt}])
+            text = response["choices"][0]["message"]["content"]
+            logger.info(f"Ollama response (plans): {text}")
 
             start_idx = text.find('[')
             end_idx = text.rfind(']')
@@ -67,25 +69,18 @@ class Judge:
                 return [0.0] * len(items)
 
             json_str = text[start_idx:end_idx+1]
-            results = json.loads(json_str)
+            scores = json.loads(json_str)
 
-            if not isinstance(results, list):
-                logger.error(f"Expected list, got {type(results)}")
+            if not isinstance(scores, list) or len(scores) != len(items):
+                logger.error(f"Expected list of {len(items)}, got {scores}")
                 return [0.0] * len(items)
 
-            scores = [0.0] * len(items)
-            for result in results:
-                idx = result.get("idx", -1)
-                if 0 <= idx < len(items):
-                    score = result.get("score", 0)
-                    if isinstance(score, (int, float)):
-                        scores[idx] = min(max(score / 10.0, 0.0), 1.0)
-            return scores
+            return [min(max(float(s) / 10.0, 0.0), 1.0) for s in scores]
         except json.JSONDecodeError as e:
             logger.error(f"JSON decode error in batch_judge_plans: {e}")
             return [0.0] * len(items)
         except Exception as e:
-            logger.error(f"Batch judge API error: {e}")
+            logger.error(f"Batch judge error: {e}")
             return [0.0] * len(items)
 
     def judge_step(self, question: str, plan: list, step_idx: int, reasoning: str) -> float:
@@ -97,22 +92,14 @@ class Judge:
         if not items:
             return []
 
-        batch_prompt = "Rate each step 0-10. Respond with JSON array: [{\"idx\": 0, \"score\": <0-10>}, ...]\n\n"
+        batch_prompt = "Rate each step 0-10. Respond ONLY with JSON array of numbers: [<score1>, <score2>, ...]\n\n"
         for idx, (question, plan, step_idx, reasoning) in enumerate(items):
-            batch_prompt += f"STEP {idx}:\nQuestion: {question}\nStep {step_idx+1}: {plan[step_idx]}\nReasoning: {reasoning}\n\n"
-
-        batch_prompt += "Respond: [{\"idx\": <0-" + str(len(items)-1) + ">, \"score\": <0-10>}, ...]"
-
-        def api_call():
-            return client.chat.completions.create(
-                model=self.model,
-                messages=[{"role": "user", "content": batch_prompt}],
-                temperature=0.0,
-            )
+            batch_prompt += f"STEP {idx}:\nQ: {question}\nStep {step_idx+1}: {plan[step_idx]}\nR: {reasoning}\n\n"
 
         try:
-            response = _retry_with_backoff(api_call, max_retries=5, initial_delay=1.0)
-            text = response.choices[0].message.content
+            response = _call_ollama([{"role": "user", "content": batch_prompt}])
+            text = response["choices"][0]["message"]["content"]
+            logger.info(f"Ollama response (steps): {text}")
 
             start_idx = text.find('[')
             end_idx = text.rfind(']')
@@ -121,25 +108,18 @@ class Judge:
                 return [0.0] * len(items)
 
             json_str = text[start_idx:end_idx+1]
-            results = json.loads(json_str)
+            scores = json.loads(json_str)
 
-            if not isinstance(results, list):
-                logger.error(f"Expected list, got {type(results)}")
+            if not isinstance(scores, list) or len(scores) != len(items):
+                logger.error(f"Expected list of {len(items)}, got {scores}")
                 return [0.0] * len(items)
 
-            scores = [0.0] * len(items)
-            for result in results:
-                idx = result.get("idx", -1)
-                if 0 <= idx < len(items):
-                    score = result.get("score", 0)
-                    if isinstance(score, (int, float)):
-                        scores[idx] = min(max(score / 10.0, 0.0), 1.0)
-            return scores
+            return [min(max(float(s) / 10.0, 0.0), 1.0) for s in scores]
         except json.JSONDecodeError as e:
             logger.error(f"JSON decode error in batch_judge_steps: {e}")
             return [0.0] * len(items)
         except Exception as e:
-            logger.error(f"Batch judge API error: {e}")
+            logger.error(f"Batch judge error: {e}")
             return [0.0] * len(items)
 
     def judge_answer(self, question: str, answer: str, ground_truth: str) -> float:
