@@ -318,7 +318,12 @@ State at report time:
 - model loaded
 - dataset loaded
 - epoch 1 started
-- first question group still in progress at the last check
+- first judged question completed cleanly after the batch-size reduction to `3`
+- observed post-fix first-question judge responses:
+  - plans: `[10, 10, 10]` and `[10, 10, 10]`
+  - steps: `[5, 7, 8]`, `[3, 7, 8]`, `[7, 8, 9]`, `[8, 9, 7]`
+- no `400` context-overflow errors seen for that question
+- no score-count mismatch warnings seen for that question
 
 ## Operational Notes
 
@@ -339,8 +344,6 @@ State at report time:
 
 The next concrete checks to perform on the active run are:
 
-- confirm the first judged question completes without any `400` errors
-- confirm no score-count mismatches remain at batch size `3`
 - confirm the first `checkpoint_epoch0_q10.pt` is written
 - record the elapsed wall-clock time to first checkpoint
 - estimate whether `120` slim questions at `G=6` are operationally acceptable
