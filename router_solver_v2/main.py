@@ -33,16 +33,20 @@ logging.basicConfig(
 
 def load_model(cfg):
     """Load base model and setup LoRA."""
-    print(f"Loading {cfg.base_model}...")
+    print(f"\n[1/3] Loading base model: {cfg.base_model}...")
     model = AutoModelForCausalLM.from_pretrained(
         cfg.base_model,
         torch_dtype=torch.bfloat16,
         device_map="auto",
     )
+    print(f"Done: Model loaded")
+
+    print(f"[2/3] Loading tokenizer...")
     tokenizer = AutoTokenizer.from_pretrained(cfg.base_model)
+    print(f"Done: Tokenizer loaded")
 
     if cfg.use_lora:
-        print("Setting up LoRA...")
+        print(f"[3/3] Setting up LoRA adapters...")
         lora_config = LoraConfig(
             r=cfg.lora_rank,
             lora_alpha=cfg.lora_alpha,
@@ -51,11 +55,14 @@ def load_model(cfg):
             bias="none",
         )
         model = get_peft_model(model, lora_config)
+        print(f"  Created default adapter")
 
         # Create separate adapters for router and solver
         model.add_adapter("router", lora_config)
+        print(f"  Created router adapter")
         model.add_adapter("solver", lora_config)
-        print("Created LoRA adapters: default, router, solver")
+        print(f"  Created solver adapter")
+        print(f"Done: LoRA adapters ready (default, router, solver)")
 
     return model, tokenizer
 

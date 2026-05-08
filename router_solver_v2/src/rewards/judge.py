@@ -1,11 +1,29 @@
 import json
 import os
 import logging
-from openai import OpenAI
+import time
+from openai import OpenAI, RateLimitError
 from typing import List, Dict, Tuple
 
 logger = logging.getLogger(__name__)
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+
+def _retry_with_backoff(func, max_retries=5, initial_delay=1.0):
+    """Retry with exponential backoff for rate limit errors."""
+    for attempt in range(max_retries):
+        try:
+            return func()
+        except RateLimitError as e:
+            if attempt < max_retries - 1:
+                delay = initial_delay * (2 ** attempt)
+                logger.warning(f"Rate limited. Retrying in {delay:.1f}s (attempt {attempt+1}/{max_retries})")
+                time.sleep(delay)
+            else:
+                logger.error(f"Rate limit exceeded after {max_retries} retries")
+                raise
+        except Exception as e:
+            raise
 
 
 class Judge:
@@ -31,15 +49,17 @@ class Judge:
         batch_prompt += "Rate based on: clarity, independence, completeness.\n"
         batch_prompt += "Respond: [{\"idx\": <0-" + str(len(items)-1) + ">, \"score\": <0-10>}, ...]"
 
-        try:
-            response = client.chat.completions.create(
+        def api_call():
+            return client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": batch_prompt}],
                 temperature=0.0,
             )
+
+        try:
+            response = _retry_with_backoff(api_call, max_retries=5, initial_delay=1.0)
             text = response.choices[0].message.content
 
-            # Extract JSON with validation
             start_idx = text.find('[')
             end_idx = text.rfind(']')
             if start_idx == -1 or end_idx == -1:
@@ -83,15 +103,17 @@ class Judge:
 
         batch_prompt += "Respond: [{\"idx\": <0-" + str(len(items)-1) + ">, \"score\": <0-10>}, ...]"
 
-        try:
-            response = client.chat.completions.create(
+        def api_call():
+            return client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": batch_prompt}],
                 temperature=0.0,
             )
+
+        try:
+            response = _retry_with_backoff(api_call, max_retries=5, initial_delay=1.0)
             text = response.choices[0].message.content
 
-            # Extract JSON with validation
             start_idx = text.find('[')
             end_idx = text.rfind(']')
             if start_idx == -1 or end_idx == -1:

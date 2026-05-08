@@ -66,13 +66,17 @@ def train_epoch(
     num_questions = 0
     total_rollouts = 0
 
+    print(f"Starting epoch {epoch+1}: {len(questions)} questions")
+
     for q_idx, (question, gt) in enumerate(zip(questions, ground_truths)):
         # GRPO: Generate G=4 rollouts per question
         rollouts = []
-        for _ in range(cfg.rollouts_per_q):
+        for rollout_i in range(cfg.rollouts_per_q):
             rollout = agent.rollout(question, gt)
             if rollout.plan and rollout.steps:
                 rollouts.append(rollout)
+            if (rollout_i + 1) == cfg.rollouts_per_q:
+                print(f"Q {q_idx+1}: Generated {len(rollouts)}/{cfg.rollouts_per_q} valid rollouts", end=" | ")
 
         if not rollouts:
             logger.debug(f"No valid rollouts for question {q_idx+1}")
@@ -185,9 +189,9 @@ def train_epoch(
         if (q_idx + 1) % cfg.log_every == 0:
             avg_loss = total_loss / max(num_questions, 1)
             acc = correct / max(total_rollouts, 1)
-            print(f"Q {q_idx+1} | loss={avg_loss:.4f} | acc={acc:.1%} ({correct}/{total_rollouts}) | valid_q={num_questions}")
-            logger.debug(f"Advantage stats - router: {np.mean(router_advantages):.3f} | steps: {np.mean(steps_advantages):.3f} | outcome: {np.mean(outcome_advantages):.3f}")
-            logger.debug(f"Reward stats - router: μ={np.mean(group_rewards['router']):.3f} | steps: μ={np.mean(group_rewards['steps']):.3f}")
+            print(f"PROGRESS | loss={avg_loss:.4f} | acc={acc:.1%} ({correct}/{total_rollouts}) | valid_q={num_questions}")
+            print(f"  Advantages: router={np.mean(router_advantages):.3f}, steps={np.mean(steps_advantages):.3f}, outcome={np.mean(outcome_advantages):.3f}")
+            print(f"  Rewards: router={np.mean(group_rewards['router']):.3f}, steps={np.mean(group_rewards['steps']):.3f}")
 
         if (q_idx + 1) % cfg.checkpoint_every == 0:
             ckpt_path = f"checkpoint_epoch{epoch}_q{q_idx+1}.pt"
@@ -234,16 +238,16 @@ def train(
         decay=cfg.router_weight_decay,
     )
 
-    print(f"\nPhase 4: Full Scale Training")
-    print(f"Batch size: {cfg.batch_size}")
+    print(f"\n" + "="*70)
+    print(f"PHASE 4: FULL SCALE TRAINING")
+    print(f"="*70)
+    print(f"Questions: {len(train_questions)}")
     print(f"Rollouts per Q: {cfg.rollouts_per_q}")
-    print(f"Total per batch: {cfg.total_per_batch}")
-    print(f"Epochs: {cfg.epochs}")
     print(f"Total rollouts: {len(train_questions) * cfg.rollouts_per_q * cfg.epochs:,}")
-    print(f"Estimated judge cost: ${len(train_questions) * cfg.rollouts_per_q * cfg.epochs * 3 * 0.0005 / 100:.2f} (batched)")
+    print(f"Epochs: {cfg.epochs}")
     print(f"Learning rate: {cfg.learning_rate}")
-    print(f"LoRA: {cfg.use_lora} (rank={cfg.lora_rank})")
-    print()
+    print(f"LoRA adapters: default, router, solver (rank={cfg.lora_rank})")
+    print(f"="*70 + "\n")
 
     for epoch in range(cfg.epochs):
         print(f"\nEpoch {epoch+1}/{cfg.epochs}")
