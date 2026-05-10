@@ -40,6 +40,15 @@ class Config:
     save_rollout_traces: bool = True
     rollout_trace_path: str = ""
     use_answer_synthesis: bool = False
+    constrained_final_answer_decoding: bool = False
+    candidate_rerank: bool = False
+    trace_consistency_guard: bool = False
+    answer_bearing_step_hint: bool = False
+    heuristic_final_selector: bool = False
+    heuristic_final_selector_refined: bool = False
+    guarded_heuristic_fallback: bool = False
+    synthesis_self_consistency: bool = False
+    synthesis_self_consistency_samples: int = 3
     router_prompt_hardening: bool = False
     plan_parse_repair: bool = False
     outcome_credit_all_steps: bool = False

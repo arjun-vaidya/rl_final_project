@@ -158,6 +158,10 @@ def main():
     parser.add_argument("--rollouts-per-q", type=int, default=None, help="GRPO group size")
     parser.add_argument("--epochs", type=int, default=None, help="Number of training epochs")
     parser.add_argument("--learning-rate", type=float, default=None, help="AdamW learning rate")
+    parser.add_argument("--router-weight", type=float, default=None, help="Initial router reward weight")
+    parser.add_argument("--solver-weight", type=float, default=None, help="Solver/process reward weight")
+    parser.add_argument("--outcome-weight", type=float, default=None, help="Outcome/correctness reward weight")
+    parser.add_argument("--router-weight-decay", type=float, default=None, help="Per-epoch decay for the router reward weight")
     parser.add_argument("--checkpoint-every", type=int, default=None, help="Checkpoint cadence in questions")
     parser.add_argument("--log-every", type=int, default=None, help="Logging cadence in questions")
     parser.add_argument("--router-max-tokens", type=int, default=None, help="Router generation cap")
@@ -170,6 +174,15 @@ def main():
     parser.add_argument("--save-rollout-traces", choices=["on", "off"], default=None, help="Persist rollout traces as JSONL during training")
     parser.add_argument("--rollout-trace-path", default=None, help="Optional JSONL path for rollout traces")
     parser.add_argument("--use-answer-synthesis", choices=["on", "off"], default=None, help="Use a final synthesis step over the full trace")
+    parser.add_argument("--constrained-final-answer-decoding", choices=["on", "off"], default=None, help="Use a stricter numeric-only synthesis decode")
+    parser.add_argument("--candidate-rerank", choices=["on", "off"], default=None, help="Rerank numeric candidates extracted from the trace")
+    parser.add_argument("--trace-consistency-guard", choices=["on", "off"], default=None, help="Reject synthesis answers not supported by the trace")
+    parser.add_argument("--answer-bearing-step-hint", choices=["on", "off"], default=None, help="Hint the synthesis prompt with the most answer-like subgoal")
+    parser.add_argument("--heuristic-final-selector", choices=["on", "off"], default=None, help="Select the final answer with a deterministic heuristic over trace candidates")
+    parser.add_argument("--heuristic-final-selector-refined", choices=["on", "off"], default=None, help="Use a more conservative heuristic selector that only overrides synthesis on higher-confidence candidates")
+    parser.add_argument("--guarded-heuristic-fallback", choices=["on", "off"], default=None, help="Fallback to the heuristic selector only when synthesis is unsupported by the trace")
+    parser.add_argument("--synthesis-self-consistency", choices=["on", "off"], default=None, help="Sample multiple synthesis answers and majority-vote the numeric result")
+    parser.add_argument("--synthesis-self-consistency-samples", type=int, default=None, help="Number of synthesis samples for self-consistency voting")
     parser.add_argument("--router-prompt-hardening", choices=["on", "off"], default=None, help="Use a stricter router prompt without enabling repair fallback")
     parser.add_argument("--plan-parse-repair", choices=["on", "off"], default=None, help="Enable parser repair fallback for router plans")
     parser.add_argument("--outcome-credit-all-steps", choices=["on", "off"], default=None, help="Distribute outcome credit across all solver steps during training")
@@ -194,6 +207,14 @@ def main():
         cfg.epochs = args.epochs
     if args.learning_rate is not None:
         cfg.learning_rate = args.learning_rate
+    if args.router_weight is not None:
+        cfg.router_weight = args.router_weight
+    if args.solver_weight is not None:
+        cfg.solver_weight = args.solver_weight
+    if args.outcome_weight is not None:
+        cfg.outcome_weight = args.outcome_weight
+    if args.router_weight_decay is not None:
+        cfg.router_weight_decay = args.router_weight_decay
     if args.checkpoint_every is not None:
         cfg.checkpoint_every = args.checkpoint_every
     if args.log_every is not None:
@@ -218,6 +239,24 @@ def main():
         cfg.rollout_trace_path = args.rollout_trace_path
     if args.use_answer_synthesis is not None:
         cfg.use_answer_synthesis = args.use_answer_synthesis == "on"
+    if args.constrained_final_answer_decoding is not None:
+        cfg.constrained_final_answer_decoding = args.constrained_final_answer_decoding == "on"
+    if args.candidate_rerank is not None:
+        cfg.candidate_rerank = args.candidate_rerank == "on"
+    if args.trace_consistency_guard is not None:
+        cfg.trace_consistency_guard = args.trace_consistency_guard == "on"
+    if args.answer_bearing_step_hint is not None:
+        cfg.answer_bearing_step_hint = args.answer_bearing_step_hint == "on"
+    if args.heuristic_final_selector is not None:
+        cfg.heuristic_final_selector = args.heuristic_final_selector == "on"
+    if args.heuristic_final_selector_refined is not None:
+        cfg.heuristic_final_selector_refined = args.heuristic_final_selector_refined == "on"
+    if args.guarded_heuristic_fallback is not None:
+        cfg.guarded_heuristic_fallback = args.guarded_heuristic_fallback == "on"
+    if args.synthesis_self_consistency is not None:
+        cfg.synthesis_self_consistency = args.synthesis_self_consistency == "on"
+    if args.synthesis_self_consistency_samples is not None:
+        cfg.synthesis_self_consistency_samples = args.synthesis_self_consistency_samples
     if args.router_prompt_hardening is not None:
         cfg.router_prompt_hardening = args.router_prompt_hardening == "on"
     if args.plan_parse_repair is not None:
@@ -249,9 +288,21 @@ def main():
     print(f"Batch: {cfg.batch_size} | Rollouts/Q: {cfg.rollouts_per_q} | Total/batch: {cfg.total_per_batch}")
     print(f"Dataset: {cfg.dataset_variant} | Train questions: {cfg.train_questions} | Eval questions: {cfg.eval_questions}")
     print(f"Epochs: {cfg.epochs} | LR: {cfg.learning_rate} | Use judge: {cfg.use_judge}")
+    print(
+        f"Reward weights: router={cfg.router_weight} "
+        f"solver={cfg.solver_weight} outcome={cfg.outcome_weight} "
+        f"| router_decay={cfg.router_weight_decay}"
+    )
     print(f"Router max tokens: {cfg.router_max_tokens} @ temp {cfg.router_temperature}")
     print(f"Solver max tokens: {cfg.solver_max_tokens} @ temp {cfg.solver_temperature}")
-    print(f"Synthesis max tokens: {cfg.synthesis_max_tokens} | Use synthesis: {cfg.use_answer_synthesis}")
+    print(f"Synthesis max tokens: {cfg.synthesis_max_tokens} | Use synthesis: {cfg.use_answer_synthesis} | Constrained final decode: {cfg.constrained_final_answer_decoding} | Candidate rerank: {cfg.candidate_rerank}")
+    print(
+        "Trace consistency guard: "
+        f"{cfg.trace_consistency_guard} | Answer-bearing step hint: {cfg.answer_bearing_step_hint} | "
+        f"Heuristic selector: {cfg.heuristic_final_selector} | Heuristic selector refined: {cfg.heuristic_final_selector_refined} | "
+        f"Guarded heuristic fallback: {cfg.guarded_heuristic_fallback} | "
+        f"Synthesis self-consistency: {cfg.synthesis_self_consistency} ({cfg.synthesis_self_consistency_samples})"
+    )
     print(f"Checkpoint every: {cfg.checkpoint_every} | Output dir: {cfg.output_dir}")
     print(f"Rollout traces: {cfg.save_rollout_traces} | Trace path: {cfg.rollout_trace_path or '-'}")
     print(f"Router prompt hardening: {cfg.router_prompt_hardening} | Plan parse repair: {cfg.plan_parse_repair} | Outcome credit all steps: {cfg.outcome_credit_all_steps}")
@@ -269,6 +320,15 @@ def main():
         router_temperature=cfg.router_temperature,
         solver_temperature=cfg.solver_temperature,
         use_answer_synthesis=cfg.use_answer_synthesis,
+        constrained_final_answer_decoding=cfg.constrained_final_answer_decoding,
+        candidate_rerank=cfg.candidate_rerank,
+        trace_consistency_guard=cfg.trace_consistency_guard,
+        answer_bearing_step_hint=cfg.answer_bearing_step_hint,
+        heuristic_final_selector=cfg.heuristic_final_selector,
+        heuristic_final_selector_refined=cfg.heuristic_final_selector_refined,
+        guarded_heuristic_fallback=cfg.guarded_heuristic_fallback,
+        synthesis_self_consistency=cfg.synthesis_self_consistency,
+        synthesis_self_consistency_samples=cfg.synthesis_self_consistency_samples,
         router_prompt_hardening=cfg.router_prompt_hardening,
         plan_parse_repair=cfg.plan_parse_repair,
     )

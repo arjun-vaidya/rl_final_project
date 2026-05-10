@@ -1,0 +1,51 @@
+# Failure Taxonomy Report
+
+## Summary
+- trace_path: `/home/pvd2112/rl_final_project/router_solver_v2/experiments/credit_assignment_10q_20260510_005313/variant_outcome_credit_all_steps/eval/rollout_traces.jsonl`
+- records: `10`
+- total_rollouts: `60`
+- valid_rollouts: `60`
+- exact_accuracy: `0.2833`
+- relaxed_numeric_accuracy: `0.2833`
+- analyzed_failures: `43`
+- invalid_counts: `{}`
+- final_answer_source_counts: `{"synthesis": 60}`
+
+## Primary Categories
+- wrong_numeric_final: `18`
+- correct_number_in_trace_wrong_final: `11`
+- copied_intermediate_as_final: `5`
+- non_numeric_final_answer: `5`
+- plan_endpoint_mismatch: `4`
+
+## Flags
+- last_subgoal_not_answer_like: `17`
+- correct_number_appears_in_trace: `14`
+- copied_intermediate_as_final: `7`
+- non_numeric_final_answer: `5`
+
+## Example Failures
+### copied_intermediate_as_final
+- `{"question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?", "ground_truth": "10", "final_answer": "12", "last_subgoal": "Calculate the earnings by multiplying the hourly rate by the number of hours worked.", "step_answers": ["12", "6"], "flags": ["copied_intermediate_as_final", "last_subgoal_not_answer_like"], "last_reasoning": "Let's solve it step by step:\n\nStep 1: Convert the time from minutes to hours.\nYesterday, Weng worked 50 minutes of babysitting. Since there are 60 minutes in an hour, we can convert this as follows..."}`
+- `{"question": "Mark has a garden with flowers. He planted plants of three different colors in it. Ten of them are yellow, and there are 80% more of thos...", "ground_truth": "35", "final_answer": "18", "last_subgoal": "Step 4: Sum up all the flowers to get the total count.", "step_answers": ["18", "18", "2", "1"], "flags": ["copied_intermediate_as_final"], "last_reasoning": "To determine the total number of flowers in Mark's garden, we need to follow these steps:\n\n1. Calculate the number of purple flowers:\n   - We know that there are ten yellow flowers.\n   - The number..."}`
+- `{"question": "Mark has a garden with flowers. He planted plants of three different colors in it. Ten of them are yellow, and there are 80% more of thos...", "ground_truth": "35", "final_answer": "46", "last_subgoal": "Step 4: Sum up all the flowers to get the total count.", "step_answers": ["100", "19", "46", "2"], "flags": ["copied_intermediate_as_final"], "last_reasoning": "To solve the problem step by step, we will follow the given plan:\n\n1. Find the number of purple flowers:\n   - Given that there are 80% more purple flowers than yellow flowers.\n   - Number of yellow..."}`
+
+### correct_number_in_trace_wrong_final
+- `{"question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether...", "ground_truth": "72", "final_answer": "48", "last_subgoal": "Step 2: Add the number of clips sold in April and May together.", "step_answers": ["72", "48"], "flags": ["correct_number_appears_in_trace", "last_subgoal_not_answer_like"], "last_reasoning": "To solve the problem step-by-step:\n\nStep 1: We already know that Natalia sold 48 clips in April. According to the question, we need to find out how many clips she sold in May. \n\nThe plan is to calc..."}`
+- `{"question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?", "ground_truth": "10", "final_answer": "9", "last_subgoal": "Multiply the number of hours by the hourly rate.", "step_answers": ["9", "6"], "flags": ["correct_number_appears_in_trace", "copied_intermediate_as_final", "last_subgoal_not_answer_like"], "last_reasoning": "To determine how much Weng earned yesterday, we need to follow these steps:\n\nStep 1: Convert the time from minutes to hours.\nWeng babysat for 50 minutes. Since there are 60 minutes in an hour, we c..."}`
+- `{"question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?", "ground_truth": "10", "final_answer": "12", "last_subgoal": "Multiply the number of hours by her hourly rate.", "step_answers": ["0.8333", "50"], "flags": ["correct_number_appears_in_trace", "last_subgoal_not_answer_like"], "last_reasoning": "Let's solve it:\n\nStep 1: Convert the time from minutes to hours.\n- We know that there are 60 minutes in an hour.\n- Therefore, to convert 50 minutes into hours, we divide by 60.\n- Calculation: \\( \\f..."}`
+
+### non_numeric_final_answer
+- `{"question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?", "ground_truth": "10", "final_answer": "If multiple answers exist, only return the one directly related to the original question. Do not include any addition...", "last_subgoal": "Calculate the earnings by multiplying the hourly rate by the number of hours worked.", "step_answers": ["6", "9.96"], "flags": ["non_numeric_final_answer", "last_subgoal_not_answer_like"], "last_reasoning": "To solve this step:\n\nThe next step is to calculate the earnings based on the number of hours worked and the hourly rate. Here's how we proceed:\n\nStep 3: Multiply the hourly rate by the number of ho..."}`
+- `{"question": "Betty is saving money for a new wallet which costs $100. Betty has only half of the money she needs. Her parents decided to give her $15 ...", "ground_truth": "5", "final_answer": "If there are multiple possible answers, return the one most relevant to solving the original problem. In this case, s...", "last_subgoal": "Add up all the money", "step_answers": ["35", "95", "50", "30"], "flags": ["non_numeric_final_answer", "correct_number_appears_in_trace", "last_subgoal_not_answer_like"], "last_reasoning": "Let's go through the calculations step by step:\n\n### Step 1: Calculate how much money Betty already has:\n- Betty needs $100.\n- She currently has half of what she needs, which is \\( \\frac{100}{2} = ..."}`
+- `{"question": "Julie is reading a 120-page book. Yesterday, she was able to read 12 pages and today, she read twice as many pages as yesterday. If she w...", "ground_truth": "42", "final_answer": "Instead, continue solving until reaching the final answer. End your response with the final answer provided above.", "last_subgoal": "Step 4: Calculate the number of pages Julie needs to read tomorrow.", "step_answers": ["36", "48", "42", "36"], "flags": ["non_numeric_final_answer", "correct_number_appears_in_trace", "last_subgoal_not_answer_like"], "last_reasoning": "To solve the problem, let's follow each step carefully:\n\nStep 1: Calculate the number of pages Julie read today.\n- Julie read 12 pages yesterday.\n- Today, she read twice as many pages as yesterday,..."}`
+
+### plan_endpoint_mismatch
+- `{"question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether...", "ground_truth": "72", "final_answer": "96", "last_subgoal": "Step 2: Add the number of clips sold in April and May together.", "step_answers": ["2", "24"], "flags": ["last_subgoal_not_answer_like"], "last_reasoning": "Natalia sold 96 clips in total in April and May. Final answer: 96 To find out how many clips Natalia sold in May, we need to follow these steps:\n\nStep 1: Find out how many clips Natalia sold in May..."}`
+- `{"question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether...", "ground_truth": "72", "final_answer": "4", "last_subgoal": "Step 2: Add the number of clips sold in April and May together.", "step_answers": ["24", "4"], "flags": ["last_subgoal_not_answer_like"], "last_reasoning": "To find out how many clips Natalia sold in May, we need to calculate half of the number of clips sold in April. \n\nGiven that Natalia sold 48 clips in April, we perform the following calculation:\n\n\\..."}`
+- `{"question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?", "ground_truth": "10", "final_answer": "4", "last_subgoal": "Multiply the number of hours by the hourly rate.", "step_answers": ["6", "0.8333"], "flags": ["last_subgoal_not_answer_like"], "last_reasoning": "To solve this step and ensure accuracy, let's follow the plan:\n\nStep 1: Convert the time from minutes to hours.\nWeng babysat for 50 minutes yesterday. There are 60 minutes in an hour. We need to co..."}`
+
+### wrong_numeric_final
+- `{"question": "Betty is saving money for a new wallet which costs $100. Betty has only half of the money she needs. Her parents decided to give her $15 ...", "ground_truth": "5", "final_answer": "15", "last_subgoal": "Step 4: Subtract the total from the cost of the wallet to find out how much more money Betty needs.", "step_answers": ["50", "50", "50", "15"], "flags": [], "last_reasoning": "To determine how much more money Betty needs to buy the wallet, we will follow the plan provided:\n\n1. Step 1: Calculate how much money Betty currently has.\n   - The wallet costs $100.\n   - Betty ha..."}`
+- `{"question": "James writes a 3-page letter to 2 different friends twice a week.  How many pages does he write a year?", "ground_truth": "624", "final_answer": "416", "last_subgoal": "Step 3: Multiply the result from Step 2 by the number of times James writes each week.", "step_answers": ["4", "3", "3"], "flags": [], "last_reasoning": "To calculate how many pages James writes in a year, we need to follow these steps:\n\nStep 1: Determine the total number of pages written per week.\n\n- James writes 3 pages for each letter.\n- He sends..."}`
+- `{"question": "James writes a 3-page letter to 2 different friends twice a week.  How many pages does he write a year?", "ground_truth": "624", "final_answer": "800", "last_subgoal": "Step 3: Multiply the result from Step 2 by the number of times James writes each week.", "step_answers": ["52", "1", "4"], "flags": [], "last_reasoning": "To solve this problem systematically, let's follow the plan:\n\nStep 1: Calculate the number of letters written per week.\nJames writes a letter to 2 different friends and each friend gets one page fo..."}`
