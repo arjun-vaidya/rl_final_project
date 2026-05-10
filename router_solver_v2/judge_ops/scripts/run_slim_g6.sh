@@ -26,6 +26,7 @@ PID_FILE="${OUT_DIR}/train.pid"
 
 TRAIN_QUESTIONS="${TRAIN_QUESTIONS:-120}"
 EVAL_QUESTIONS="${EVAL_QUESTIONS:-100}"
+RESUME_CHECKPOINT="${RESUME_CHECKPOINT:-}"
 
 COMMAND=(
   python3 -u main.py
@@ -45,6 +46,10 @@ COMMAND=(
   --use-judge on
   --output-dir "${OUT_DIR}"
 )
+
+if [[ -n "${RESUME_CHECKPOINT}" ]]; then
+  COMMAND+=(--checkpoint "${RESUME_CHECKPOINT}")
+fi
 
 (
   cd "${ROOT_DIR}"

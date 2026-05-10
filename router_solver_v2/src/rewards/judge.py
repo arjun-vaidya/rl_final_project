@@ -4,6 +4,7 @@ from typing import Iterable, List, Tuple
 from dotenv import load_dotenv
 
 from src.utils.openai_compat_client import OpenAICompatClient
+from src.utils.answer_utils import clean_answer_text, extract_numeric_value
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -141,9 +142,10 @@ class Judge:
         return all_scores
 
     def judge_answer(self, question: str, answer: str, ground_truth: str) -> float:
-        if str(answer).strip().lower() == str(ground_truth).strip().lower():
+        if clean_answer_text(answer).lower() == clean_answer_text(ground_truth).lower():
             return 1.0
-        try:
-            return 1.0 if abs(float(answer) - float(ground_truth)) < 1e-6 else 0.0
-        except:
+        answer_num = extract_numeric_value(answer)
+        gt_num = extract_numeric_value(ground_truth)
+        if answer_num is None or gt_num is None:
             return 0.0
+        return 1.0 if abs(answer_num - gt_num) < 1e-6 else 0.0

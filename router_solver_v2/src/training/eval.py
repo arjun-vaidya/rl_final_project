@@ -18,6 +18,9 @@ def evaluate(
     shaper = RewardShaper(use_judge=cfg.use_judge)
     results = {
         "correct": 0,
+        "exact_correct": 0,
+        "strict_numeric_correct": 0,
+        "relaxed_numeric_correct": 0,
         "total": 0,
         "router_rewards": [],
         "step_rewards": [],
@@ -53,14 +56,25 @@ def evaluate(
             results["outcome_rewards"].append(outcome)
 
             # Check correctness
+            matched = False
             if rollout.final_answer and rollout.final_answer.strip().lower() == rollout.ground_truth.strip().lower():
+                results["exact_correct"] += 1
+                matched = True
+
+            try:
+                if abs(float(rollout.final_answer) - float(rollout.ground_truth)) < 1e-6:
+                    results["strict_numeric_correct"] += 1
+                    matched = True
+            except:
+                pass
+
+            relaxed_answer = agent.extract_numeric_value(rollout.final_answer)
+            relaxed_gt = agent.extract_numeric_value(rollout.ground_truth)
+            if relaxed_answer is not None and relaxed_gt is not None and abs(relaxed_answer - relaxed_gt) < 1e-6:
+                results["relaxed_numeric_correct"] += 1
+
+            if matched:
                 results["correct"] += 1
-            else:
-                try:
-                    if abs(float(rollout.final_answer) - float(rollout.ground_truth)) < 1e-6:
-                        results["correct"] += 1
-                except:
-                    pass
 
     for q_idx, (question, gt) in enumerate(tqdm(zip(questions, ground_truths), total=len(questions))):
         rollout = agent.rollout(question, gt)
@@ -87,6 +101,9 @@ def evaluate(
 
     # Compute averages
     results["accuracy"] = results["correct"] / results["total"] if results["total"] > 0 else 0
+    results["exact_accuracy"] = results["exact_correct"] / results["total"] if results["total"] > 0 else 0
+    results["strict_numeric_accuracy"] = results["strict_numeric_correct"] / results["total"] if results["total"] > 0 else 0
+    results["relaxed_numeric_accuracy"] = results["relaxed_numeric_correct"] / results["total"] if results["total"] > 0 else 0
     results["plan_validity_rate"] = results["plan_validity"] / results["total"] if results["total"] > 0 else 0
     results["avg_router_reward"] = sum(results["router_rewards"]) / len(results["router_rewards"]) if results["router_rewards"] else 0
     results["avg_step_reward"] = sum(results["step_rewards"]) / len(results["step_rewards"]) if results["step_rewards"] else 0
@@ -101,6 +118,9 @@ def print_eval_results(results: Dict, name: str = ""):
     print(f"Evaluation Results {name}")
     print(f"{'='*60}")
     print(f"Accuracy:              {results['accuracy']:.1%} ({results['correct']}/{results['total']})")
+    print(f"Exact accuracy:        {results['exact_accuracy']:.1%} ({results['exact_correct']}/{results['total']})")
+    print(f"Strict numeric acc:    {results['strict_numeric_accuracy']:.1%} ({results['strict_numeric_correct']}/{results['total']})")
+    print(f"Relaxed numeric acc:   {results['relaxed_numeric_accuracy']:.1%} ({results['relaxed_numeric_correct']}/{results['total']})")
     print(f"Plan validity:         {results['plan_validity_rate']:.1%}")
     print(f"Avg router reward:     {results['avg_router_reward']:.3f}")
     print(f"Avg step reward:       {results['avg_step_reward']:.3f}")

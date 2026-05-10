@@ -11,6 +11,7 @@ class Config:
 
     router_max_tokens: int = 300
     solver_max_tokens: int = 200
+    synthesis_max_tokens: int = 64
     max_subgoals: int = 8
     router_temperature: float = 1.0
     solver_temperature: float = 1.0
@@ -36,6 +37,12 @@ class Config:
 
     device: str = "cuda"
     output_dir: str = "."
+    save_rollout_traces: bool = True
+    rollout_trace_path: str = ""
+    use_answer_synthesis: bool = False
+    router_prompt_hardening: bool = False
+    plan_parse_repair: bool = False
+    outcome_credit_all_steps: bool = False
 
     @property
     def total_per_batch(self) -> int:

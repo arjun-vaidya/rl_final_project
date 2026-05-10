@@ -2,12 +2,14 @@ import torch
 import numpy as np
 import os
 import logging
-from typing import List
+from typing import List, Optional
 from tqdm import tqdm
 
 from src.agents.agent import Agent
 from src.rewards.shaper import RewardShaper, Scheduler
 from src.utils.config import Config
+from src.utils.answer_utils import clean_answer_text, extract_numeric_value
+from src.utils.rollout_trace import append_rollout_trace
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +50,33 @@ def compute_grpo_advantages(rewards: List[float]) -> List[float]:
     return advantages.tolist()
 
 
+def is_exact_match(answer: str, ground_truth: str) -> bool:
+    return clean_answer_text(answer).lower() == clean_answer_text(ground_truth).lower()
+
+
+def is_relaxed_numeric_match(answer: str, ground_truth: str) -> bool:
+    answer_num = extract_numeric_value(answer)
+    gt_num = extract_numeric_value(ground_truth)
+    if answer_num is None or gt_num is None:
+        return False
+    return abs(answer_num - gt_num) < 1e-6
+
+
+def aggregate_outcome_logp(rollout, step_logps: List[torch.Tensor], use_all_steps: bool, model, tokenizer) -> Optional[torch.Tensor]:
+    if not step_logps:
+        return None
+
+    outcome_terms = []
+    if use_all_steps:
+        outcome_terms.extend(step_logps)
+    else:
+        outcome_terms.append(step_logps[-1])
+
+    if not outcome_terms:
+        return None
+    return sum(outcome_terms) / len(outcome_terms)
+
+
 def train_epoch(
     agent: Agent,
     shaper: RewardShaper,
@@ -63,9 +92,11 @@ def train_epoch(
 
     r_w, s_w, o_w = scheduler.get_weights(epoch)
     total_loss = 0.0
-    correct = 0
+    relaxed_correct = 0
+    exact_correct = 0
     num_questions = 0
     total_rollouts = 0
+    trace_path = cfg.rollout_trace_path if getattr(cfg, "save_rollout_traces", False) else ""
 
     print(f"Starting epoch {epoch+1}: {len(questions) - start_q_idx} questions")
 
@@ -74,15 +105,24 @@ def train_epoch(
             continue
 
         # GRPO: Generate G=4 rollouts per question
-        rollouts = []
-        for rollout_i in range(cfg.rollouts_per_q):
-            rollout = agent.rollout(question, gt)
-            if rollout.plan and rollout.steps:
-                rollouts.append(rollout)
-            if (rollout_i + 1) == cfg.rollouts_per_q:
-                print(f"Q {q_idx+1}: Generated {len(rollouts)}/{cfg.rollouts_per_q} valid rollouts", end=" | ")
+        generated_rollouts = agent.rollout_group(question, gt, cfg.rollouts_per_q)
+        rollouts = [rollout for rollout in generated_rollouts if rollout.plan and rollout.steps]
+        print(f"Q {q_idx+1}: Generated {len(rollouts)}/{cfg.rollouts_per_q} valid rollouts", end=" | ")
 
         if not rollouts:
+            if trace_path:
+                exact_matches = [is_exact_match(rollout.final_answer, gt) for rollout in generated_rollouts]
+                relaxed_matches = [is_relaxed_numeric_match(rollout.final_answer, gt) for rollout in generated_rollouts]
+                append_rollout_trace(
+                    trace_path,
+                    epoch,
+                    q_idx,
+                    question,
+                    gt,
+                    generated_rollouts,
+                    exact_matches,
+                    relaxed_matches,
+                )
             logger.debug(f"No valid rollouts for question {q_idx+1}")
             continue
 
@@ -143,15 +183,37 @@ def train_epoch(
             'outcome': [],
         }
 
+        exact_matches = []
+        relaxed_matches = []
         for rollout in rollouts:
             total_rollouts += 1
             group_rewards['router'].append(rollout._router_reward)
             group_rewards['steps'].append(sum(rollout._step_rewards) / len(rollout._step_rewards) if rollout._step_rewards else 0)
             group_rewards['outcome'].append(rollout._outcome_reward)
 
-            # Track accuracy
-            if rollout.final_answer and rollout.final_answer.strip().lower() == gt.strip().lower():
-                correct += 1
+            # Track accuracy with relaxed numeric correctness as the primary metric.
+            exact_match = is_exact_match(rollout.final_answer, gt)
+            relaxed_match = is_relaxed_numeric_match(rollout.final_answer, gt)
+            exact_matches.append(exact_match)
+            relaxed_matches.append(relaxed_match)
+            if exact_match:
+                exact_correct += 1
+            if relaxed_match:
+                relaxed_correct += 1
+
+        if trace_path:
+            all_exact_matches = [is_exact_match(rollout.final_answer, gt) for rollout in generated_rollouts]
+            all_relaxed_matches = [is_relaxed_numeric_match(rollout.final_answer, gt) for rollout in generated_rollouts]
+            append_rollout_trace(
+                trace_path,
+                epoch,
+                q_idx,
+                question,
+                gt,
+                generated_rollouts,
+                all_exact_matches,
+                all_relaxed_matches,
+            )
 
         # GRPO: Compute advantages within group
         router_advantages = compute_grpo_advantages(group_rewards['router'])
@@ -184,11 +246,20 @@ def train_epoch(
             router_advantage = router_advantages[rollout_idx]
             steps_advantage = steps_advantages[rollout_idx]
             outcome_advantage = outcome_advantages[rollout_idx]
+            outcome_logp = aggregate_outcome_logp(
+                rollout,
+                step_logps,
+                cfg.outcome_credit_all_steps,
+                agent.model,
+                agent.tokenizer,
+            )
+            if outcome_logp is None:
+                continue
 
             loss = -(
                 r_w * router_advantage * router_logp +
                 s_w * steps_advantage * sum(step_logps) / len(step_logps) +
-                o_w * outcome_advantage * step_logps[-1]
+                o_w * outcome_advantage * outcome_logp
             )
 
             loss_item = loss.detach().item()
@@ -204,8 +275,10 @@ def train_epoch(
 
         if (q_idx + 1) % cfg.log_every == 0:
             avg_loss = total_loss / max(num_questions, 1)
-            acc = correct / max(total_rollouts, 1)
-            print(f"PROGRESS | loss={avg_loss:.4f} | acc={acc:.1%} ({correct}/{total_rollouts}) | valid_q={num_questions}")
+            relaxed_acc = relaxed_correct / max(total_rollouts, 1)
+            exact_acc = exact_correct / max(total_rollouts, 1)
+            print(f"PROGRESS | loss={avg_loss:.4f} | acc={relaxed_acc:.1%} ({relaxed_correct}/{total_rollouts}) | valid_q={num_questions}")
+            print(f"  Exact acc: {exact_acc:.1%} ({exact_correct}/{total_rollouts})")
             print(f"  Advantages: router={np.mean(router_advantages):.3f}, steps={np.mean(steps_advantages):.3f}, outcome={np.mean(outcome_advantages):.3f}")
             print(f"  Rewards: router={np.mean(group_rewards['router']):.3f}, steps={np.mean(group_rewards['steps']):.3f}")
 
@@ -219,23 +292,26 @@ def train_epoch(
                 "optimizer": optimizer.state_dict(),
                 "num_questions": num_questions,
                 "total_rollouts": total_rollouts,
-                "correct": correct,
+                "relaxed_correct": relaxed_correct,
+                "exact_correct": exact_correct,
                 "total_loss": total_loss,
             }
             torch.save(checkpoint, ckpt_path)
             logger.info(f"Checkpoint saved: {ckpt_path}")
 
     final_loss = total_loss / max(num_questions, 1)
-    final_acc = correct / max(total_rollouts, 1)
+    final_relaxed_acc = relaxed_correct / max(total_rollouts, 1)
+    final_exact_acc = exact_correct / max(total_rollouts, 1)
 
     print(f"\nEpoch summary:")
     print(f"  Questions processed: {num_questions}")
     print(f"  Total rollouts: {total_rollouts}")
     print(f"  Final loss: {final_loss:.4f}")
-    print(f"  Final accuracy: {final_acc:.1%}")
+    print(f"  Final relaxed accuracy: {final_relaxed_acc:.1%}")
+    print(f"  Final exact accuracy: {final_exact_acc:.1%}")
     print(f"  Valid rollout rate: {total_rollouts / max(num_questions, 1):.2f} per question")
 
-    return final_loss, final_acc
+    return final_loss, final_relaxed_acc
 
 
 def train(

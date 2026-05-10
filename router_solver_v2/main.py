@@ -6,6 +6,7 @@ Usage:
     python main.py --mode train
     python main.py --mode eval
     python main.py --mode train_eval
+    python main.py --mode diagnose
     python main.py --mode train --checkpoint checkpoint_epoch0_q50.pt
 """
 
@@ -24,11 +25,23 @@ from src.utils.config import get_config
 from src.agents.agent import Agent
 from src.training.train import train
 from src.training.eval import evaluate, print_eval_results
+from src.training.diagnostics import run_diagnostics, format_diagnostics_report, save_diagnostics_report
+from src.training.taxonomy import (
+    collect_rollout_traces,
+    run_trace_taxonomy,
+    format_taxonomy_report,
+    save_taxonomy_report,
+)
 
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
+
+if torch.cuda.is_available():
+    torch.backends.cuda.matmul.allow_tf32 = True
+    torch.backends.cudnn.allow_tf32 = True
+    torch.set_float32_matmul_precision("high")
 
 
 def load_model(cfg):
@@ -108,9 +121,36 @@ def load_data(cfg):
     return train_qs, train_gts, test_qs, test_gts
 
 
+def load_checkpoint_if_available(model, optimizer, checkpoint_path, train_len: int):
+    resume_epoch = 0
+    resume_q_idx = 0
+
+    if checkpoint_path and os.path.exists(checkpoint_path):
+        print(f"Loading checkpoint: {checkpoint_path}")
+        try:
+            ckpt = torch.load(checkpoint_path, map_location="cpu")
+            if isinstance(ckpt, dict) and "model" in ckpt:
+                model.load_state_dict(ckpt["model"])
+                if optimizer is not None and "optimizer" in ckpt:
+                    optimizer.load_state_dict(ckpt["optimizer"])
+                resume_epoch = int(ckpt.get("epoch", 0))
+                resume_q_idx = int(ckpt.get("q_idx", -1)) + 1
+                if resume_q_idx >= train_len:
+                    resume_epoch += 1
+                    resume_q_idx = 0
+                print(f"Resumed from epoch {resume_epoch}, q {resume_q_idx}")
+            else:
+                model.load_state_dict(ckpt)
+                print("Loaded legacy checkpoint (model only)")
+        except Exception as e:
+            print(f"Failed to load checkpoint: {e}")
+
+    return resume_epoch, resume_q_idx
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", default="train_eval", choices=["train", "eval", "train_eval"])
+    parser.add_argument("--mode", default="train_eval", choices=["train", "eval", "train_eval", "diagnose", "taxonomy", "trace_rollouts"])
     parser.add_argument("--checkpoint", default=None, help="Path to checkpoint to load")
     parser.add_argument("--train-questions", type=int, default=None, help="Number of training questions to use")
     parser.add_argument("--eval-questions", type=int, default=None, help="Number of eval questions to use")
@@ -122,10 +162,23 @@ def main():
     parser.add_argument("--log-every", type=int, default=None, help="Logging cadence in questions")
     parser.add_argument("--router-max-tokens", type=int, default=None, help="Router generation cap")
     parser.add_argument("--solver-max-tokens", type=int, default=None, help="Solver generation cap")
+    parser.add_argument("--synthesis-max-tokens", type=int, default=None, help="Final answer synthesis generation cap")
     parser.add_argument("--router-temperature", type=float, default=None, help="Router sampling temperature")
     parser.add_argument("--solver-temperature", type=float, default=None, help="Solver sampling temperature")
     parser.add_argument("--use-judge", choices=["on", "off"], default=None, help="Enable or disable the judge backend")
     parser.add_argument("--output-dir", default=None, help="Directory for checkpoints and final model")
+    parser.add_argument("--save-rollout-traces", choices=["on", "off"], default=None, help="Persist rollout traces as JSONL during training")
+    parser.add_argument("--rollout-trace-path", default=None, help="Optional JSONL path for rollout traces")
+    parser.add_argument("--use-answer-synthesis", choices=["on", "off"], default=None, help="Use a final synthesis step over the full trace")
+    parser.add_argument("--router-prompt-hardening", choices=["on", "off"], default=None, help="Use a stricter router prompt without enabling repair fallback")
+    parser.add_argument("--plan-parse-repair", choices=["on", "off"], default=None, help="Enable parser repair fallback for router plans")
+    parser.add_argument("--outcome-credit-all-steps", choices=["on", "off"], default=None, help="Distribute outcome credit across all solver steps during training")
+    parser.add_argument("--diagnostic-questions", type=int, default=10, help="Questions per split for diagnostics")
+    parser.add_argument("--diagnostic-rollouts-per-q", type=int, default=6, help="Rollouts per question for stochastic diagnostics")
+    parser.add_argument("--diagnostic-output", default=None, help="Optional markdown path for diagnostics report")
+    parser.add_argument("--trace-input", default=None, help="Path to rollout_traces.jsonl for offline taxonomy analysis")
+    parser.add_argument("--taxonomy-output", default=None, help="Optional markdown path for taxonomy report")
+    parser.add_argument("--taxonomy-max-failures", type=int, default=50, help="Maximum failed rollouts to include in the taxonomy result")
     args = parser.parse_args()
 
     cfg = get_config()
@@ -149,6 +202,8 @@ def main():
         cfg.router_max_tokens = args.router_max_tokens
     if args.solver_max_tokens is not None:
         cfg.solver_max_tokens = args.solver_max_tokens
+    if args.synthesis_max_tokens is not None:
+        cfg.synthesis_max_tokens = args.synthesis_max_tokens
     if args.router_temperature is not None:
         cfg.router_temperature = args.router_temperature
     if args.solver_temperature is not None:
@@ -157,6 +212,36 @@ def main():
         cfg.use_judge = args.use_judge == "on"
     if args.output_dir is not None:
         cfg.output_dir = args.output_dir
+    if args.save_rollout_traces is not None:
+        cfg.save_rollout_traces = args.save_rollout_traces == "on"
+    if args.rollout_trace_path is not None:
+        cfg.rollout_trace_path = args.rollout_trace_path
+    if args.use_answer_synthesis is not None:
+        cfg.use_answer_synthesis = args.use_answer_synthesis == "on"
+    if args.router_prompt_hardening is not None:
+        cfg.router_prompt_hardening = args.router_prompt_hardening == "on"
+    if args.plan_parse_repair is not None:
+        cfg.plan_parse_repair = args.plan_parse_repair == "on"
+    if args.outcome_credit_all_steps is not None:
+        cfg.outcome_credit_all_steps = args.outcome_credit_all_steps == "on"
+    if cfg.save_rollout_traces and not cfg.rollout_trace_path:
+        cfg.rollout_trace_path = os.path.join(cfg.output_dir, "rollout_traces.jsonl")
+
+    if args.mode == "taxonomy":
+        trace_input = args.trace_input or cfg.rollout_trace_path
+        if not trace_input:
+            raise ValueError("taxonomy mode requires --trace-input or a configured rollout trace path")
+        print("\nRunning offline rollout taxonomy...")
+        taxonomy = run_trace_taxonomy(trace_input, max_failures=args.taxonomy_max_failures)
+        print(format_taxonomy_report(taxonomy))
+
+        taxonomy_output = args.taxonomy_output
+        if taxonomy_output is None:
+            taxonomy_output = os.path.join(os.path.dirname(trace_input) or ".", "taxonomy_report.md")
+        save_taxonomy_report(taxonomy, taxonomy_output)
+        print(f"Taxonomy report saved: {taxonomy_output}")
+        print("\nDone!")
+        return
 
     print("\n" + "="*70)
     print("Config for the Script")
@@ -166,7 +251,10 @@ def main():
     print(f"Epochs: {cfg.epochs} | LR: {cfg.learning_rate} | Use judge: {cfg.use_judge}")
     print(f"Router max tokens: {cfg.router_max_tokens} @ temp {cfg.router_temperature}")
     print(f"Solver max tokens: {cfg.solver_max_tokens} @ temp {cfg.solver_temperature}")
+    print(f"Synthesis max tokens: {cfg.synthesis_max_tokens} | Use synthesis: {cfg.use_answer_synthesis}")
     print(f"Checkpoint every: {cfg.checkpoint_every} | Output dir: {cfg.output_dir}")
+    print(f"Rollout traces: {cfg.save_rollout_traces} | Trace path: {cfg.rollout_trace_path or '-'}")
+    print(f"Router prompt hardening: {cfg.router_prompt_hardening} | Plan parse repair: {cfg.plan_parse_repair} | Outcome credit all steps: {cfg.outcome_credit_all_steps}")
     print()
 
     # Load model
@@ -177,8 +265,12 @@ def main():
         tokenizer,
         router_max_tokens=cfg.router_max_tokens,
         solver_max_tokens=cfg.solver_max_tokens,
+        synthesis_max_tokens=cfg.synthesis_max_tokens,
         router_temperature=cfg.router_temperature,
         solver_temperature=cfg.solver_temperature,
+        use_answer_synthesis=cfg.use_answer_synthesis,
+        router_prompt_hardening=cfg.router_prompt_hardening,
+        plan_parse_repair=cfg.plan_parse_repair,
     )
 
     # Load data
@@ -195,27 +287,7 @@ def main():
     if args.mode in ["train", "train_eval"]:
         print("\nStarting training...")
         optimizer = torch.optim.AdamW(model.parameters(), lr=cfg.learning_rate)
-
-        # Load checkpoint if provided
-        if args.checkpoint and os.path.exists(args.checkpoint):
-            print(f"Loading checkpoint: {args.checkpoint}")
-            try:
-                ckpt = torch.load(args.checkpoint, map_location="cpu")
-                if isinstance(ckpt, dict) and "model" in ckpt:
-                    model.load_state_dict(ckpt["model"])
-                    if "optimizer" in ckpt:
-                        optimizer.load_state_dict(ckpt["optimizer"])
-                    resume_epoch = int(ckpt.get("epoch", 0))
-                    resume_q_idx = int(ckpt.get("q_idx", -1)) + 1
-                    if resume_q_idx >= len(train_qs):
-                        resume_epoch += 1
-                        resume_q_idx = 0
-                    print(f"Resumed from epoch {resume_epoch}, q {resume_q_idx}")
-                else:
-                    model.load_state_dict(ckpt)
-                    print("Loaded legacy checkpoint (model only)")
-            except Exception as e:
-                print(f"Failed to load checkpoint: {e}")
+        resume_epoch, resume_q_idx = load_checkpoint_if_available(model, optimizer, args.checkpoint, len(train_qs))
 
         os.makedirs(cfg.output_dir, exist_ok=True)
         train(
@@ -241,9 +313,50 @@ def main():
 
     # Eval
     if args.mode in ["eval", "train_eval"]:
+        if args.mode == "eval":
+            load_checkpoint_if_available(model, None, args.checkpoint, len(train_qs))
         print("\nEvaluating on test set...")
         results = evaluate(agent, test_qs[:cfg.eval_questions], test_gts[:cfg.eval_questions], cfg)
         print_eval_results(results, "(Test Set)")
+
+    if args.mode == "diagnose":
+        load_checkpoint_if_available(model, None, args.checkpoint, len(train_qs))
+        print("\nRunning diagnostics...")
+        diagnostics = run_diagnostics(
+            agent,
+            train_qs,
+            train_gts,
+            test_qs,
+            test_gts,
+            cfg,
+            diagnostic_questions=args.diagnostic_questions,
+            diagnostic_rollouts_per_q=args.diagnostic_rollouts_per_q,
+        )
+        print(format_diagnostics_report(diagnostics))
+
+        diagnostic_output = args.diagnostic_output
+        if diagnostic_output is None:
+            diagnostic_output = os.path.join(cfg.output_dir, "diagnostics_report.md")
+        save_diagnostics_report(diagnostics, diagnostic_output)
+        print(f"Diagnostics report saved: {diagnostic_output}")
+
+    if args.mode == "trace_rollouts":
+        load_checkpoint_if_available(model, None, args.checkpoint, len(train_qs))
+        trace_output = args.trace_input or cfg.rollout_trace_path
+        if not trace_output:
+            trace_output = os.path.join(cfg.output_dir, "rollout_traces.jsonl")
+        print("\nCollecting rollout traces...")
+        summary = collect_rollout_traces(
+            agent,
+            train_qs,
+            train_gts,
+            args.diagnostic_questions,
+            args.diagnostic_rollouts_per_q,
+            trace_output,
+        )
+        print("Trace collection complete:")
+        print(summary)
+        print(f"Trace file saved: {trace_output}")
 
     print("\nDone!")
 
