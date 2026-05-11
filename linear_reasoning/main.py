@@ -14,6 +14,7 @@ import re
 import sys
 import torch
 import logging
+import wandb
 from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import get_peft_model, LoraConfig
@@ -89,6 +90,9 @@ def main():
     parser.add_argument("--eval_batch_size", type=int, default=16, help="Batch size for evaluation")
     parser.add_argument("--train_microbatch_size", type=int, default=None,
                        help="Trajectories per forward/backward during the policy update")
+    parser.add_argument("--wandb_project", default="linear_reasoning", help="W&B project name")
+    parser.add_argument("--wandb_run_name", default=None, help="W&B run name (auto-generated if omitted)")
+    parser.add_argument("--no_wandb", action="store_true", help="Disable W&B logging")
     args = parser.parse_args()
 
     cfg = get_config()
@@ -104,6 +108,29 @@ def main():
     print(f"\nConfig: train_questions={cfg.train_questions or 'all'}, "
           f"eval_questions={cfg.eval_questions or 'all'}, "
           f"G={cfg.rollouts_per_q}")
+
+    # Initialize W&B
+    if not args.no_wandb:
+        wandb.init(
+            project=args.wandb_project,
+            name=args.wandb_run_name,
+            config={
+                "base_model": cfg.base_model,
+                "lora_rank": cfg.lora_rank,
+                "lora_alpha": cfg.lora_alpha,
+                "rollouts_per_q": cfg.rollouts_per_q,
+                "train_questions": cfg.train_questions,
+                "eval_questions": cfg.eval_questions,
+                "epochs": cfg.epochs,
+                "learning_rate": cfg.learning_rate,
+                "temperature": cfg.temperature,
+                "max_cot_tokens": cfg.max_cot_tokens,
+                "kl_coef": cfg.kl_coef,
+                "correct_reward": cfg.correct_reward,
+                "format_reward": cfg.format_reward,
+                "train_microbatch_size": cfg.train_microbatch_size,
+            },
+        )
 
     # Load model
     model, tokenizer = load_model(cfg)
@@ -152,6 +179,11 @@ def main():
         eval_path = os.path.join(cfg.output_dir, "eval_results.json")
         results = evaluate(agent, test_q, test_gt, cfg, output_path=eval_path, batch_size=args.eval_batch_size)
         print(f"\nFinal Accuracy: {results['accuracy']:.1%} ({results['correct']}/{results['total']})")
+        if wandb.run is not None:
+            wandb.log({"eval/accuracy": results["accuracy"], "eval/correct": results["correct"], "eval/total": results["total"]})
+
+    if wandb.run is not None:
+        wandb.finish()
 
 
 if __name__ == "__main__":

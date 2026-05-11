@@ -92,7 +92,7 @@ class LinearReasoningAgent:
             messages, tokenize=False, add_generation_prompt=True
         )
 
-    @torch.inference_mode()
+    @torch.no_grad()
     def _generate(
         self,
         prompt: str,
@@ -124,7 +124,7 @@ class LinearReasoningAgent:
 
         return text, prompt_ids, completion_ids
 
-    @torch.inference_mode()
+    @torch.no_grad()
     def _generate_batch(
         self,
         prompts: List[str],

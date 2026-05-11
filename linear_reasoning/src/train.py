@@ -2,6 +2,7 @@ import os
 import torch
 import torch.nn.functional as F
 import numpy as np
+import wandb
 from tqdm import tqdm
 from typing import List
 
@@ -212,14 +213,29 @@ def train(
 
         recent_acc = np.mean(stats["running_acc"][-50:]) if stats["running_acc"] else 0
         recent_reward = np.mean(stats["running_reward"][-50:]) if stats["running_reward"] else 0
+        recent_kl = np.mean(stats.get("step_kl", [])[-50:]) if stats.get("step_kl") else 0
+        recent_loss = np.mean(stats["step_losses"][-50:]) if stats["step_losses"] else 0
+        cumulative_acc = stats["total_correct"] / stats["total_rollouts"] if stats["total_rollouts"] else 0
+
         progress.set_postfix({
             "acc": f"{recent_acc:.1%}",
             "reward": f"{recent_reward:.2f}",
             "total_acc": f"{stats['total_correct']}/{stats['total_rollouts']}",
         })
 
+        if wandb.run is not None:
+            wandb.log({
+                "train/recent_accuracy": recent_acc,
+                "train/recent_reward": recent_reward,
+                "train/recent_kl": recent_kl,
+                "train/recent_loss": recent_loss,
+                "train/cumulative_accuracy": cumulative_acc,
+                "train/question": q_idx + 1,
+                "train/total_correct": stats["total_correct"],
+                "train/total_rollouts": stats["total_rollouts"],
+            }, step=q_idx + 1)
+
         if (q_idx + 1) % cfg.log_every == 0:
-            recent_kl = np.mean(stats.get("step_kl", [])[-50:]) if stats.get("step_kl") else 0
             log(f"[Q {q_idx+1}/{len(questions)}] recent_acc={recent_acc:.1%} "
                 f"recent_reward={recent_reward:.3f} kl={recent_kl:.4f} "
                 f"total_correct={stats['total_correct']}/{stats['total_rollouts']}")
