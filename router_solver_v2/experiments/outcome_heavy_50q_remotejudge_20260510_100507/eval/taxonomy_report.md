@@ -1,0 +1,51 @@
+# Failure Taxonomy Report
+
+## Summary
+- trace_path: `/home/pvd2112/rl_final_project/router_solver_v2/experiments/outcome_heavy_50q_remotejudge_20260510_100507/eval/rollout_traces.jsonl`
+- records: `20`
+- total_rollouts: `120`
+- valid_rollouts: `120`
+- exact_accuracy: `0.2167`
+- relaxed_numeric_accuracy: `0.2167`
+- analyzed_failures: `94`
+- invalid_counts: `{}`
+- final_answer_source_counts: `{"synthesis": 120}`
+
+## Primary Categories
+- wrong_numeric_final: `41`
+- correct_number_in_trace_wrong_final: `21`
+- copied_intermediate_as_final: `20`
+- non_numeric_final_answer: `6`
+- plan_endpoint_mismatch: `6`
+
+## Flags
+- copied_intermediate_as_final: `27`
+- correct_number_appears_in_trace: `23`
+- last_subgoal_not_answer_like: `22`
+- non_numeric_final_answer: `6`
+
+## Example Failures
+### copied_intermediate_as_final
+- `{"question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether...", "ground_truth": "72", "final_answer": "24", "last_subgoal": "Step 2: Add the number of clips sold in April and May together.", "step_answers": ["24", "24"], "flags": ["copied_intermediate_as_final", "last_subgoal_not_answer_like"], "last_reasoning": "The first sentence should be \"Final answer:\". To solve this problem, we will follow the plan provided:\n\n1. Step 1: We need to find out how many clips Natalia sold in May. According to the given inf..."}`
+- `{"question": "Betty is saving money for a new wallet which costs $100. Betty has only half of the money she needs. Her parents decided to give her $15 ...", "ground_truth": "5", "final_answer": "50", "last_subgoal": "Subtract the total amount from the cost of the wallet: Finally, we subtract the total amount of money Betty now has (...", "step_answers": ["50", "30", "95", "50"], "flags": ["copied_intermediate_as_final"], "last_reasoning": "To solve this problem, let's follow the plan step-by-step:\n\n### Step 1: Calculate how much money Betty already has\n\nSince Betty has only half of the money she needs ($100), we divide the total cost..."}`
+- `{"question": "Julie is reading a 120-page book. Yesterday, she was able to read 12 pages and today, she read twice as many pages as yesterday. If she w...", "ground_truth": "42", "final_answer": "84", "last_subgoal": "Step 3: Calculate the number of pages Julie needs to read tomorrow.", "step_answers": ["84", "84", "36"], "flags": ["copied_intermediate_as_final", "last_subgoal_not_answer_like"], "last_reasoning": "To solve this problem, let's follow the given plan:\n\n### Step 1: Calculate the number of pages Julie has already read.\n- Yesterday, Julie read 12 pages.\n- Today, she read twice as many pages as yes..."}`
+
+### correct_number_in_trace_wrong_final
+- `{"question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?", "ground_truth": "10", "final_answer": "60", "last_subgoal": "Multiply the number of hours by the hourly rate.", "step_answers": ["12", "50"], "flags": ["correct_number_appears_in_trace", "last_subgoal_not_answer_like"], "last_reasoning": "The answer should be clear and unambiguous. Step 2:\n\nTo find out how much Weng earned for 50 minutes of babysitting at a rate of $12 per hour, we first need to convert 50 minutes into hours. There ..."}`
+- `{"question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?", "ground_truth": "10", "final_answer": "1", "last_subgoal": "Calculate the earnings by multiplying the hourly rate by the number of hours worked.", "step_answers": ["6", "10"], "flags": ["correct_number_appears_in_trace", "last_subgoal_not_answer_like"], "last_reasoning": "In Step 2, we calculate the earnings as follows:\n\n- The total time spent babysitting is given as 50 minutes.\n- Since there are 60 minutes in one hour, we convert the time into hours by dividing by ..."}`
+- `{"question": "Betty is saving money for a new wallet which costs $100. Betty has only half of the money she needs. Her parents decided to give her $15 ...", "ground_truth": "5", "final_answer": "15", "last_subgoal": "Step 3: Determine how much money Betty's grandparents gave her.", "step_answers": ["50", "100", "30", "15", "15", "95", "125", "15"], "flags": ["correct_number_appears_in_trace", "copied_intermediate_as_final"], "last_reasoning": "To solve this problem systematically:\n\n1. Calculate how much money Betty currently has:\n   - The cost of the wallet is $100.\n   - Betty has only half of the money she needs.\n   \\[\n   \\text{Betty's ..."}`
+
+### non_numeric_final_answer
+- `{"question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?", "ground_truth": "10", "final_answer": "If there is no specific final step, you may return \"None\". Final answer: None. ```", "last_subgoal": "Calculate the earnings by multiplying the hourly rate by the number of hours worked.", "step_answers": ["10", "60"], "flags": ["non_numeric_final_answer", "correct_number_appears_in_trace", "last_subgoal_not_answer_like"], "last_reasoning": "To convert the time from minutes to hours, we divide by 60 because there are 60 minutes in an hour:\n\n\\[\n\\text{Time in hours} = \\frac{\\text{Time in minutes}}{60}\n\\]\n\nGiven that Weng babysat for 50 m..."}`
+- `{"question": "Betty is saving money for a new wallet which costs $100. Betty has only half of the money she needs. Her parents decided to give her $15 ...", "ground_truth": "5", "final_answer": "Note: If you encounter any issues or errors while performing these calculations, please provide the correct values an...", "last_subgoal": "Add the amount given by her grandparents: Betty's grandparents gave her twice as much as her parents, which is $", "step_answers": ["4", "30", "3"], "flags": ["non_numeric_final_answer", "last_subgoal_not_answer_like"], "last_reasoning": "To solve the problem step-by-step:\n\nGiven:\n- The cost of the wallet = $100.\n- Betty has only half of the money needed.\n- Betty received an additional $15 from her parents.\n- Betty's grandparents ga..."}`
+- `{"question": "Ken created a care package to send to his brother, who was away at boarding school.  Ken placed a box on a scale, and then he poured into...", "ground_truth": "16", "final_answer": "Final answer: No final answer. Based on the information provided, the process described does not lead to a specific n...", "last_subgoal": "Step 5: Double the weight by adding enough gummy worms.", "step_answers": ["16", "3", "9", "4", "5", "16"], "flags": ["non_numeric_final_answer", "correct_number_appears_in_trace", "last_subgoal_not_answer_like"], "last_reasoning": "Work:\n\nLet's go through each step systematically:\n\n1. Initial weight: The box starts weighing \\( 0 \\) pounds.\n\n2. Pouring jelly beans:\n   - Weights before adding jelly beans are:\n     \\[\n     \\text..."}`
+
+### plan_endpoint_mismatch
+- `{"question": "Betty is saving money for a new wallet which costs $100. Betty has only half of the money she needs. Her parents decided to give her $15 ...", "ground_truth": "5", "final_answer": "1", "last_subgoal": "Add up all the", "step_answers": ["30", "3", "20", "25"], "flags": ["last_subgoal_not_answer_like"], "last_reasoning": "The previous steps are incorrect and should be removed.\n\nNo previous steps. Here's the plan:\n\nPlan:\n1. Calculate how much money Betty currently has.\n2. Add the amount given by her parents.\n3. Add t..."}`
+- `{"question": "A deep-sea monster rises from the waters once every hundred years to feast on a ship and sate its hunger. Over three hundred years, it ha...", "ground_truth": "121", "final_answer": "84", "last_subgoal": "action", "step_answers": ["2.8233", "1", "847", "3", "2", "8", "1", "84"], "flags": ["last_subgoal_not_answer_like"], "last_reasoning": "To solve this problem systematically, let's break down each step carefully:\n\nStep 1: Calculate the average number of people per ship.\nWe know that over three hundred years (300 years), the monster ..."}`
+- `{"question": "Joy can read 8 pages of a book in 20 minutes. How many hours will it take her to read 120 pages?", "ground_truth": "5", "final_answer": "60", "last_subgoal": "Step 3: Convert the time from minutes to hours.", "step_answers": ["0.4", "120", "60"], "flags": ["last_subgoal_not_answer_like"], "last_reasoning": "To solve this step, let's follow the plan provided:\n\nStep 1: Calculate the reading speed.\n- Joy reads 8 pages in 20 minutes.\n- Therefore, the reading speed is \\( \\frac{8}{20} = 0.4 \\) pages per min..."}`
+
+### wrong_numeric_final
+- `{"question": "Julie is reading a 120-page book. Yesterday, she was able to read 12 pages and today, she read twice as many pages as yesterday. If she w...", "ground_truth": "42", "final_answer": "4", "last_subgoal": "Step 4: Calculate how many pages Julie needs to read tomorrow.", "step_answers": ["24", "84", "84", "4"], "flags": [], "last_reasoning": "To determine how many pages Julie needs to read tomorrow, we can follow these steps:\n\n1. Calculate the number of pages Julie read today:  \n   She read twice as many pages as she did yesterday. Sinc..."}`
+- `{"question": "James writes a 3-page letter to 2 different friends twice a week.  How many pages does he write a year?", "ground_truth": "624", "final_answer": "312", "last_subgoal": "Step 3: Multiply the result from Step 2 by the number of times James writes each week.", "step_answers": ["52", "2", "6"], "flags": [], "last_reasoning": "To solve the problem, we will follow the given plan and complete each step as described:\n\nStep 1: Calculate the number of letters written per week.\n- James writes 3-page letters to 2 different frie..."}`
+- `{"question": "James writes a 3-page letter to 2 different friends twice a week.  How many pages does he write a year?", "ground_truth": "624", "final_answer": "312", "last_subgoal": "Step 3: Multiply the result from Step 2 by the number of pages per letter.", "step_answers": ["8", "12", "3"], "flags": [], "last_reasoning": "To solve this problem:\n\n1. Calculate the number of letters written per week:\n   - James writes a letter to each friend.\n   - He has 2 different friends.\n   - He writes 3 pages for each letter.\n   \n..."}`
