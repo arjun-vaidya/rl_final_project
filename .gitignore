@@ -1,0 +1,24 @@
+# Model checkpoints (too large for git)
+linear_reasoning/checkpoints/
+*.pt
+
+# LaTeX build artifacts
+report/*.aux
+report/*.log
+report/*.out
+report/*.toc
+report/*.fls
+report/*.fdb_latexmk
+report/*.synctex.gz
+report/main.pdf
+
+# Python
+__pycache__/
+*.pyc
+
+# Local environment
+.DS_Store
+.env
+
+# W&B local runs
+wandb/

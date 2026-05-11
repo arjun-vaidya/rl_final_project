@@ -1,0 +1,107 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{siunitx}
+
+\graphicspath{{figures/}}
+
+\title{Long-context Reasoning for Agentic LLMs:\\
+       A Linear Reasoning Baseline}
+\author{Arjun Vaidya \and Peter Vail Driscoll \\
+        Columbia University \\
+        ORCSE6529 -- Advanced Reinforcement Learning}
+\date{May 2026}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+\label{sec:intro}
+
+The larger project this report sits in studies long-context reasoning for agentic LLMs: an agent that decomposes a problem, holds intermediate state in an external graph memory, and is trained end-to-end with reinforcement learning. Before adding any of that machinery, we want to know how far a much simpler policy can get. This report covers that floor.
+
+The \emph{linear reasoning} model is a single-pass chain-of-thought policy. Given a math word problem it produces one stretch of reasoning and commits to an answer inside \verb|\boxed{}|. There is no router, no separate solver, and no reflection step --- just question in, reasoning out. We fine-tune this policy on GSM8K with verifiable-reward RL, then benchmark it against the two natural comparisons at its scale: the off-the-shelf Qwen2.5-1.5B-Instruct it was trained from, and the math-specialized Qwen2.5-Math-1.5B-Instruct.
+
+Three things come out of this exercise. First, a concrete RL recipe (LoRA adapter on top of a 1.5B Instruct base, GRPO-style group-relative advantages, hard verifiable rewards) that trains stably for 2{,}000 questions on a single GPU. Second, the training dynamics in Section~\ref{sec:linear} that the hierarchical agent will need to beat. Third, a baseline table (Section~\ref{sec:benchmarks}) showing that LoRA-only RL recovers about two points of GSM8K accuracy over the base Instruct model but does not close the gap to a math-pretrained model of the same size --- which is the gap the rest of the project is for.
+
+\section{Linear Reasoning Model}
+\label{sec:linear}
+
+\paragraph{Policy.} The policy is Qwen2.5-1.5B-Instruct with a LoRA adapter ($r{=}8$, $\alpha{=}16$, dropout 0.05) on the \verb|q_proj| and \verb|v_proj| projections of every attention block. The base weights are frozen, so the trainable parameter count is on the order of $10^{6}$ rather than the full 1.5\,B. Every prompt is wrapped in the model's chat template with a fixed system message (shown below), and rollouts are decoded to at most 512 new tokens.
+
+\begin{quote}
+\ttfamily\small
+You are a math tutor. Solve the problem step by step, showing your reasoning clearly. End with the final answer in \textbackslash boxed\{\} format.
+\end{quote}
+
+\paragraph{Reward.} Each completion receives a hard verifiable reward: $+1.0$ when the value inside the final \verb|\boxed{}| matches the GSM8K ground truth, plus a $+0.5$ format bonus for emitting a valid \verb|\boxed{}|, and $0$ otherwise. There is no learned reward model and no partial credit on intermediate reasoning steps; only the final extracted number matters.
+
+\paragraph{Optimization.} For each training question we draw $G{=}6$ rollouts at temperature 0.8 and form a GRPO-style group-relative advantage by normalizing rewards by the mean and standard deviation within the group. The policy is updated against a frozen copy of itself (the reference) with a KL penalty of $0.04$, using AdamW at learning rate $10^{-5}$ and a microbatch of 3 trajectories per forward/backward pass. We run one pass over $2{,}000$ GSM8K training questions ($12{,}000$ rollouts), saving a checkpoint every 500 questions; the full run takes roughly seven hours on a single GPU.
+
+\paragraph{Training dynamics.} Figure~\ref{fig:train-acc} shows on-policy training accuracy, and Figure~\ref{fig:train-signals} shows the underlying optimization signals. The rolling-window accuracy climbs from about 65\% to 80\% over the run; the cumulative curve saturates near 78\%. The per-rollout reward moves from $\sim$1.1 to $\sim$1.3 (out of a 1.5 ceiling), and the policy loss stays cleanly negative throughout. KL to the reference grows monotonically: the policy is drifting, but the penalty keeps the drift bounded rather than collapsing.
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\linewidth]{train_recent_accuracy.png}
+    \caption{Rolling-window training accuracy.}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\linewidth]{train_cumulative_accuracy.png}
+    \caption{Cumulative training accuracy.}
+  \end{subfigure}
+  \caption{Training accuracy over 2{,}000 questions. The cumulative saturation near 78\% lines up with the held-out eval accuracy reported in Table~\ref{tab:baselines}.}
+  \label{fig:train-acc}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}{0.32\textwidth}
+    \includegraphics[width=\linewidth]{train_recent_reward.png}
+    \caption{Per-rollout reward.}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.32\textwidth}
+    \includegraphics[width=\linewidth]{train_recent_loss.png}
+    \caption{Policy loss.}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.32\textwidth}
+    \includegraphics[width=\linewidth]{train_recent_kl.png}
+    \caption{KL to the reference policy.}
+  \end{subfigure}
+  \caption{Optimization signals. Reward trends up and the loss stays negative; KL grows monotonically, kept in check by the $0.04$ penalty.}
+  \label{fig:train-signals}
+\end{figure}
+
+\section{Benchmarks}
+\label{sec:benchmarks}
+
+\paragraph{Setup.} All three models are evaluated on the full GSM8K test set (1319 problems) under matched prompting and decoding. Every model receives the same chat-template system message used during training (see Section~\ref{sec:linear}) --- the same instruction is given to the off-the-shelf baselines, so the comparison is not handicapped by prompt format. Decoding is greedy ($\texttt{do\_sample}{=}\texttt{False}$) with a 512-token budget, batched at 32 with left-padding so the per-row prompt boundary is uniform. Answers are extracted by taking the last \verb|\boxed{N}| match in the completion, falling back to the last numeric token if no box is emitted.
+
+\paragraph{Results.} Table~\ref{tab:baselines} reports test accuracy.
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{lcc}
+    \toprule
+    Model & Accuracy & Correct / Total \\
+    \midrule
+    Qwen2.5-1.5B-Instruct (general)       & 69.7\% & 920 / 1319 \\
+    Qwen2.5-1.5B-Instruct + RLVR (ours)   & 71.6\% & 945 / 1319 \\
+    Qwen2.5-Math-1.5B-Instruct (math)     & 84.8\% & 1118 / 1319 \\
+    \bottomrule
+  \end{tabular}
+  \caption{GSM8K test accuracy under matched prompting and decoding. LoRA RL adds $+1.9$ percentage points over the general-purpose base; the math-pretrained variant remains far ahead.}
+  \label{tab:baselines}
+\end{table}
+
+The $+1.9$ point gain over the general-purpose Qwen2.5-1.5B-Instruct base matches the eval accuracy logged at the end of training (71.95\%) within a small rounding gap. The math-specialized baseline sits roughly 13 points above the trained policy --- a gap that, at this parameter count, is much more about pretraining corpus than about the RL objective. Closing it is the motivation for the hierarchical and memory-augmented variants in the rest of the project.
+
+\end{document}
