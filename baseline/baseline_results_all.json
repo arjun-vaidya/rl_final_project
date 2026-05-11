@@ -1,0 +1,1218 @@
+{
+  "general": {
+    "model_name": "Qwen2.5-1.5B-Instruct (general)",
+    "correct": 12,
+    "total": 100,
+    "details": [
+      {
+        "question": "Janet\u2019s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for ",
+        "ground_truth": "18",
+        "predicted": " Step-by-step reasoning process: To solve this problem, let's break it down into steps:\n\nStep 1: Calculate the total number of eggs laid per day.\nJane",
+        "correct": false
+      },
+      {
+        "question": "A robe takes 2 bolts of blue fiber and half that much white fiber.  How many bolts in total does it ",
+        "ground_truth": "3",
+        "predicted": " 6\n\nStep 1: Identify the given information\n- A robe requires 2 bolts of blue fiber.\n- It also requires half as much white fiber as blue fiber.\n\nStep 2",
+        "correct": false
+      },
+      {
+        "question": "Josh decides to try flipping a house.  He buys a house for $80,000 and then puts in $50,000 in repai",
+        "ground_truth": "70000",
+        "predicted": " Step-by-step reasoning process:\nTo determine Josh's profit from flipping the house, we need to follow these steps:\n\n### Step 1: Calculate the total c",
+        "correct": false
+      },
+      {
+        "question": "James decides to run 3 sprints 3 times a week.  He runs 60 meters each sprint.  How many total meter",
+        "ground_truth": "540",
+        "predicted": " Step-by-step reasoning:\nTo solve the problem, let's break it down into steps:\n\n1. **Determine the number of sprints James runs per day:**\n   - James ",
+        "correct": false
+      },
+      {
+        "question": "Every day, Wendi feeds each of her chickens three cups of mixed chicken feed, containing seeds, meal",
+        "ground_truth": "20",
+        "predicted": " 8 Step-by-step reasoning:\nTo determine how many cups of feed Wendi needs for her flock of 20 chickens in the final meal of the day, we can follow the",
+        "correct": false
+      },
+      {
+        "question": "Kylar went to the store to buy glasses for his new apartment. One glass costs $5, but every second g",
+        "ground_truth": "64",
+        "predicted": " To solve this math problem, let's break it down into steps:\n\nStep 1: Determine the cost of one glass.\nThe first glass costs $5.\n\nStep 2: Calculate th",
+        "correct": false
+      },
+      {
+        "question": "Toulouse has twice as many sheep as Charleston. Charleston has 4 times as many sheep as Seattle. How",
+        "ground_truth": "260",
+        "predicted": " 160 Step by step:\nStep 1: Determine the number of sheep in Charleston.\nSince Charleston has 4 times as many sheep as Seattle, we can calculate the nu",
+        "correct": false
+      },
+      {
+        "question": "Carla is downloading a 200 GB file. Normally she can download 2 GB/minute, but 40% of the way throug",
+        "ground_truth": "160",
+        "predicted": " 160 minutes\n\nLet's break down the problem step-by-step:\n\n1. **Initial Download Rate**: Carla normally downloads at a rate of 2 GB per minute.\n\n2. **T",
+        "correct": false
+      },
+      {
+        "question": "John drives for 3 hours at a speed of 60 mph and then turns around because he realizes he forgot som",
+        "ground_truth": "45",
+        "predicted": " 150 miles\nTo solve this math problem, let's break it down step by step.\n\n### Step 1: Calculate John's total distance driven during his initial trip.\n",
+        "correct": false
+      },
+      {
+        "question": "Eliza's rate per hour for the first 40 hours she works each week is $10. She also receives an overti",
+        "ground_truth": "460",
+        "predicted": " To solve this math problem, let's break it down into steps:\n\nStep 1: Determine Eliza's regular hourly wage.\nThe problem states that Eliza earns $10 p",
+        "correct": false
+      },
+      {
+        "question": "A new program had 60 downloads in the first month. The number of downloads in the second month was t",
+        "ground_truth": "366",
+        "predicted": " 159\n\nLet's break down the solution to this math problem step by step:\n\nStep 1: Determine the number of downloads for each month.\n- First month: 60 do",
+        "correct": false
+      },
+      {
+        "question": "Toula went to the bakery and bought various types of pastries. She bought 3 dozen donuts which cost ",
+        "ground_truth": "694",
+        "predicted": " $194\n\nStep 1: Calculate the cost of the donuts.\n- Toula bought 3 dozen donuts at $68 per dozen.\n- Cost of donuts = 3 \u00d7 $68 = $204.\n\nStep 2: Calculate",
+        "correct": false
+      },
+      {
+        "question": "Carlos is planting a lemon tree. The tree will cost $90 to plant. Each year it will grow 7 lemons, w",
+        "ground_truth": "13",
+        "predicted": " Step-by-step reasoning process: To determine how many years it will take Carlos to start earning money from his lemon tree, we need to calculate both",
+        "correct": false
+      },
+      {
+        "question": "Melanie is a door-to-door saleswoman. She sold a third of her vacuum cleaners at the green house, 2 ",
+        "ground_truth": "18",
+        "predicted": " 18\n\nLet's break down the problem step-by-step:\n\n1) Let's denote the total number of vacuum cleaners Melanie started with as X.\n\n2) According to the i",
+        "correct": false
+      },
+      {
+        "question": "In a dance class of 20 students, 20% enrolled in contemporary dance, 25% of the remaining enrolled i",
+        "ground_truth": "60",
+        "predicted": " 35%\n\nStep 1: Calculate the number of students enrolled in contemporary dance.\nTo find out how many students are enrolled in contemporary dance, we ne",
+        "correct": false
+      },
+      {
+        "question": "A merchant wants to make a choice of purchase between 2 purchase plans: jewelry worth $5,000 or elec",
+        "ground_truth": "125",
+        "predicted": " The profit from purchasing the jewelry would be $475 and the profit from purchasing the electronics would be $960. Therefore, the total profit would ",
+        "correct": false
+      },
+      {
+        "question": "Two trains leave San Rafael at the same time. They begin traveling westward, both traveling for 80 m",
+        "ground_truth": "230",
+        "predicted": " 230 Step by step:\nTo solve this problem, let's break it down into steps.\n\n### Day 1:\n1. **Distance Covered on Day 1**:\n   - Both trains start from Sa",
+        "correct": false
+      },
+      {
+        "question": "Jill gets paid $20 per hour to teach and $30 to be a cheerleading coach. If she works 50 weeks a yea",
+        "ground_truth": "57500",
+        "predicted": " Step-by-step reasoning process: To calculate Jill's annual salary, we need to break down the calculation into two parts - one for teaching and one fo",
+        "correct": false
+      },
+      {
+        "question": "Claire makes a 3 egg omelet every morning for breakfast.  How many dozens of eggs will she eat in 4 ",
+        "ground_truth": "7",
+        "predicted": " 168 Step by step:\nTo solve this problem, let's break it down into steps:\n\nStep 1: Determine how many days are in 4 weeks.\nThere are 7 days in a week,",
+        "correct": false
+      },
+      {
+        "question": "Marissa is hiking a 12-mile trail. She took 1 hour to walk the first 4 miles, then another hour to w",
+        "ground_truth": "6",
+        "predicted": " To solve this problem, we need to determine how many more miles Marissa needs to hike and at what speed she should walk them in order to achieve an a",
+        "correct": false
+      },
+      {
+        "question": "I have 10 liters of orange drink that are two-thirds water and I wish to add it to 15 liters of pine",
+        "ground_truth": "15",
+        "predicted": " 13 liters\n\nLet's break down the solution step-by-step:\n\n### Step 1: Calculate the initial amounts of water in each drink\n- **Orange Drink**: \n  - Tot",
+        "correct": false
+      },
+      {
+        "question": "Raymond and Samantha are cousins. Raymond was born 6 years before Samantha. Raymond had a son at the",
+        "ground_truth": "14",
+        "predicted": " 9 Step-by-step reasoning process:\nTo solve this problem, let's break it down into steps:\n\nStep 1: Determine Raymond's current age.\nSince Samantha is ",
+        "correct": false
+      },
+      {
+        "question": "Billy sells DVDs. He has 8 customers on Tuesday. His first 3 customers buy one DVD each.  His next 2",
+        "ground_truth": "7",
+        "predicted": " Step-by-step reasoning:\nTo solve the problem, let's break it down into steps:\n\n1. **First 3 Customers**:\n   - Each of these 3 customers buys 1 DVD.\n ",
+        "correct": false
+      },
+      {
+        "question": "A candle melts by 2 centimeters every hour that it burns. How many centimeters shorter will a candle",
+        "ground_truth": "8",
+        "predicted": " 8 cm\n\nStep 1: Determine the total time the candle is burning.\nThe candle is burning for 4 hours (from 1:00 PM to 5:00 PM).\n\nStep 2: Calculate the tot",
+        "correct": true
+      },
+      {
+        "question": "Kyle bought last year's best-selling book for $19.50. This is with a 25% discount from the original ",
+        "ground_truth": "26",
+        "predicted": " To solve this problem, we need to understand that when Kyle paid $19.50 after a 25% discount, it means he only had to pay 75% (or 3/4) of the origina",
+        "correct": false
+      },
+      {
+        "question": "Marie ordered one chicken meal that costs $12, 5 packs of milk that costs $3 each, 4 apples that cos",
+        "ground_truth": "2",
+        "predicted": " 6 Step by step:\nTo solve the problem, let's break it down into steps:\n\n1. **Identify the known quantities and their values:**\n   - Chicken meal: $12\n",
+        "correct": false
+      },
+      {
+        "question": "Mishka bought 3 pairs of shorts, 3 pairs of pants, and 3 pairs of shoes. One pair of shorts costs $1",
+        "ground_truth": "243",
+        "predicted": " Step-by-step solution:\nTo solve this problem, we need to calculate the total cost for each type of clothing item (shorts, pants, and shoes) separatel",
+        "correct": false
+      },
+      {
+        "question": "Cynthia eats one serving of ice cream every night.  She buys cartons of ice cream with 15 servings o",
+        "ground_truth": "16",
+        "predicted": " Step-by-step reasoning process: To determine how much Cynthia will spend on ice cream after 60 days, we need to follow these steps:\n\nStep 1: Calculat",
+        "correct": false
+      },
+      {
+        "question": "Henry made two stops during his 60-mile bike trip. He first stopped after 20 miles. His second stop ",
+        "ground_truth": "25",
+        "predicted": " Step-by-step reasoning process: To find out how many miles Henry traveled between his first and second stops, we need to follow these steps:\n\nStep 1:",
+        "correct": false
+      },
+      {
+        "question": "Gloria is shoe shopping when she comes across a pair of boots that fit her shoe budget. However, she",
+        "ground_truth": "104",
+        "predicted": " Let's break down the information given in the question:\n\n1. Gloria has to choose between the boots and two pairs of high heels.\n2. The total cost of ",
+        "correct": false
+      },
+      {
+        "question": "Darrell and Allen's ages are in the ratio of 7:11. If their total age now is 162, calculate Allen's ",
+        "ground_truth": "109",
+        "predicted": " 43 Step by step:\nLet's denote Darrell's age as \\( D \\) and Allen's age as \\( A \\). According to the information given, we have two equations based on",
+        "correct": false
+      },
+      {
+        "question": "Gunter is trying to count the jelly beans in a jar. He asks his friends how many they think are in t",
+        "ground_truth": "80",
+        "predicted": " 64\nLet's break down the solution step-by-step:\n\n1. The first friend guessed there were 80 jelly beans.\n\n2. The second friend said \"20 more than half ",
+        "correct": false
+      },
+      {
+        "question": "John takes care of 10 dogs.  Each dog takes .5 hours a day to walk and take care of their business. ",
+        "ground_truth": "35",
+        "predicted": " 24 Step by step:\nTo solve this math problem, let's break it down into steps:\n\nStep 1: Determine the number of days in a week.\nThere are 7 days in a w",
+        "correct": false
+      },
+      {
+        "question": "Gretchen has 110 coins. There are 30 more gold coins than silver coins. How many gold coins does Gre",
+        "ground_truth": "70",
+        "predicted": " 65 Step by step:\nLet's denote the number of silver coins as S and the number of gold coins as G.\nWe know that there are 30 more gold coins than silve",
+        "correct": false
+      },
+      {
+        "question": "Siobhan has 2 fewer jewels than Aaron. Aaron has 5 more jewels than half of Raymond's jewels. If Ray",
+        "ground_truth": "23",
+        "predicted": " Step-by-step reasoning process: To solve the problem, we need to follow these steps:\n\n1. Determine how many jewels Aaron has.\n2. Use the number of je",
+        "correct": false
+      },
+      {
+        "question": "Mike plays ping pong for 40 minutes.  In the first 20 minutes, he scores 4 points.  In the second 20",
+        "ground_truth": "9",
+        "predicted": " 68 Step by step:\n1) First, we need to find out how many points Mike scored in the second 20 minutes.\n   - He scored 25% more than what he scored in t",
+        "correct": false
+      },
+      {
+        "question": "Terry eats 2 yogurts a day.  They are currently on sale at 4 yogurts for $5.00.  How much does he sp",
+        "ground_truth": "75",
+        "predicted": " To solve this problem, we need to follow these steps:\n\nStep 1: Calculate how many yogurts Terry consumes in 30 days.\nTerry eats 2 yogurts per day, so",
+        "correct": false
+      },
+      {
+        "question": "John plans to sell all his toys and use the money to buy video games. He has 13 lego sets and he sel",
+        "ground_truth": "2",
+        "predicted": " Step-by-step reasoning process: To solve this problem, let's break it down into steps:\n\nStep 1: Calculate how much money John made from selling his L",
+        "correct": false
+      },
+      {
+        "question": "John runs 60 miles a week. He runs 3 days a week.  He runs 3 hours the first day and half as much th",
+        "ground_truth": "10",
+        "predicted": " Step-by-step reasoning process:\nTo solve this problem, let's break it down into steps:\n\n1. **Determine total running time per week:**\n   John runs 60",
+        "correct": false
+      },
+      {
+        "question": "Dana can run at a rate of speed four times faster than she can walk, but she can skip at a rate of s",
+        "ground_truth": "18",
+        "predicted": " 12 Step-by-step solution:\n\nStep 1: Determine Dana's running speed.\nWe know that skipping at 3 mph is half as fast as running. Therefore, we can calcu",
+        "correct": false
+      },
+      {
+        "question": "Brandon's iPhone is four times as old as Ben's iPhone. Ben's iPhone is two times older than Suzy's i",
+        "ground_truth": "8",
+        "predicted": " 8\n\nLet's break down the information given in the question and solve it step-by-step.\n\nStep 1: Identify the relationship between the ages of the iPhon",
+        "correct": true
+      },
+      {
+        "question": "The great dragon, Perg, sat high atop mount Farbo, breathing fire upon anything within a distance of",
+        "ground_truth": "200",
+        "predicted": " To solve this problem, we need to follow these steps:\n\nStep 1: Understand the given information.\n- The dragon can breathe fire up to 1000 feet away.\n",
+        "correct": false
+      },
+      {
+        "question": "Grandma Jones baked 5 apple pies for the fireman's luncheon.  She cut each pie into 8 pieces and set",
+        "ground_truth": "26",
+        "predicted": " 27 Step by step:\nTo solve this problem, let's break it down step by step.\n\n### Step 1: Calculate the total number of pieces of pie baked.\nGrandma Jon",
+        "correct": true
+      },
+      {
+        "question": "According to its nutritional info, a bag of chips has 250 calories per serving. If a 300g bag has 5 ",
+        "ground_truth": "48",
+        "predicted": " 400 Step by step:\nTo solve this problem, we need to follow these steps:\n\nStep 1: Calculate the total number of calories in the entire bag.\nThe bag co",
+        "correct": false
+      },
+      {
+        "question": "Charlie wants to sell beeswax candles.  For every pound of beeswax, he can make 10 tapered candles. ",
+        "ground_truth": "20",
+        "predicted": " $40\n\nLet's break down the problem step-by-step:\n\n### Step 1: Calculate the total number of candles Charlie can make with one pound of beeswax.\n- Give",
+        "correct": false
+      },
+      {
+        "question": "Meredith is a freelance blogger who writes about health topics and submits to clients each day as he",
+        "ground_truth": "104",
+        "predicted": " 108 Step by step:\nTo solve this problem, let's break it down into steps:\n\n### Step 1: Determine the number of articles written each day.\n- **Monday**",
+        "correct": false
+      },
+      {
+        "question": "Candice put 80 post-it notes in her purse before she headed out to her job at the coffee shop.  On h",
+        "ground_truth": "163",
+        "predicted": " 156 Step by step:\nTo solve this problem, let's break it down into steps:\n\n1. Candice initially had 80 post-it notes.\n2. She then added more post-it n",
+        "correct": false
+      },
+      {
+        "question": "John buys twice as many red ties as blue ties.  The red ties cost 50% more than blue ties.  He spent",
+        "ground_truth": "800",
+        "predicted": " $360\n\nLet's break down the problem step by step to find out how much John spent on ties.\n\n1. **Determine the number of blue ties John bought:**\n   - ",
+        "correct": false
+      },
+      {
+        "question": "Tracy used a piece of wire 4 feet long to support tomato plants in the garden. The wire was cut into",
+        "ground_truth": "8",
+        "predicted": " To solve this problem, we need to convert the length of the wire from feet to inches and then divide it by the length of each piece.\n\nStep 1: Convert",
+        "correct": true
+      },
+      {
+        "question": "Richard lives in an apartment building with 15 floors. Each floor contains 8 units, and 3/4 of the b",
+        "ground_truth": "30",
+        "predicted": " 270 Step by step:\nTo solve this problem, let's break it down into steps:\n\n### Step 1: Calculate the total number of units in the building.\n- The buil",
+        "correct": true
+      },
+      {
+        "question": "Lloyd has an egg farm. His chickens produce 252 eggs per day and he sells them for $2 per dozen. How",
+        "ground_truth": "294",
+        "predicted": " Step 1: Calculate the number of eggs produced in a week.\nThere are 7 days in a week, so we need to multiply the daily production by 7:\n252 eggs/day *",
+        "correct": true
+      },
+      {
+        "question": "Tom's ship can travel at 10 miles per hour.  He is sailing from 1 to 4 PM.  He then travels back at ",
+        "ground_truth": "5",
+        "predicted": " 2 hours Step by step:\nTo solve this problem, let's break down the journey into two parts and calculate each part separately.\n\n### Part 1: Traveling f",
+        "correct": false
+      },
+      {
+        "question": "Uriah's book bag is getting too heavy for him. He needs to remove 15 pounds from it. His comic books",
+        "ground_truth": "15",
+        "predicted": " 6\n\nStep 1: Determine the total weight of the comic books.\nTo do this, we multiply the number of comic books (30) by the weight of each comic book (1/",
+        "correct": true
+      },
+      {
+        "question": "A mechanic charges different rates to repair the tires of trucks and cars.  For each truck tire that",
+        "ground_truth": "40",
+        "predicted": " $80\nLet's break down the problem step-by-step:\n\n### Step 1: Calculate Revenue from Truck Tires\n- The mechanic charges $60 per truck tire.\n- He repair",
+        "correct": false
+      },
+      {
+        "question": "The Doubtfire sisters are driving home with 7 kittens adopted from the local animal shelter when the",
+        "ground_truth": "40",
+        "predicted": " The total number of kittens is 39.\n\nLet's break down the problem step-by-step:\n\n1. **Identify the given information:**\n   - There are 7 kittens adopt",
+        "correct": false
+      },
+      {
+        "question": "Jean has 30 lollipops. Jean eats 2 of the lollipops. With the remaining lollipops, Jean wants to pac",
+        "ground_truth": "14",
+        "predicted": " Step-by-step reasoning process: To solve this problem, let's break it down into steps:\n\n1. **Initial number of lollipops**: Jean starts with 30 lolli",
+        "correct": false
+      },
+      {
+        "question": "Peter plans to go to the movies this week. He always gets a ticket for $7 and popcorn for $7. If he ",
+        "ground_truth": "3",
+        "predicted": " To solve this problem, we need to follow these steps:\n\n1. **Determine the total cost of one movie outing**: \n   - Peter buys a movie ticket for $7.\n ",
+        "correct": false
+      },
+      {
+        "question": "A wooden bridge can carry no more than 5000 pounds. A delivery truck filled with identical boxes, ea",
+        "ground_truth": "83",
+        "predicted": " 28 Step by step:\nTo solve this problem, we need to determine how many boxes can be loaded onto a delivery truck without exceeding its weight limit. L",
+        "correct": false
+      },
+      {
+        "question": "Stephen placed an online order for groceries.  His final bill came to $40.00.  Because this was thro",
+        "ground_truth": "57",
+        "predicted": " Let's break down the problem step by step.\n\n1. **Identify the initial bill**: The initial bill before any additional charges is $40.00.\n   \n2. **Calc",
+        "correct": false
+      },
+      {
+        "question": "A raspberry bush has 6 clusters of 20 fruit each and 67 individual fruit scattered across the bush. ",
+        "ground_truth": "187",
+        "predicted": " Step-by-step reasoning process:\nTo find the total number of raspberries on the bush, we need to follow these steps:\n\n1. **Calculate the total number ",
+        "correct": true
+      },
+      {
+        "question": "A basket contains 25 oranges among which 1 is bad, 20% are unripe, 2 are sour and the rest are good.",
+        "ground_truth": "17",
+        "predicted": " There are 18 good oranges in the basket.\n\nStep 1: Understand the total number of oranges.\nThe basket contains a total of 25 oranges.\n\nStep 2: Determi",
+        "correct": false
+      },
+      {
+        "question": "Janet buys a brooch for her daughter.  She pays $500 for the material to make it and then another $8",
+        "ground_truth": "1430",
+        "predicted": " $1480\nLet's break down the costs Janet incurred for the brooch step by step:\n\n1. **Cost of Material**: Janet paid $500 for the material.\n2. **Constru",
+        "correct": false
+      },
+      {
+        "question": "If Marcy works for the same company for 40 years, she gets an annual pension of $50,000/year. Starti",
+        "ground_truth": "25000",
+        "predicted": " $17,500\n\nLet's break down the solution into steps:\n\nStep 1: Determine how much Marcy has earned in total over her career.\n- For the first 20 years, s",
+        "correct": false
+      },
+      {
+        "question": "Aleena subscribed to a streaming service that charges her $140 per month. If the streaming company c",
+        "ground_truth": "1596",
+        "predicted": " $280\n\nStep 1: Determine the number of months in half a year.\nThere are 6 months in half a year.\n\nStep 2: Calculate the cost for the first half of the",
+        "correct": false
+      },
+      {
+        "question": "Sophia is thinking of taking a road trip in her car, and would like to know how far she can drive on",
+        "ground_truth": "300",
+        "predicted": " 360 Step by step:\n\nStep 1: Determine the total distance Sophia has driven so far.\nSophia has already driven 100 miles.\n\nStep 2: Calculate the remaini",
+        "correct": false
+      },
+      {
+        "question": "Jim spends 2 hours watching TV and then decides to go to bed and reads for half as long.  He does th",
+        "ground_truth": "36",
+        "predicted": " 168 Step by step:\nStep 1: Determine the time Jim spends reading each day.\nJim spends 2 hours watching TV, so he has 7 - 2 = 5 hours left for other ac",
+        "correct": false
+      },
+      {
+        "question": "There are four schools competing at a basketball tournament. Each school has sent a girls\u2019 basketbal",
+        "ground_truth": "48",
+        "predicted": " There are 4 schools * 2 teams per school = 8 teams in total.\nEach team has 5 players + 1 coach = 6 coaches in total.\nSo there are 8 teams * 6 coaches",
+        "correct": false
+      },
+      {
+        "question": "A treasure hunter found a buried treasure chest filled with gems. There were 175 diamonds, 35 fewer ",
+        "ground_truth": "595",
+        "predicted": " 280 Step by step:\nTo solve this problem, let's break it down into steps:\n\n### Step 1: Determine the number of rubies\nThe problem states that there ar",
+        "correct": false
+      },
+      {
+        "question": "There are twice as many boys as girls at Dr. Wertz's school. If there are 60 girls and 5 students to",
+        "ground_truth": "36",
+        "predicted": " There are 12 teachers.\n\nLet's break down the solution step-by-step:\n\nStep 1: Determine the number of boys.\nWe know that there are twice as many boys ",
+        "correct": false
+      },
+      {
+        "question": "Bailey starts with a certain amount of money. Then she receives a weekly allowance of $5 for 8 weeks",
+        "ground_truth": "60",
+        "predicted": " To solve this problem, we need to follow these steps:\n\nStep 1: Calculate the total amount of money Bailey received from her weekly allowance.\nBailey ",
+        "correct": false
+      },
+      {
+        "question": "Judy teaches 5 dance classes, every day, on the weekdays and 8 classes on Saturday.  If each class h",
+        "ground_truth": "7425",
+        "predicted": " Step-by-step reasoning:\nTo solve this problem, we need to calculate Judy's total earnings for one week from both her weekday and weekend teaching act",
+        "correct": false
+      },
+      {
+        "question": "Kelian has two recipes for preparing dishes, one having 20 instructions and the second one having tw",
+        "ground_truth": "60",
+        "predicted": " Step-by-step solution:\nTo solve this problem, let's break it down into steps:\n\n1. Determine how many instructions are in the second recipe.\n   - The ",
+        "correct": true
+      },
+      {
+        "question": "Tommy is fundraising for his charity by selling brownies for $3 a slice and cheesecakes for $4 a sli",
+        "ground_truth": "221",
+        "predicted": " Step 1: Calculate the total amount raised from selling brownies.\nTo do this, we need to multiply the number of brownies sold (43) by the price per br",
+        "correct": false
+      },
+      {
+        "question": "Shiela bought five cell phones for $150 each for a 3-month installment. A 2% interest will be charge",
+        "ground_truth": "255",
+        "predicted": " $468\n\nStep 1: Calculate the total cost of the cell phones.\nTo do this, we need to multiply the price per phone by the number of phones:\n$150 x 5 = $7",
+        "correct": false
+      },
+      {
+        "question": "Artie has a flower stand at the Farmers Market. He sells three kinds of flowers: marigolds, petunias",
+        "ground_truth": "88",
+        "predicted": " Step-by-step reasoning process: To solve this problem, we need to follow these steps:\n\nStep 1: Round each price to the nearest dollar.\n- Marigolds: $",
+        "correct": false
+      },
+      {
+        "question": "Luke is spending time at the beach building sandcastles. He eventually notices that each level of a ",
+        "ground_truth": "60",
+        "predicted": " Step-by-step reasoning process: To find the average square footage per level in Luke's 4-level sandcastle, we need to follow these steps:\n\nStep 1: De",
+        "correct": false
+      },
+      {
+        "question": "Cecilia just bought a new puppy. According to her veterinarian, she has to feed the puppy 1 cup of d",
+        "ground_truth": "5",
+        "predicted": " 3 Step-by-step solution:\n\nTo solve this problem, let's break it down into steps:\n\nStep 1: Calculate the number of days in the first 180 days.\nThere a",
+        "correct": false
+      },
+      {
+        "question": "If Raymond does half as much laundry as Sarah, and Sarah does 4 times as much laundry as David, calc",
+        "ground_truth": "100",
+        "predicted": " 120 Step by step:\nLet's break down the problem step by step to find out how much laundry each person does.\n\n1. **Determine how much laundry Sarah doe",
+        "correct": false
+      },
+      {
+        "question": "Vincent can buy flowers in packages of 3 for $2.50 or in packages of 2 for $1. How much money does h",
+        "ground_truth": "6",
+        "predicted": " To solve this problem, let's break it down into steps:\n\nStep 1: Determine how many packages Vincent would need to buy if he wanted to get 18 flowers.",
+        "correct": false
+      },
+      {
+        "question": "John adopts a dog.  He takes the dog to the groomer, which costs $100.  The groomer offers him a 30%",
+        "ground_truth": "70",
+        "predicted": " To solve this problem, we need to follow these steps:\n\nStep 1: Calculate the amount of the discount.\nThe groomer offers a 30% discount on the $100 se",
+        "correct": true
+      },
+      {
+        "question": "Two girls each got 1/6 of the 24 liters of water. Then a boy got 6 liters of water. How many liters ",
+        "ground_truth": "10",
+        "predicted": " Let's solve this step by step:\n\nStep 1: Calculate how much water the two girls got together.\nEach girl got 1/6 of 24 liters, so:\n(1/6) * 24 = 4 liter",
+        "correct": false
+      },
+      {
+        "question": "Charlie had 10 stickers. He bought 21 stickers from a store in the mall and got 23 stickers for his ",
+        "ground_truth": "17",
+        "predicted": " Let's solve this step by step:\n\nStep 1: Start with the initial number of stickers.\nCharlie initially has 10 stickers.\n\nStep 2: Add the stickers he bo",
+        "correct": true
+      },
+      {
+        "question": "Grace weighs 125 pounds. Alex weighs 2 pounds less than 4 times what Grace weighs. What are their co",
+        "ground_truth": "623",
+        "predicted": " 307 Step by step:\nStep 1: Determine how much Alex weighs.\nAlex's weight is calculated as 4 times Grace's weight minus 2 pounds.\n\nStep 2: Calculate th",
+        "correct": false
+      },
+      {
+        "question": "Dan plants 3 rose bushes. Each rose bush has 25 roses. Each rose has 8 thorns. How many thorns are t",
+        "ground_truth": "600",
+        "predicted": " There are a total of 400 thorns.\n\nLet's break down the solution to this math problem step by step:\n\n1. Dan plants 3 rose bushes.\n   - This means we h",
+        "correct": false
+      },
+      {
+        "question": "A football team played 22 games. They won 8 more than they lost. How many did they win?",
+        "ground_truth": "15",
+        "predicted": " 14 Step-by-step reasoning process:\nLet's denote the number of losses as L and the number of wins as W.\n\nFrom the information given, we know that:\nW =",
+        "correct": true
+      },
+      {
+        "question": "Gene is sewing a quilt out of old souvenir t-shirts. He has one shirt from each vacation he has been",
+        "ground_truth": "44",
+        "predicted": " Step-by-step reasoning process: To solve this problem, let's break it down into steps:\n\n1. Determine the number of vacations Gene has taken:\n   - Gen",
+        "correct": false
+      },
+      {
+        "question": "Greg has an alarm set to ring three times a day as a reminder. When the alarm goes off, it continues",
+        "ground_truth": "22",
+        "predicted": " 10 Step-by-step reasoning:\nTo solve this problem, let's break down each part of the question and calculate the total number of times the alarm rang.\n",
+        "correct": false
+      },
+      {
+        "question": "A company pays each of its employees $600 in a month. The company has a policy of increasing the sal",
+        "ground_truth": "9360",
+        "predicted": " $720\n\nLet's break down the steps to solve this problem:\n\nStep 1: Determine the current salary.\nThe question states that the company pays each employe",
+        "correct": false
+      },
+      {
+        "question": "Marilyn's first record sold 10 times as many copies as Harald's. If they sold 88,000 copies combined",
+        "ground_truth": "8000",
+        "predicted": " 2500\n\nLet's break down the problem step-by-step to find out how many copies Harald sold.\n\nStep 1: Let's denote the number of copies that Harald sold ",
+        "correct": false
+      },
+      {
+        "question": "Christina is planning a birthday party and needs .75 gift bags per invited guest, because 1/4 of att",
+        "ground_truth": "24",
+        "predicted": " $30\n\nStep 1: Calculate the number of guests who actually attend.\nSince 1/4 of the invited guests don't show up, we need to find out how many guests t",
+        "correct": false
+      },
+      {
+        "question": "Ted the T-Rex was planning to bring potato salad to the dinosaur picnic.  He knows that an adult din",
+        "ground_truth": "225",
+        "predicted": " Step-by-step reasoning:\nTo determine how many pounds of potato salad Ted needs to bring to the picnic, we can break down the problem into smaller ste",
+        "correct": false
+      },
+      {
+        "question": "Jan has three times the number of pets as Marcia. Marcia has two more pets than Cindy. If Cindy has ",
+        "ground_truth": "28",
+        "predicted": " 20 Step-by-step reasoning:\n1. First, let's determine how many pets Marcia has.\n   - We know that Marcia has two more pets than Cindy.\n   - Cindy has ",
+        "correct": false
+      },
+      {
+        "question": "Emily has 4 kids named Amy, Jackson, Corey, and James. Amy is 5 years older than Jackson and 2 years",
+        "ground_truth": "4",
+        "predicted": " Step-by-step reasoning process: To solve the problem, we need to determine the ages of each child based on the given information.\n\nStep 1: Determine ",
+        "correct": false
+      },
+      {
+        "question": "Lee used to be able to run the 400-meter hurdles two seconds faster than Gerald would run the 400-me",
+        "ground_truth": "36",
+        "predicted": " 52 Step by step:\nTo solve this problem, let's break it down into steps:\n\n### Step 1: Determine Lee's original running time\nWe know that Lee was origi",
+        "correct": false
+      },
+      {
+        "question": "In a neighborhood, the number of rabbits pets is twelve less than the combined number of pet dogs an",
+        "ground_truth": "348",
+        "predicted": " There are 120 pets in the neighborhood.\n\nLet's break down the solution step-by-step:\n\nStep 1: Identify the given information.\n- Number of rabbits = 1",
+        "correct": false
+      },
+      {
+        "question": "Out of the 200 Grade 5 students, 2/5 are boys and 2/3 of the girls are in the girl scout. How many g",
+        "ground_truth": "40",
+        "predicted": " 48 Step by step:\n1) First, we need to find out how many boys there are. We know that 2/5 of the total number of students are boys.\n   So, we calculat",
+        "correct": false
+      },
+      {
+        "question": "Harry slept 9 hours last night. His friend James slept only 2/3 of what Harry slept. How many more h",
+        "ground_truth": "3",
+        "predicted": " Step 1: Determine how much time James slept.\nJames slept 2/3 of the amount that Harry slept.\n\nStep 2: Calculate the number of hours James slept.\nTo f",
+        "correct": false
+      },
+      {
+        "question": "When Freda cooks canned tomatoes into sauce, they lose half their volume. Each 16 ounce can of tomat",
+        "ground_truth": "12",
+        "predicted": " 48 Step by step:\nStep 1: Determine the total amount of tomatoes used to make the sauce.\nFreda's last batch of tomato sauce was 32 ounces and each can",
+        "correct": false
+      },
+      {
+        "question": "Cars have lined up on the motorway. Some of the cars drive through in the first 15 minutes of the tr",
+        "ground_truth": "5",
+        "predicted": " 40 Step by step:\nLet's break down the problem step by step.\n\n1. **Initial number of cars**: There are initially 30 cars on the motorway.\n   \n2. **Car",
+        "correct": false
+      },
+      {
+        "question": "Mary is an avid gardener. Yesterday, she received 18 new potted plants from her favorite plant nurse",
+        "ground_truth": "58",
+        "predicted": " 36\n\nLet's break down the problem step-by-step:\n\n1. **Initial Potted Plants**:\n   - Mary receives 18 new potted plants.\n   - She already has 2 potted ",
+        "correct": false
+      }
+    ],
+    "accuracy": 0.12
+  },
+  "math_specialized": {
+    "model_name": "Qwen2.5-Math-1.5B-Instruct (math-specialized)",
+    "correct": 8,
+    "total": 100,
+    "details": [
+      {
+        "question": "Janet\u2019s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for ",
+        "ground_truth": "18",
+        "predicted": " $24\n\nStep by step solution:\n\n1. Janet's ducks lay 16 eggs per day.\n2. She eats 3 eggs for breakfast every morning.\n3. She bakes 4 eggs for her friend",
+        "correct": false
+      },
+      {
+        "question": "A robe takes 2 bolts of blue fiber and half that much white fiber.  How many bolts in total does it ",
+        "ground_truth": "3",
+        "predicted": " 3 bolts\n\nNow, let's solve a more complex problem:\n\nA box of blue fiber takes 2 bolts. A box of white fiber takes 1 bolt. If a box of blue fiber costs",
+        "correct": false
+      },
+      {
+        "question": "Josh decides to try flipping a house.  He buys a house for $80,000 and then puts in $50,000 in repai",
+        "ground_truth": "70000",
+        "predicted": " $120,000\n\nHere's the step-by-step reasoning:\n\n1. Calculate the total cost of the house after repairs:\n   \\[\n   \\text{Total cost} = \\text{Original cos",
+        "correct": false
+      },
+      {
+        "question": "James decides to run 3 sprints 3 times a week.  He runs 60 meters each sprint.  How many total meter",
+        "ground_truth": "540",
+        "predicted": " 180 meters\n\nNow, James decides to run 5 sprints 4 times a week.  He runs 60 meters each sprint.  How many total meters does he run a week?\n\nTo determ",
+        "correct": false
+      },
+      {
+        "question": "Every day, Wendi feeds each of her chickens three cups of mixed chicken feed, containing seeds, meal",
+        "ground_truth": "20",
+        "predicted": " 10 cups\n\nTo determine how many cups of feed Wendi needs to give her chickens in the final meal of the day, we can follow these steps:\n\n1. Calculate t",
+        "correct": false
+      },
+      {
+        "question": "Kylar went to the store to buy glasses for his new apartment. One glass costs $5, but every second g",
+        "ground_truth": "64",
+        "predicted": " $64\n\nTo determine how much Kylar needs to pay for 16 glasses, we need to consider the pricing structure: one glass costs $5, but every second glass c",
+        "correct": false
+      },
+      {
+        "question": "Toulouse has twice as many sheep as Charleston. Charleston has 4 times as many sheep as Seattle. How",
+        "ground_truth": "260",
+        "predicted": " 220\n\nTo solve the problem, we need to determine the number of sheep each location has and then sum them up. Let's break it down step by step.\n\n1. **D",
+        "correct": false
+      },
+      {
+        "question": "Carla is downloading a 200 GB file. Normally she can download 2 GB/minute, but 40% of the way throug",
+        "ground_truth": "160",
+        "predicted": " 120 minutes\n\nTo determine the total time it takes for Carla to download the 200 GB file, we need to break down the process into several steps and cal",
+        "correct": false
+      },
+      {
+        "question": "John drives for 3 hours at a speed of 60 mph and then turns around because he realizes he forgot som",
+        "ground_truth": "45",
+        "predicted": " 150 miles\n\nLet's break down the problem step by step to determine how far John is from home at the end of the 4 hours.\n\n1. **Initial Trip:**\n   - Joh",
+        "correct": false
+      },
+      {
+        "question": "Eliza's rate per hour for the first 40 hours she works each week is $10. She also receives an overti",
+        "ground_truth": "460",
+        "predicted": " $510\n\nTo determine Eliza's earnings for the week, we need to calculate her pay for the regular hours and her overtime hours separately, and then sum ",
+        "correct": false
+      },
+      {
+        "question": "A new program had 60 downloads in the first month. The number of downloads in the second month was t",
+        "ground_truth": "366",
+        "predicted": " 207\n\nTo determine the total number of downloads over the three months, we need to calculate the number of downloads for each month and then sum them ",
+        "correct": false
+      },
+      {
+        "question": "Toula went to the bakery and bought various types of pastries. She bought 3 dozen donuts which cost ",
+        "ground_truth": "694",
+        "predicted": " $1,430\n\nTo determine the total cost of the pastriesoula bought, we need to calculate the cost of each type of pastry separately and then sum these co",
+        "correct": false
+      },
+      {
+        "question": "Carlos is planting a lemon tree. The tree will cost $90 to plant. Each year it will grow 7 lemons, w",
+        "ground_truth": "13",
+        "predicted": " 15 years\n\nTo determine how many years it will take Carlos to start earning money on the lemon tree, we need to calculate the net profit he makes each",
+        "correct": false
+      },
+      {
+        "question": "Melanie is a door-to-door saleswoman. She sold a third of her vacuum cleaners at the green house, 2 ",
+        "ground_truth": "18",
+        "predicted": " 22\n\nTo determine how many vacuum cleaners Melanie started with, we will work backwards from the information given. Let's denote the initial number of",
+        "correct": false
+      },
+      {
+        "question": "In a dance class of 20 students, 20% enrolled in contemporary dance, 25% of the remaining enrolled i",
+        "ground_truth": "60",
+        "predicted": " 40%\n\nTo determine the percentage of students enrolled in hip-hop dance, we will follow these steps:\n\n1. Calculate the number of students enrolled in ",
+        "correct": false
+      },
+      {
+        "question": "A merchant wants to make a choice of purchase between 2 purchase plans: jewelry worth $5,000 or elec",
+        "ground_truth": "125",
+        "predicted": " $1,210\n\nTo determine which purchase plan will yield the highest profit at the end of the month, we need to calculate the value of each option after t",
+        "correct": false
+      },
+      {
+        "question": "Two trains leave San Rafael at the same time. They begin traveling westward, both traveling for 80 m",
+        "ground_truth": "230",
+        "predicted": " 170 miles\n\nTo determine the total distance covered by each train in the two days, we need to consider both the westward and northward traveled distan",
+        "correct": false
+      },
+      {
+        "question": "Jill gets paid $20 per hour to teach and $30 to be a cheerleading coach. If she works 50 weeks a yea",
+        "ground_truth": "57500",
+        "predicted": " $4,600\n\nLet's break down the problem step by step to find Jill's annual salary.\n\n1. **Calculate Jill's earnings from teaching:**\n   - Jill works 35 h",
+        "correct": false
+      },
+      {
+        "question": "Claire makes a 3 egg omelet every morning for breakfast.  How many dozens of eggs will she eat in 4 ",
+        "ground_truth": "7",
+        "predicted": " 6\n\nHere's the step-by-step reasoning:\n\n1. Claire eats 3 eggs every morning.\n2. There are 7 days in a week.\n3. In 4 weeks, there are \\(4 \\times 7 = 28",
+        "correct": false
+      },
+      {
+        "question": "Marissa is hiking a 12-mile trail. She took 1 hour to walk the first 4 miles, then another hour to w",
+        "ground_truth": "6",
+        "predicted": " 6.67 miles per hour\n\nTo determine the speed Marissa needs to walk the remaining distance to achieve an average speed of 4 miles per hour, we can foll",
+        "correct": false
+      },
+      {
+        "question": "I have 10 liters of orange drink that are two-thirds water and I wish to add it to 15 liters of pine",
+        "ground_truth": "15",
+        "predicted": " 17.2 liters\n\nTo determine how much water is in the remaining 24 liters of the mixture, we need to follow these steps:\n\n1. Calculate the amount of wat",
+        "correct": false
+      },
+      {
+        "question": "Raymond and Samantha are cousins. Raymond was born 6 years before Samantha. Raymond had a son at the",
+        "ground_truth": "14",
+        "predicted": " 18 years ago.\n\nTo determine how many years ago Raymond's son was born, we need to follow these steps:\n\n1. Determine Samantha's current age.\n2. Determ",
+        "correct": false
+      },
+      {
+        "question": "Billy sells DVDs. He has 8 customers on Tuesday. His first 3 customers buy one DVD each.  His next 2",
+        "ground_truth": "7",
+        "predicted": " 8\n\nHere's the step-by-step reasoning:\n\n1. Billy has 8 customers on Tuesday.\n2. His first 3 customers buy one DVD each:\n   \\[\n   3 \\text{ customers} \\",
+        "correct": false
+      },
+      {
+        "question": "A candle melts by 2 centimeters every hour that it burns. How many centimeters shorter will a candle",
+        "ground_truth": "8",
+        "predicted": " 8 centimeters shorter\n\nTo determine how many centimeters shorter a candle will be after burning from 1:00 PM to 5:00 PM, we need to follow these step",
+        "correct": false
+      },
+      {
+        "question": "Kyle bought last year's best-selling book for $19.50. This is with a 25% discount from the original ",
+        "ground_truth": "26",
+        "predicted": " $27.17\n\nTo find the original price of the book, we need to understand that the price Kyle paid ($19.50) is 75% of the original price. This is because",
+        "correct": false
+      },
+      {
+        "question": "Marie ordered one chicken meal that costs $12, 5 packs of milk that costs $3 each, 4 apples that cos",
+        "ground_truth": "2",
+        "predicted": " 2\n\nTo determine how many boxes of pizza Marie ordered, we need to calculate the total cost of all the items she ordered except the pizza, and then us",
+        "correct": false
+      },
+      {
+        "question": "Mishka bought 3 pairs of shorts, 3 pairs of pants, and 3 pairs of shoes. One pair of shorts costs $1",
+        "ground_truth": "243",
+        "predicted": " $253.50\n\nTo determine the total amountishka spent on all the clothing items, we need to calculate the cost of each type of clothing separately and th",
+        "correct": false
+      },
+      {
+        "question": "Cynthia eats one serving of ice cream every night.  She buys cartons of ice cream with 15 servings o",
+        "ground_truth": "16",
+        "predicted": " $16.00\n\nHere's the step-by-step reasoning:\n\n1. Cynthia eats one serving of ice cream every night.\n2. She buys cartons of ice cream with 15 servings p",
+        "correct": false
+      },
+      {
+        "question": "Henry made two stops during his 60-mile bike trip. He first stopped after 20 miles. His second stop ",
+        "ground_truth": "25",
+        "predicted": " 25 miles\n\nTo determine how many miles Henry traveled between his first and second stops, we need to follow these steps:\n\n1. Identify the total distan",
+        "correct": true
+      },
+      {
+        "question": "Gloria is shoe shopping when she comes across a pair of boots that fit her shoe budget. However, she",
+        "ground_truth": "104",
+        "predicted": " $54\n\nTo determine the cost of the boots, let's break down the problem step by step.\n\n1. Identify the cost of one pair of high heels:\n   \\[\n   \\text{C",
+        "correct": false
+      },
+      {
+        "question": "Darrell and Allen's ages are in the ratio of 7:11. If their total age now is 162, calculate Allen's ",
+        "ground_truth": "109",
+        "predicted": " 79\n\nTo solve the problem, we need to determine the current ages of Darrel and Allen based on the given ratio and total age, and then find Allen's age",
+        "correct": false
+      },
+      {
+        "question": "Gunter is trying to count the jelly beans in a jar. He asks his friends how many they think are in t",
+        "ground_truth": "80",
+        "predicted": " 50\n\nTo find the average guess of the jelly beans in the jar, we need to determine each friend's guess and then calculate the average of these guesses",
+        "correct": false
+      },
+      {
+        "question": "John takes care of 10 dogs.  Each dog takes .5 hours a day to walk and take care of their business. ",
+        "ground_truth": "35",
+        "predicted": " 10 x 0.5 x 7 = 35\n\n1. **Identify the given information:**\n   - John takes care of 10 dogs.\n   - Each dog takes 0.5 hours per day to walk and take car",
+        "correct": false
+      },
+      {
+        "question": "Gretchen has 110 coins. There are 30 more gold coins than silver coins. How many gold coins does Gre",
+        "ground_truth": "70",
+        "predicted": " 70\n\nLet's solve the problem step by step.\n\n1. Define the variables:\n   - Let \\( S \\) be the number of silver coins.\n   - Let \\( G \\) be the number of",
+        "correct": false
+      },
+      {
+        "question": "Siobhan has 2 fewer jewels than Aaron. Aaron has 5 more jewels than half of Raymond's jewels. If Ray",
+        "ground_truth": "23",
+        "predicted": " 17\n\nTo determine how many jewels Siobhan has, we need to follow the given relationships step by step.\n\n1. **Determine the number of jewels Aaron has:",
+        "correct": false
+      },
+      {
+        "question": "Mike plays ping pong for 40 minutes.  In the first 20 minutes, he scores 4 points.  In the second 20",
+        "ground_truth": "9",
+        "predicted": " 15\n\nHere's the step-by-step reasoning:\n\n1. In the first 20 minutes, Mike scores 4 points.\n2. In the second 20 minutes, he scores 25% more points than",
+        "correct": false
+      },
+      {
+        "question": "Terry eats 2 yogurts a day.  They are currently on sale at 4 yogurts for $5.00.  How much does he sp",
+        "ground_truth": "75",
+        "predicted": " $75.00\n\nHere's the step-by-step reasoning:\n\n1. Terry eats 2 yogurts a day.\n2. The price for 4 yogurts is $5.00.\n3. To find out how much Terry spends ",
+        "correct": false
+      },
+      {
+        "question": "John plans to sell all his toys and use the money to buy video games. He has 13 lego sets and he sel",
+        "ground_truth": "2",
+        "predicted": " He has 5 lego sets left.\n\nTo determine how many lego sets John still has, we need to follow these steps:\n\n1. Calculate the total amount of money John",
+        "correct": true
+      },
+      {
+        "question": "John runs 60 miles a week. He runs 3 days a week.  He runs 3 hours the first day and half as much th",
+        "ground_truth": "10",
+        "predicted": " 10 miles per hour\n\nLet's break down the problem step by step to find out how fast John runs.\n\n1. **Determine the total distance John runs each week:*",
+        "correct": false
+      },
+      {
+        "question": "Dana can run at a rate of speed four times faster than she can walk, but she can skip at a rate of s",
+        "ground_truth": "18",
+        "predicted": " 12 miles\n\nTo solve the problem, we need to determine Dana's walking and running speeds and then calculate the distance she can travel in six hours gi",
+        "correct": false
+      },
+      {
+        "question": "Brandon's iPhone is four times as old as Ben's iPhone. Ben's iPhone is two times older than Suzy's i",
+        "ground_truth": "8",
+        "predicted": " 8 years old\n\nTo determine the age of Brandon's iPhone, we need to follow the relationships given in the problem step by step.\n\n1. Identify the age of",
+        "correct": true
+      },
+      {
+        "question": "The great dragon, Perg, sat high atop mount Farbo, breathing fire upon anything within a distance of",
+        "ground_truth": "200",
+        "predicted": " 1000 feet\n\nTo solve this problem, we need to determine how far outside the reach of the dragon's flames Polly can stand and still hit the dragon with",
+        "correct": false
+      },
+      {
+        "question": "Grandma Jones baked 5 apple pies for the fireman's luncheon.  She cut each pie into 8 pieces and set",
+        "ground_truth": "26",
+        "predicted": " 26 pieces were taken by the guests.\n\nNow, let's solve this problem step by step:\n\n1. Calculate the total number of pie pieces Grandma Jones baked.\n2.",
+        "correct": false
+      },
+      {
+        "question": "According to its nutritional info, a bag of chips has 250 calories per serving. If a 300g bag has 5 ",
+        "ground_truth": "48",
+        "predicted": " 360g\n\nTo determine how many grams of chips you can eat without exceeding your daily calorie target, we need to follow these steps:\n\n1. **Calculate th",
+        "correct": false
+      },
+      {
+        "question": "Charlie wants to sell beeswax candles.  For every pound of beeswax, he can make 10 tapered candles. ",
+        "ground_truth": "20",
+        "predicted": " $30.00\n\nLet's break down the problem step by step to find Charlie's net profit.\n\n1. **Determine the cost of supplies for 20 candles:**\n   - Charlie n",
+        "correct": false
+      },
+      {
+        "question": "Meredith is a freelance blogger who writes about health topics and submits to clients each day as he",
+        "ground_truth": "104",
+        "predicted": " 120 hours\n\nTo determine the total number of hours Meredith spent writing articles over the three days, we need to follow these steps:\n\n1. Calculate t",
+        "correct": false
+      },
+      {
+        "question": "Candice put 80 post-it notes in her purse before she headed out to her job at the coffee shop.  On h",
+        "ground_truth": "163",
+        "predicted": " 53\n\nLet's break down the problem step by step to find out how many post-it notes were in the package that Candice purchased.\n\n1. **Initial number of ",
+        "correct": false
+      },
+      {
+        "question": "John buys twice as many red ties as blue ties.  The red ties cost 50% more than blue ties.  He spent",
+        "ground_truth": "800",
+        "predicted": " $320\n\nLet's break down the problem step by step.\n\n1. Determine the number of blue ties John bought.\n   - The cost of each blue tie is $40.\n   - John ",
+        "correct": false
+      },
+      {
+        "question": "Tracy used a piece of wire 4 feet long to support tomato plants in the garden. The wire was cut into",
+        "ground_truth": "8",
+        "predicted": " Tracy obtained 2 pieces of wire.\n\nTo determine how many pieces of wire Tracy obtained, we need to follow these steps:\n\n1. Convert the length of the w",
+        "correct": true
+      },
+      {
+        "question": "Richard lives in an apartment building with 15 floors. Each floor contains 8 units, and 3/4 of the b",
+        "ground_truth": "30",
+        "predicted": " 30 units\n\nTo determine the total number of unoccupied units in the building, we can follow these steps:\n\n1. Calculate the total number of units in th",
+        "correct": false
+      },
+      {
+        "question": "Lloyd has an egg farm. His chickens produce 252 eggs per day and he sells them for $2 per dozen. How",
+        "ground_truth": "294",
+        "predicted": " $357\n\nTo determine how much Lloyd makes on eggs per week, we need to follow these steps:\n\n1. Calculate the number of dozens of eggs produced per day.",
+        "correct": false
+      },
+      {
+        "question": "Tom's ship can travel at 10 miles per hour.  He is sailing from 1 to 4 PM.  He then travels back at ",
+        "ground_truth": "5",
+        "predicted": " 12 hours\n\nI need to know how to solve this problem step by step.  I know the answer, but I need to know how to get there.  I need to know the steps t",
+        "correct": false
+      },
+      {
+        "question": "Uriah's book bag is getting too heavy for him. He needs to remove 15 pounds from it. His comic books",
+        "ground_truth": "15",
+        "predicted": " \\boxed{150}\nTo determine how many toys Uriah needs to remove, we start by calculating the total weight of the comic books he is removing. Each comic ",
+        "correct": false
+      },
+      {
+        "question": "A mechanic charges different rates to repair the tires of trucks and cars.  For each truck tire that",
+        "ground_truth": "40",
+        "predicted": " $120\n\nTo determine how much more revenue the mechanic earned on the day with higher revenue, we need to calculate the revenue for both Thursday and F",
+        "correct": false
+      },
+      {
+        "question": "The Doubtfire sisters are driving home with 7 kittens adopted from the local animal shelter when the",
+        "ground_truth": "40",
+        "predicted": " 39 kittens\n\nLet's break down the problem step by step.\n\n1. Identify the number of kittens adopted from the shelter:\n   - The problem states that ther",
+        "correct": false
+      },
+      {
+        "question": "Jean has 30 lollipops. Jean eats 2 of the lollipops. With the remaining lollipops, Jean wants to pac",
+        "ground_truth": "14",
+        "predicted": " 14 bags\n\nTo determine how many bags Jean can fill, we need to follow these steps:\n\n1. Calculate the number of lollipops Jean has after eating 2 of th",
+        "correct": false
+      },
+      {
+        "question": "Peter plans to go to the movies this week. He always gets a ticket for $7 and popcorn for $7. If he ",
+        "ground_truth": "3",
+        "predicted": " Peter can go to the movies \\_\\_\\_\\_ times this week.\n\nTo determine how many times Peter can go to the movies this week, we need to follow these steps",
+        "correct": false
+      },
+      {
+        "question": "A wooden bridge can carry no more than 5000 pounds. A delivery truck filled with identical boxes, ea",
+        "ground_truth": "83",
+        "predicted": " 166\n\nTo determine the maximum number of boxes that can be loaded onto the truck while not exceeding the bridge's weight limit, we need to follow thes",
+        "correct": false
+      },
+      {
+        "question": "Stephen placed an online order for groceries.  His final bill came to $40.00.  Because this was thro",
+        "ground_truth": "57",
+        "predicted": " $48.00\n\nLet's break down the problem step by step to find the final price of Stephen's groceries after all the additional fees are added.\n\n1. **Initi",
+        "correct": false
+      },
+      {
+        "question": "A raspberry bush has 6 clusters of 20 fruit each and 67 individual fruit scattered across the bush. ",
+        "ground_truth": "187",
+        "predicted": " 187\n\nTo determine the total number of raspberries on the raspberry bush, we need to consider both the clusters and the individual fruit. Let's break ",
+        "correct": true
+      },
+      {
+        "question": "A basket contains 25 oranges among which 1 is bad, 20% are unripe, 2 are sour and the rest are good.",
+        "ground_truth": "17",
+        "predicted": " 15\n\nTo determine the number of good oranges in the basket, we need to follow these steps:\n\n1. **Calculate the number of unripe oranges:**\n   The prob",
+        "correct": false
+      },
+      {
+        "question": "Janet buys a brooch for her daughter.  She pays $500 for the material to make it and then another $8",
+        "ground_truth": "1430",
+        "predicted": " $1470\n\nI need to know how to solve this problem step by step.  I know the answer already, but I need to know the steps.  I need to know how to get th",
+        "correct": false
+      },
+      {
+        "question": "If Marcy works for the same company for 40 years, she gets an annual pension of $50,000/year. Starti",
+        "ground_truth": "25000",
+        "predicted": " $15,000\n\nTo determine Marcy's annual pension after she quits, we need to follow these steps:\n\n1. Identify the pension amount Marcy receives after 20 ",
+        "correct": false
+      },
+      {
+        "question": "Aleena subscribed to a streaming service that charges her $140 per month. If the streaming company c",
+        "ground_truth": "1596",
+        "predicted": " $1540\n\nTo determine the total amount Aleena paid for the streaming service by the end of the year, we need to break down the costs for the first and ",
+        "correct": false
+      },
+      {
+        "question": "Sophia is thinking of taking a road trip in her car, and would like to know how far she can drive on",
+        "ground_truth": "300",
+        "predicted": " Sophia can drive 300 miles on a single tank of gas.\n\nTo determine how many miles Sophia can drive on a single tank of gas, we need to follow these st",
+        "correct": false
+      },
+      {
+        "question": "Jim spends 2 hours watching TV and then decides to go to bed and reads for half as long.  He does th",
+        "ground_truth": "36",
+        "predicted": " 18 hours\n\nLet's break down the problem step by step to find out how many hours Jim spends on TV and reading in 4 weeks.\n\n1. Determine the time Jim sp",
+        "correct": false
+      },
+      {
+        "question": "There are four schools competing at a basketball tournament. Each school has sent a girls\u2019 basketbal",
+        "ground_truth": "48",
+        "predicted": " 60 players + 12 coaches = 72 people\n\n1. Calculate the total number of players sent by all the schools.\n2. Calculate the total number of coaches sent ",
+        "correct": false
+      },
+      {
+        "question": "A treasure hunter found a buried treasure chest filled with gems. There were 175 diamonds, 35 fewer ",
+        "ground_truth": "595",
+        "predicted": " 785\n\nLet's break down the problem step by step to find the total number of gems in the treasure chest.\n\n1. **Number of Cubes:**\n   The problem states",
+        "correct": false
+      },
+      {
+        "question": "There are twice as many boys as girls at Dr. Wertz's school. If there are 60 girls and 5 students to",
+        "ground_truth": "36",
+        "predicted": " 15 teachers\n\nTo solve the problem step by step, let's break it down into smaller parts:\n\n1. Determine the number of boys at the school.\n   - We know ",
+        "correct": false
+      },
+      {
+        "question": "Bailey starts with a certain amount of money. Then she receives a weekly allowance of $5 for 8 weeks",
+        "ground_truth": "60",
+        "predicted": " $50\n\nLet's break down the problem step by step to find out how much money Bailey started with.\n\n1. Identify the total amount of money Bailey has at t",
+        "correct": false
+      },
+      {
+        "question": "Judy teaches 5 dance classes, every day, on the weekdays and 8 classes on Saturday.  If each class h",
+        "ground_truth": "7425",
+        "predicted": " $2,850\n\nLet's break down the problem step by step to find out how much money Judy makes in one week.\n\n1. **Calculate the number of classes Judy teach",
+        "correct": false
+      },
+      {
+        "question": "Kelian has two recipes for preparing dishes, one having 20 instructions and the second one having tw",
+        "ground_truth": "60",
+        "predicted": " 60 instructions\n\nTo determine the total number of instructions KAN has to read to prepare both dishes, we need to follow these steps:\n\n1. Identify th",
+        "correct": true
+      },
+      {
+        "question": "Tommy is fundraising for his charity by selling brownies for $3 a slice and cheesecakes for $4 a sli",
+        "ground_truth": "221",
+        "predicted": " $217\n\nTo determine how much money Tommy raises, we need to calculate the total revenue from selling both brownies and cheesecakes separately and then",
+        "correct": false
+      },
+      {
+        "question": "Shiela bought five cell phones for $150 each for a 3-month installment. A 2% interest will be charge",
+        "ground_truth": "255",
+        "predicted": " $52.20\n\nTo determine how much Shiela will pay each month for 3 months, we need to follow these steps:\n\n1. Calculate the total cost of the five cell p",
+        "correct": false
+      },
+      {
+        "question": "Artie has a flower stand at the Farmers Market. He sells three kinds of flowers: marigolds, petunias",
+        "ground_truth": "88",
+        "predicted": " $58\n\nTo determine how much Artie will make, we need to follow these steps:\n\n1. Round the price of each type of flower to the nearest dollar.\n2. Calcu",
+        "correct": false
+      },
+      {
+        "question": "Luke is spending time at the beach building sandcastles. He eventually notices that each level of a ",
+        "ground_truth": "60",
+        "predicted": " 36\n\nTo determine the average square footage of a level in Luke's sandcastle, we need to follow these steps:\n\n1. **Identify the square footage of each",
+        "correct": false
+      },
+      {
+        "question": "Cecilia just bought a new puppy. According to her veterinarian, she has to feed the puppy 1 cup of d",
+        "ground_truth": "5",
+        "predicted": " 1 bag\n\nStep-by-step solution:\n\n1. Calculate the total number of days in the first year:\n   - 1 year = 365 days\n\n2. Determine the number of days durin",
+        "correct": false
+      },
+      {
+        "question": "If Raymond does half as much laundry as Sarah, and Sarah does 4 times as much laundry as David, calc",
+        "ground_truth": "100",
+        "predicted": " 100 pounds\n\nTo solve the problem step by step, let's define the amount of laundry each person does in terms of variables and then use the given infor",
+        "correct": false
+      },
+      {
+        "question": "Vincent can buy flowers in packages of 3 for $2.50 or in packages of 2 for $1. How much money does h",
+        "ground_truth": "6",
+        "predicted": " He saves $12.00.\n\nTo determine how much money Vincent saves by buying 18 flowers at the better price, we need to calculate the cost of buying 18 flow",
+        "correct": false
+      },
+      {
+        "question": "John adopts a dog.  He takes the dog to the groomer, which costs $100.  The groomer offers him a 30%",
+        "ground_truth": "70",
+        "predicted": " $70\n\nNow, John has a cat.  He takes the cat to the groomer, which costs $100.  The groomer offers him a 30% discount for being a new customer.  How m",
+        "correct": false
+      },
+      {
+        "question": "Two girls each got 1/6 of the 24 liters of water. Then a boy got 6 liters of water. How many liters ",
+        "ground_truth": "10",
+        "predicted": " 10 liters\n\nTo determine how many liters of water were left, we need to follow these steps:\n\n1. Calculate the amount of water each girl received.\n2. D",
+        "correct": false
+      },
+      {
+        "question": "Charlie had 10 stickers. He bought 21 stickers from a store in the mall and got 23 stickers for his ",
+        "ground_truth": "17",
+        "predicted": " Charlie has \\_\\_\\_\\_ stickers left.\n\nTo determine how many stickers Charlie has left, we need to follow the sequence of events and perform the arithm",
+        "correct": true
+      },
+      {
+        "question": "Grace weighs 125 pounds. Alex weighs 2 pounds less than 4 times what Grace weighs. What are their co",
+        "ground_truth": "623",
+        "predicted": " 501 pounds\n\nTo determine the combined weights of Grace and Alex, we need to follow these steps:\n\n1. Identify Grace's weight.\n2. Calculate Alex's weig",
+        "correct": false
+      },
+      {
+        "question": "Dan plants 3 rose bushes. Each rose bush has 25 roses. Each rose has 8 thorns. How many thorns are t",
+        "ground_truth": "600",
+        "predicted": " 600 thorns\n\nTo determine the total number of thorns, we need to follow these steps:\n\n1. Calculate the total number of roses.\n2. Determine the total n",
+        "correct": false
+      },
+      {
+        "question": "A football team played 22 games. They won 8 more than they lost. How many did they win?",
+        "ground_truth": "15",
+        "predicted": " 15 games\n\nTo determine how many games the football team won, we can set up an equation based on the information given. Let's define the number of gam",
+        "correct": false
+      },
+      {
+        "question": "Gene is sewing a quilt out of old souvenir t-shirts. He has one shirt from each vacation he has been",
+        "ground_truth": "44",
+        "predicted": " 105\n\nTo determine the total number of quilt blocks Gene has, we need to calculate the total number of shirts he has collected over the years. Let's b",
+        "correct": false
+      },
+      {
+        "question": "Greg has an alarm set to ring three times a day as a reminder. When the alarm goes off, it continues",
+        "ground_truth": "22",
+        "predicted": " 14 times\n\nTo determine the total number of times the alarm drove, we need to break down the problem step by step.\n\n1. **First ring:**\n   - The alarm ",
+        "correct": true
+      },
+      {
+        "question": "A company pays each of its employees $600 in a month. The company has a policy of increasing the sal",
+        "ground_truth": "9360",
+        "predicted": " $726\n\nTo determine Sylvie's annual salary after three more years of service, we need to follow these steps:\n\n1. Identify the initial salary.\n2. Calcu",
+        "correct": false
+      },
+      {
+        "question": "Marilyn's first record sold 10 times as many copies as Harald's. If they sold 88,000 copies combined",
+        "ground_truth": "8000",
+        "predicted": " Harald sold 8,000 copies.\n\nTo solve the problem, let's define the number of copies Harald sold as \\( H \\). According to the problem, Marcy's first re",
+        "correct": false
+      },
+      {
+        "question": "Christina is planning a birthday party and needs .75 gift bags per invited guest, because 1/4 of att",
+        "ground_truth": "24",
+        "predicted": " $24\n\nTo determine how much Christina will spend on gift bags, we need to follow these steps:\n\n1. Calculate the number of guests who will actually att",
+        "correct": false
+      },
+      {
+        "question": "Ted the T-Rex was planning to bring potato salad to the dinosaur picnic.  He knows that an adult din",
+        "ground_truth": "225",
+        "predicted": " 250 lbs\n\nHere's the step-by-step reasoning:\n\n1. Determine the amount of potato salad a child will eat:\n   \\[\n   \\text{Amount a child eats} = \\frac{10",
+        "correct": false
+      },
+      {
+        "question": "Jan has three times the number of pets as Marcia. Marcia has two more pets than Cindy. If Cindy has ",
+        "ground_truth": "28",
+        "predicted": " 24\n\nTo determine the total number of pets that Jan, Marcia, and Cindy have, we will follow these steps:\n\n1. Identify the number of pets Cindy has.\n2.",
+        "correct": false
+      },
+      {
+        "question": "Emily has 4 kids named Amy, Jackson, Corey, and James. Amy is 5 years older than Jackson and 2 years",
+        "ground_truth": "4",
+        "predicted": " Jackson is 7 years old.\n\nTo solve the problem step by step, let's define the ages of the kids using variables and the given relationships between the",
+        "correct": false
+      },
+      {
+        "question": "Lee used to be able to run the 400-meter hurdles two seconds faster than Gerald would run the 400-me",
+        "ground_truth": "36",
+        "predicted": " 39.9 seconds\n\nLet's solve the problem step by step.\n\n1. **Determine Lee's original speed:**\n   Lee runs the 400-meter hurdles in 38 seconds. Therefor",
+        "correct": false
+      },
+      {
+        "question": "In a neighborhood, the number of rabbits pets is twelve less than the combined number of pet dogs an",
+        "ground_truth": "348",
+        "predicted": " 192\n\nTo solve the problem, we need to determine the total number of pets in the neighborhood, which includes rabbits, dogs, and cats. Let's break it ",
+        "correct": false
+      },
+      {
+        "question": "Out of the 200 Grade 5 students, 2/5 are boys and 2/3 of the girls are in the girl scout. How many g",
+        "ground_truth": "40",
+        "predicted": " 80 girls are not in the girl scout.\n\nLet's break down the problem step by step.\n\n1. Determine the number of boys in the grade.\n   The fraction of boy",
+        "correct": false
+      },
+      {
+        "question": "Harry slept 9 hours last night. His friend James slept only 2/3 of what Harry slept. How many more h",
+        "ground_truth": "3",
+        "predicted": " 3 hours\n\nTo determine how many more hours Harry slept than James, we need to follow these steps:\n\n1. Calculate how many hours James slept.\n2. Subtrac",
+        "correct": false
+      },
+      {
+        "question": "When Freda cooks canned tomatoes into sauce, they lose half their volume. Each 16 ounce can of tomat",
+        "ground_truth": "12",
+        "predicted": " 24\n\nTo determine how many tomatoes Freda used, we need to follow these steps:\n\n1. **Understand the volume loss**: Freda's can of tomatoes loses half ",
+        "correct": false
+      },
+      {
+        "question": "Cars have lined up on the motorway. Some of the cars drive through in the first 15 minutes of the tr",
+        "ground_truth": "5",
+        "predicted": " 15 cars drove through the traffic jam in the first 15 minutes.\n\nLet's break down the problem step by step.\n\n1. **Identify the total number of cars in",
+        "correct": false
+      },
+      {
+        "question": "Mary is an avid gardener. Yesterday, she received 18 new potted plants from her favorite plant nurse",
+        "ground_truth": "58",
+        "predicted": " 78 plants\n\nTo determine how many potted plants Mary will remain with, we need to follow these steps:\n\n1. Calculate the total number of potted plants ",
+        "correct": false
+      }
+    ],
+    "accuracy": 0.08
+  }
+}
