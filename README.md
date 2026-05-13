@@ -50,7 +50,7 @@ The story flows in roughly this order:
 
 ## Environment
 
-We run on a single A100-class GPU (40GB or 80GB) on a GCP VM, plus a separate VM for the GPT-4o-mini judge in V2.
+We run on a single NVIDIA L4 GPU (24GB) on a GCP VM, plus a separate VM for the GPT-4o-mini judge in V2.
 
 Each Python folder has its own `requirements.txt`. The training code expects:
 - `torch` (bf16 capable),
