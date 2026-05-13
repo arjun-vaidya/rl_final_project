@@ -47,7 +47,7 @@
     {
       "question": "Toulouse has twice as many sheep as Charleston. Charleston has 4 times as many sheep as Seattle. How many sheep do Toulouse, Charleston, and Seattle have together if Seattle has 20 sheep?",
       "ground_truth": "260",
-      "predicted": Infinity,
+      "predicted": "Infinity",
       "correct": false,
       "output": "To determine the total number of sheep that Tizations,7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777"
     },
@@ -6977,7 +6977,7 @@
     {
       "question": "Four children are playing together\u2014Akbar, Alessandro, Helene, and Wilfred. Helene is twice as old as the average age of the group, and the total age of the children is 20. If Akbar is 3 years old and ",
       "ground_truth": "3",
-      "predicted": Infinity,
+      "predicted": "Infinity",
       "correct": false,
       "output": "To determine the age of Wilfred, we start by defining the variables and using the given information. Let's denote the ages of Akbar,5555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555"
     },
