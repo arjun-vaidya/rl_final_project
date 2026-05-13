@@ -1,202 +1,68 @@
-# Router-Solver V2
+# router_solver_v2
 
-Text-based hierarchical RL with an OpenAI-compatible remote judge for step-level reward signals.
+The second hierarchical attempt. Text-reasoning Solver, GPT-4o-mini as a remote judge for dense step-level rewards, three-term weighted GRPO advantage. Reached approximately 35% rollout accuracy on a fresh traced eval with answer-synthesis on. Section 5.2 of the report unpacks why this is still 50 points below the linear-policy baselines.
 
-Current repo note:
-- the runtime judge client is configurable through `OLLAMA_*` env vars and can point to a remote `vLLM` deployment;
-- the deployment assets for that judge live under [judge_ops](./judge_ops/README.md).
-- `--dataset slim` mirrors the original slim-dataset selection rule from `router_solver`.
+## What this directory does
 
-## Architecture
+The pipeline at training time:
 
-The system decomposes math problems hierarchically: a Router generates plans, a Solver executes them step-by-step, and a Judge (GPT-4o mini) provides dense reward signals at each level.
+1. **Router** (Qwen + LoRA) generates a JSON plan with 1-8 subgoal steps for the input question.
+2. A remote **GPT-4o-mini Judge** scores the plan (clarity, independence, completeness) and returns `plan_reward in [0, 1]`.
+3. **Solver** (same Qwen base, separate LoRA head) executes each step sequentially, producing text reasoning.
+4. The Judge scores each Solver step independently, returning `step_rewards[i] in [0, 1]`.
+5. The final Solver step's answer is checked against the ground truth, returning a binary `outcome_reward in {0, 1}`.
+6. GRPO is computed on a weighted advantage `r_w * A_router + s_w * A_steps + o_w * A_outcome`, with the router weight decaying 5% per epoch and the outcome weight increasing correspondingly.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        INPUT QUESTION                       │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                ┌──────▼──────┐
-                │   ROUTER    │  Generates JSON plan (1-8 steps)
-                │ (Qwen+LoRA)  │
-                └──────┬───────┘
-                       │
-        ┌──────────────▼──────────────┐
-        │ GPT-4o mini Judge           │ Scores plan: clarity, independence, completeness
-        │ → plan_reward ∈ [0, 1]      │
-        └──────────────┬──────────────┘
-                       │
-        ┌──────────────▼──────────────────────────┐
-        │ SOLVER executes each step sequentially  │
-        │ (Text reasoning + answer extraction)    │
-        └──────────────┬──────────────────────────┘
-                       │
-        ┌──────────────▼──────────────┐
-        │ GPT-4o mini Judge           │ Scores each step independently
-        │ → step_rewards[i] ∈ [0, 1]  │
-        └──────────────┬──────────────┘
-                       │
-        ┌──────────────▼──────────────┐
-        │    FINAL ANSWER (last step) │
-        └──────────────┬──────────────┘
-                       │
-        ┌──────────────▼──────────────┐
-        │ GPT-4o mini Judge           │ Checks: answer == ground_truth
-        │ → outcome_reward ∈ {0, 1}   │
-        └──────────────┬──────────────┘
-                       │
-        ┌──────────────▼──────────────────────────────┐
-        │ GRPO: Compare 4 rollouts within group       │
-        │ Compute advantages: (r - mean) / std        │
-        │ Loss = -(r_w·adv·logp + ...)                │
-        └──────────────┬──────────────────────────────┘
-                       │
-        ┌──────────────▼──────────────┐
-        │  Backprop & Optimizer Step  │ Update model weights via AdamW
-        └─────────────────────────────┘
-```
+Judge calls are batched 10 items per API call. The full training pass costs around $10 of judge time vs ~$75 without batching.
 
-## Training Loop (GRPO)
+## Why this design
 
-For each question, generate 4 rollouts and learn from their relative performance:
+V1 (`../router_solver/`) failed because outcome-only credit assignment over a multi-step Python-tool pipeline produced gradient conflict. V2 attacks that directly by adding a dense per-step reward signal and switching the Solver from code generation to text reasoning. The judge is a stronger model than the Solver so the per-step labels are at least directionally correct.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│ FOR EACH QUESTION: Generate G=4 rollouts                   │
-├─────────────────────────────────────────────────────────────┤
-│ Rollout 1: Q → [Plan] → [Step 1, Step 2, ...] → Answer     │
-│ Rollout 2: Q → [Plan] → [Step 1, Step 2, ...] → Answer     │
-│ Rollout 3: Q → [Plan] → [Step 1, Step 2, ...] → Answer     │
-│ Rollout 4: Q → [Plan] → [Step 1, Step 2, ...] → Answer     │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-┌──────────────────────▼──────────────────────────────────────┐
-│ BATCH JUDGE (efficiency): Judge all 4 plans + steps @ once │
-│ • Batch 4 plans → 1 API call (10x cheaper than individual) │
-│ • Batch ~16 steps → 2 API calls                            │
-│ • Outcome rewards: 4 binary checks (no API)                │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-┌──────────────────────▼──────────────────────────────────────┐
-│ COMPUTE ADVANTAGES within group:                           │
-│ advantage[i] = (reward[i] - mean(rewards)) / std(rewards) │
-│ • High-performing rollout → positive advantage             │
-│ • Low-performing rollout → negative advantage              │
-│ • Normalizes across different reward scales                │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-┌──────────────────────▼──────────────────────────────────────┐
-│ POLICY GRADIENT: Weight log-probs by advantages            │
-│ loss = -(r_w × router_adv × log_p_router +                │
-│          s_w × steps_adv × log_p_steps +                  │
-│          o_w × outcome_adv × log_p_final)                 │
-│ • Increases probability of good rollouts                   │
-│ • Decreases probability of bad rollouts                    │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-┌──────────────────────▼──────────────────────────────────────┐
-│ OPTIMIZE: loss.backward() → optimizer.step()               │
-│ (Accumulate gradients from all 4 rollouts, step once)      │
-└─────────────────────────────────────────────────────────────┘
-```
+What still does not work, with quantification, is in `../notes/2026-05-09_peter_pov_answer_target_vs_core_reasoning.md`: 51.7% of failures on the traced 20Q x G=6 sample are non-core (plan parse, last-step-equals-final-answer, intermediate copied as final), not core reasoning failures. Section 5.2 of the report walks through this and the ablations.
 
-## Evaluation
-
-Greedy rollout (no batching, single sample per question):
-
-```
-┌──────────────────────────────────────────┐
-│ FOR EACH TEST QUESTION: Single rollout   │
-├──────────────────────────────────────────┤
-│ Q → Router → Plan → Solver → Answer      │
-│ (No gradient, deterministic sampling)    │
-└──────────────┬───────────────────────────┘
-               │
-┌──────────────▼───────────────────────────┐
-│ BATCH JUDGE every 10 rollouts (efficient)│
-│ Plan + steps + answer evaluation         │
-└──────────────┬───────────────────────────┘
-               │
-┌──────────────▼───────────────────────────┐
-│ METRICS: accuracy, plan_validity, rewards│
-└──────────────────────────────────────────┘
-```
-
-## Checkpointing & Recovery
-
-Training saves full state every 50 questions:
-
-```
-checkpoint_epoch0_q50.pt = {
-  "model": model weights,
-  "optimizer": optimizer state + learning rate,
-  "epoch": 0,
-  "q_idx": 49,
-  "correct": number of correct answers,
-  "total_loss": cumulative loss,
-}
-
-# Resume from checkpoint:
-python main.py --mode train --checkpoint checkpoint_epoch0_q50.pt
-```
-
-## Config (Phase 4: Full Scale)
-
-```
-Training:
-  • Batch size: 32 (per epoch, unused in current per-Q training)
-  • Rollouts per question: 4 (GRPO group size)
-  • Total rollouts: ~30,000 (7,500 questions × 4)
-  • Epochs: 1
-  • Learning rate: 1e-5 (AdamW)
-  • LoRA: rank=8, alpha=16
-
-Rewards:
-  • Router weight: 0.3 (decays 5% per epoch)
-  • Solver weight: 0.5 (constant)
-  • Outcome weight: 0.2 (increases as router decays)
-
-Judge (Batched):
-  • Model: gpt-4o-mini
-  • Batch size: 10 items/API call
-  • Cost: ~$10 (vs $75 without batching)
-  
-Time: ~40 hours (on A100, varies with API latency)
-Expected accuracy: 15-25%
-```
-
-## Files
-
-- `main.py` - Entry point for train/eval
-- `src/agents/agent.py` - Router + Solver agent (Qwen+LoRA)
-- `src/rewards/judge.py` - GPT-4o mini batch judge
-- `src/rewards/shaper.py` - Reward computation + weight scheduler
-- `src/training/train.py` - GRPO training loop with checkpointing
-- `src/training/eval.py` - Evaluation on test set
-- `src/utils/config.py` - Configuration defaults
-
-## Key Differences from V1
-
-| Aspect | V1 | V2 |
-|--------|----|----|
-| Solver | Code generation | Text reasoning |
-| Rewards | Heuristic (sparse) | GPT-4 judge (dense) |
-| Architecture | Router/Solver coupled | Decoupled with separate judges |
-| Cost | ~$75 | ~$10 (batched API) |
-| Accuracy | 1.7% | 15-25% (target) |
-
-## Usage
+## How to run
 
 ```bash
-# Train from scratch
-python main.py --mode train
+cd router_solver_v2
 
-# Evaluate on test set
-python main.py --mode eval
+# Train + eval on the slim probe-derived subset.
+python main.py --mode train --dataset slim
 
-# Train + evaluate
-python main.py --mode train_eval
+# Eval-only against a saved checkpoint.
+python main.py --mode eval --checkpoint runs/<run_name>/checkpoint_epoch0_q50.pt
 
-# Resume from checkpoint
-python main.py --mode train --checkpoint checkpoint_epoch0_q50.pt
+# Resume from checkpoint.
+python main.py --mode train --checkpoint runs/<run_name>/checkpoint_epoch0_q50.pt
+
+# Ablation suites used in the report (see notes/2026-05-10_peter_ablation_report.md).
+bash ablation_suite/run_answer_target_suite.sh
+bash ablation_suite/run_parser_split_10q.sh
+bash ablation_suite/run_credit_assignment_10q.sh
 ```
+
+The remote judge is configured through env vars (`OLLAMA_API_BASE`, `OPENAI_API_KEY` for the OpenAI-compatible endpoint). The deployment assets for the GCP-hosted judge VM are in `judge_ops/`.
+
+## Important files
+
+| Path | Purpose |
+|---|---|
+| `main.py` | CLI entrypoint, `--mode train / eval / train_eval`, ablation toggles |
+| `src/agents/agent.py` | Router and Solver LoRA agents, plan-parse repair, answer-synthesis path, repeated-prompt fast path |
+| `src/rewards/judge.py` | batched GPT-4o-mini judge client |
+| `src/rewards/shaper.py` | reward computation, weight scheduler (router decay + outcome ramp) |
+| `src/training/train.py` | GRPO loop with the three-term weighted advantage |
+| `src/training/eval.py` | greedy eval with optional answer-synthesis |
+| `src/training/taxonomy.py` | per-rollout failure-mode classifier used to build the taxonomy in the report |
+| `src/utils/config.py` | the configuration defaults referenced from `main.py` |
+| `ablation_suite/` | shell scripts for the answer-target, parser-split, credit-assignment, and robust-matrix ablations |
+| `judge_ops/` | judge VM deployment manifests, bootstrap scripts, vLLM systemd unit |
+| `experiments/` | per-ablation rollout traces and taxonomy reports |
+
+## Notes and caveats
+
+- The reference Phase-4 config is roughly `G=4`, ~30000 rollouts over 7500 questions for one epoch, with the reward weights `router=0.3 -> 0.0`, `solver=0.5`, `outcome=0.2 -> 0.5`. End-to-end training is around 40 hours on a single A100.
+- `--dataset slim` mirrors the original slim-dataset selection rule from V1 (`../router_solver/slim_dataset_provenance.md` documented this before that file was removed; the rule lives in `src/utils/config.py` now).
+- The judge runs on a separate VM. If `OLLAMA_API_BASE` is unreachable the rollout phase fails fast. `judge_ops/scripts/smoke_test_remote_judge.sh` is the canonical health check.
+- Two interventions tested in the report did not generalize: router prompt hardening (20% -> 3.3% catastrophic regression) and `outcome_credit_all_steps` (improved train, hurt held-out eval). The intervention that did help is the inference-side answer-synthesis re-prompt, enabled with `--use-answer-synthesis`.
+- Some ablation outputs in `experiments/` are quite large (rollout traces JSONL). When publishing, consider gzipping them; we kept them uncompressed for ease of `grep`.
