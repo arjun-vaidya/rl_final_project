@@ -11,7 +11,7 @@
 \graphicspath{{figures/}}
 
 \title{Long-context Reasoning for Agentic LLMs:\\
-       Linear and Hierarchical Baselines on GSM8K}
+       Linear and Hierarchical Baselines on GSM8K\thanks{Code and data: \url{https://github.com/arjun-vaidya/rl_final_project}}}
 \author{Arjun Vaidya \quad Peter Vail Driscoll \\
         Columbia University \\
         ORCSE6529 -- Advanced Reinforcement Learning}
@@ -25,7 +25,7 @@
 
 Mathematical word problems are a clean test bed for reinforcement learning on language models because the answer is a single number, so a deterministic check replaces the learned reward model used in standard RLHF \citep{ouyang2022instructgpt}. The substantive shift in the last year is that reinforcement learning with verifiable rewards (RLVR) has gone from a curiosity to the dominant post-training recipe for reasoning models. DeepSeek-R1 \citep{deepseekr1} showed that a base language model can develop self-reflection and dynamic strategy adaptation through pure RL against correctness signals alone, with no supervised reasoning demonstrations. T\"ulu 3 \citep{lambert2024tulu3} reproduced the recipe at 8B and 70B on top of Llama 3.1, and the GRPO optimizer used by both papers comes from DeepSeekMath \citep{shao2024deepseekmath}.
 
-What is not settled in the public literature is whether this recipe transfers cleanly to (i) small bases ($\sim$1.5B), (ii) parameter-efficient adaptation rather than full fine-tuning, and (iii) bases that have already been math-specialized through supervised pre-training. This report addresses those three questions on GSM8K \citep{cobbe2021} and reports a negative result for the second and third. We then describe a hierarchical Router--Solver agent in two variants, which falls well short of the linear-policy baselines and whose failure-mode taxonomy locates the bottleneck in the agent's interface contract rather than in the base model's reasoning capability.
+What is not settled in the public literature is whether this recipe transfers cleanly to (i) small bases ($\sim$1.5B), (ii) parameter-efficient adaptation rather than full fine-tuning, and (iii) bases that have already been math-specialized through supervised pre-training. This report addresses those three questions on GSM8K \citep{cobbe2021}. The vanilla LoRA-GRPO recipe fails on the math-specialized base (zero net gain), but a DAPO-style variant with dynamic group filtering and a wider adapter succeeds. We also describe a hierarchical Router--Solver agent in two variants, which falls well short of the linear-policy baselines and whose failure-mode taxonomy locates the bottleneck in the agent's interface contract rather than in the base model's reasoning capability.
 
 Four concrete results come out of this report. On the general-purpose Qwen2.5-1.5B-Instruct base, LoRA-only GRPO adds about 1.9 points of GSM8K accuracy (Section~\ref{sec:linear}). On the math-specialized Qwen2.5-Math-1.5B-Instruct, the same recipe adds zero net points despite producing different reasoning text on every test problem (Section~\ref{sec:math-base}). Switching to DAPO-style dynamic group filtering with a larger LoRA on the same math base recovers the training signal: the policy reaches $88.5\%$ majority-vote accuracy ($94.1\%$ pass@8) with $K{=}8$ self-consistency (Section~\ref{sec:dapo}). A hierarchical Router--Solver agent at the same scale reaches at most about 35\% rollout accuracy, and roughly half of its failures are not reasoning errors but mismatches in the agent's plan, step, and final-answer contract (Section~\ref{sec:router-solver}).
 
@@ -197,7 +197,14 @@ V1 used one Qwen2.5-1.5B-Instruct base with two LoRA adapters. The Router emitte
   \label{tab:baselines}
 \end{table}
 
-The $+1.9$ point gain over the general base matches the eval accuracy logged at the end of training (71.95\%) within rounding. The math-specialized base sits roughly 13 points above the trained policy, a gap that at this parameter count is more about pretraining corpus than about the RL objective. Sections~\ref{sec:math-base} and \ref{sec:router-solver} describe two attempts to close that gap: stacking the same RL recipe on top of the math base (zero net movement) and switching to a hierarchical Router--Solver policy class (a $\sim$50-point regression). Together they suggest that further progress at this scale needs structural changes to the policy class that supervise the answer-extraction contract directly, rather than additional RL on the same linear policy.
+The $+1.9$ point gain over the general base matches the eval accuracy logged at the end of training (71.95\%) within rounding. The math-specialized base sits roughly 13 points above the trained general-base policy, a gap that at this parameter count is more about pretraining corpus than about the RL objective. Sections~\ref{sec:math-base}, \ref{sec:dapo}, and \ref{sec:router-solver} describe three attempts to close that gap: vanilla GRPO on the math base (zero net movement), DAPO on the math base (88.5\% majority-vote), and a hierarchical Router--Solver agent ($\sim$35\% rollout accuracy).
+
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+
+Four experiments on GSM8K at the 1.5B scale produce a consistent picture. The vanilla LoRA-GRPO recipe works when the base model's accuracy leaves enough mixed-outcome groups for GRPO to find gradient---a condition that holds on the general-purpose base ($\sim$70\% greedy) but not on the math-specialized base ($\sim$85\% greedy), where the dead-gradient problem kills learning from the first step. DAPO's dynamic group filter, combined with a wider LoRA and a looser KL budget, resolves all three bottlenecks simultaneously and raises the math base to 88.5\% majority-vote accuracy. The hierarchical Router--Solver agent fails not because the base cannot reason, but because the interface contract between Router and Solver cannot be supervised into shape from outcome reward alone at this scale: 51.7\% of rollout failures are architectural rather than numeric errors.
+
+The clearest directions for future work follow directly from these failure modes. On the RL side, an ablation isolating the contribution of each DAPO change (group filtering, LoRA rank, KL coefficient) would clarify which lever matters most, and a greedy eval on the DAPO checkpoint would put the self-consistency result on the same footing as the baseline table. On the agent side, the Router--Solver failure taxonomy points to a specific fix: the interface contract needs to be supervised directly, either by flattening the Router--Solver hand-off into a single-model scratchpad or by adding a lightweight verifier that checks plan-step consistency before committing to a final answer. Longer-horizon extensions---graph-memory retrieval for multi-step problems and hierarchical RL with explicit subgoal rewards---remain open and are the natural next step once the single-step contract is stable.
 
 \appendix
 
@@ -275,6 +282,7 @@ This appendix collects the training signals not included in the main figures: pe
   \label{fig:app-dapo}
 \end{figure}
 
+\newpage
 \begin{thebibliography}{99}
 
 \bibitem[Yu et~al.(2025)]{yu2025dapo}
