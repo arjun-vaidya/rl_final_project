@@ -1,0 +1,2503 @@
+{
+  "indices": [
+    3471,
+    6976,
+    7378,
+    118,
+    220,
+    228,
+    902,
+    1302,
+    2752,
+    3205
+  ],
+  "rows": [
+    {
+      "q_idx": 3471,
+      "question": "Teddy is a pillow-maker.  He uses 3 less than 5 pounds of fluffy foam material to make each pillow.  If Teddy has three tons of fluffy foam material, how many pillows can he make?",
+      "ground_truth": "3",
+      "retrieved_cases": [
+        {
+          "question": "Steve is 5'6\".  He grows 6 inches.  How tall is he in inches?",
+          "normalized_question": "steve is 5'6\". he grows 6 inches. how tall is he in inches?",
+          "question_tokens": [
+            "steve",
+            "is",
+            "5",
+            "6",
+            "he",
+            "grows",
+            "6",
+            "inches",
+            "how",
+            "tall",
+            "is",
+            "he",
+            "in",
+            "inches"
+          ],
+          "plan": [
+            "**Identify Variables",
+            "Answer the original question directly using the previous results. State the final quantity requested in: Steve is 5'6\".  He grows 6 inches.  How tall is he in inches?"
+          ],
+          "final_answer": "72",
+          "subgoals": [
+            "**Identify Variables",
+            "Answer the original question directly using the previous results. State the final quantity requested in: Steve is 5'6\".  He grows 6 inches.  How tall is he in inches?"
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 2,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.7686001360416412,
+          "base_score": 0.6536479592323303,
+          "hopfield_score": 0.8835523128509521,
+          "hopfield_attention": 0.20343762636184692
+        },
+        {
+          "question": "In a field where there are 200 animals, there are 40 cows, 56 sheep and goats. How many goats are there?",
+          "normalized_question": "in a field where there are 200 animals, there are 40 cows, 56 sheep and goats. how many goats are there?",
+          "question_tokens": [
+            "in",
+            "a",
+            "field",
+            "where",
+            "there",
+            "are",
+            "200",
+            "animals",
+            "there",
+            "are",
+            "40",
+            "cows",
+            "56",
+            "sheep",
+            "and",
+            "goats",
+            "how",
+            "many",
+            "goats",
+            "are",
+            "there"
+          ],
+          "plan": [
+            "Count the total number of animals in the field.",
+            "Subtract the number of cows from the total to find the combined number of sheep and goats.",
+            "Since we know the number of sheep, subtract that from the combined number of sheep and goats to find the number of goats.",
+            "Answer the original question directly using the previous results. State the final quantity requested in: In a field where there are 200 animals, there are 40 cows, 56 sheep and goats. How many goats are there?"
+          ],
+          "final_answer": "104",
+          "subgoals": [
+            "Count the total number of animals in the field.",
+            "Subtract the number of cows from the total to find the combined number of sheep and goats.",
+            "Since we know the number of sheep, subtract that from the combined number of sheep and goats to find the number of goats.",
+            "Answer the original question directly using the previous results. State the final quantity requested in: In a field where there are 200 animals, there are 40 cows, 56 sheep and goats. How many goats are there?"
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 4,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.7437126934528351,
+          "base_score": 0.5964884757995605,
+          "hopfield_score": 0.8909369111061096,
+          "hopfield_attention": 0.1287771761417389
+        },
+        {
+          "question": "Steph needs to cook fried chicken for the kid's party. She bought 24 pieces of drumstick and 4 fewer breast parts. How many fried chickens can Steph make?",
+          "normalized_question": "steph needs to cook fried chicken for the kid's party. she bought 24 pieces of drumstick and 4 fewer breast parts. how many fried chickens can steph make?",
+          "question_tokens": [
+            "steph",
+            "needs",
+            "to",
+            "cook",
+            "fried",
+            "chicken",
+            "for",
+            "the",
+            "kid",
+            "s",
+            "party",
+            "she",
+            "bought",
+            "24",
+            "pieces",
+            "of",
+            "drumstick",
+            "and",
+            "4",
+            "fewer",
+            "breast",
+            "parts",
+            "how",
+            "many",
+            "fried",
+            "chickens",
+            "can",
+            "steph",
+            "make"
+          ],
+          "plan": [
+            "Step 1:",
+            "Calculate the number of breast parts.",
+            "Step 2:",
+            "Add the number of drumsticks and breast parts together.",
+            "Step 3:",
+            "Determine how many fried chickens Steph can make.",
+            "Step 1:",
+            "Identify the total number of drumsticks."
+          ],
+          "final_answer": "44",
+          "subgoals": [
+            "Step 1:",
+            "Calculate the number of breast parts.",
+            "Step 2:",
+            "Add the number of drumsticks and breast parts together.",
+            "Step 3:",
+            "Determine how many fried chickens Steph can make.",
+            "Step 1:",
+            "Identify the total number of drumsticks."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 8,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.7370806932449341,
+          "base_score": 0.6021007895469666,
+          "hopfield_score": 0.8720605969429016,
+          "hopfield_attention": 0.13469083607196808
+        }
+      ],
+      "plan": [
+        "answer",
+        "______ pillows",
+        "Identify Variables",
+        "Convert tons to pounds.",
+        "Determine the amount of fluffy foam material needed per pillow.",
+        "Calculate the total number of pillows that can be made."
+      ],
+      "final_answer": "3000",
+      "final_answer_source": "last_step",
+      "correct": false,
+      "step_answers": [
+        "0",
+        "3000",
+        "3000",
+        "1",
+        "3000",
+        "3000"
+      ],
+      "steps": [
+        {
+          "idx": 0,
+          "subgoal": "answer",
+          "answer": "0"
+        },
+        {
+          "idx": 1,
+          "subgoal": "______ pillows",
+          "answer": "3000"
+        },
+        {
+          "idx": 2,
+          "subgoal": "Identify Variables",
+          "answer": "3000"
+        },
+        {
+          "idx": 3,
+          "subgoal": "Convert tons to pounds.",
+          "answer": "1"
+        },
+        {
+          "idx": 4,
+          "subgoal": "Determine the amount of fluffy foam material needed per pillow.",
+          "answer": "3000"
+        },
+        {
+          "idx": 5,
+          "subgoal": "Calculate the total number of pillows that can be made.",
+          "answer": "3000"
+        }
+      ]
+    },
+    {
+      "q_idx": 6976,
+      "question": "Each week Carina puts 20 more seashells in a jar than she did the week before. If there are 50 seashells in the jar this week, how many will there be in a month?",
+      "ground_truth": "130",
+      "retrieved_cases": [
+        {
+          "question": "Steph needs to cook fried chicken for the kid's party. She bought 24 pieces of drumstick and 4 fewer breast parts. How many fried chickens can Steph make?",
+          "normalized_question": "steph needs to cook fried chicken for the kid's party. she bought 24 pieces of drumstick and 4 fewer breast parts. how many fried chickens can steph make?",
+          "question_tokens": [
+            "steph",
+            "needs",
+            "to",
+            "cook",
+            "fried",
+            "chicken",
+            "for",
+            "the",
+            "kid",
+            "s",
+            "party",
+            "she",
+            "bought",
+            "24",
+            "pieces",
+            "of",
+            "drumstick",
+            "and",
+            "4",
+            "fewer",
+            "breast",
+            "parts",
+            "how",
+            "many",
+            "fried",
+            "chickens",
+            "can",
+            "steph",
+            "make"
+          ],
+          "plan": [
+            "Step 1:",
+            "Calculate the number of breast parts.",
+            "Step 2:",
+            "Add the number of drumsticks and breast parts together.",
+            "Step 3:",
+            "Determine how many fried chickens Steph can make.",
+            "Step 1:",
+            "Identify the total number of drumsticks."
+          ],
+          "final_answer": "44",
+          "subgoals": [
+            "Step 1:",
+            "Calculate the number of breast parts.",
+            "Step 2:",
+            "Add the number of drumsticks and breast parts together.",
+            "Step 3:",
+            "Determine how many fried chickens Steph can make.",
+            "Step 1:",
+            "Identify the total number of drumsticks."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 8,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.7330499589443207,
+          "base_score": 0.5598891973495483,
+          "hopfield_score": 0.906210720539093,
+          "hopfield_attention": 0.1671321541070938
+        },
+        {
+          "question": "Josh has some money. He spent $1.75 on a drink, and then spent another $1.25. If he had $6 left, how much money, in dollars, did Josh have at first?",
+          "normalized_question": "josh has some money. he spent $1.75 on a drink, and then spent another $1.25. if he had $6 left, how much money, in dollars, did josh have at first?",
+          "question_tokens": [
+            "josh",
+            "has",
+            "some",
+            "money",
+            "he",
+            "spent",
+            "1",
+            "75",
+            "on",
+            "a",
+            "drink",
+            "and",
+            "then",
+            "spent",
+            "another",
+            "1",
+            "25",
+            "if",
+            "he",
+            "had",
+            "6",
+            "left",
+            "how",
+            "much",
+            "money",
+            "in",
+            "dollars",
+            "did",
+            "josh",
+            "have",
+            "at",
+            "first"
+          ],
+          "plan": [
+            "Step 1:",
+            "$1.75 + $1.25 = $3.00",
+            "Step 2:",
+            "$6 + $3.00 = $9.00",
+            "original_question_answer",
+            "Answer the original question directly using the previous results. State the final quantity requested in: Josh has some money. He spent $1.75 on a drink, and then spent another $1.25. If he had $6 left, how much money, in dollars, did Josh have at first?"
+          ],
+          "final_answer": "9",
+          "subgoals": [
+            "Step 1:",
+            "$1.75 + $1.25 = $3.00",
+            "Step 2:",
+            "$6 + $3.00 = $9.00",
+            "original_question_answer",
+            "Answer the original question directly using the previous results. State the final quantity requested in: Josh has some money. He spent $1.75 on a drink, and then spent another $1.25. If he had $6 left, how much money, in dollars, did Josh have at first?"
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 6,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.7200496196746826,
+          "base_score": 0.5869324207305908,
+          "hopfield_score": 0.8531668186187744,
+          "hopfield_attention": 0.20749984681606293
+        },
+        {
+          "question": "Michael saved 5 of his cookies to give Sarah, who saved a third of her 9 cupcakes to give to Michael. How many desserts does Sarah end up with?",
+          "normalized_question": "michael saved 5 of his cookies to give sarah, who saved a third of her 9 cupcakes to give to michael. how many desserts does sarah end up with?",
+          "question_tokens": [
+            "michael",
+            "saved",
+            "5",
+            "of",
+            "his",
+            "cookies",
+            "to",
+            "give",
+            "sarah",
+            "who",
+            "saved",
+            "a",
+            "third",
+            "of",
+            "her",
+            "9",
+            "cupcakes",
+            "to",
+            "give",
+            "to",
+            "michael",
+            "how",
+            "many",
+            "desserts",
+            "does",
+            "sarah",
+            "end",
+            "up",
+            "with"
+          ],
+          "plan": [
+            "Step 1: Calculate how many cupcakes Sarah saves for Michael.",
+            "Step 2: Subtract the number of cupcakes given from the total to find out how many she has left.",
+            "Step 3: Add the remaining cupcakes to the cookies Michael gave her.",
+            "Step 1: Calculate how many cupcakes Sarah saves for Michael.",
+            "Step 2: Subtract the number of cupcakes given from the total to find out how many she has left.",
+            "Step 3: Add the remaining cupcakes to the cookies Michael gave her.",
+            "Step 1: Calculate how many cupcakes Sarah saves for Michael.",
+            "Step 2: Subtract the number of cupcakes given from the total to find out how many she has left."
+          ],
+          "final_answer": "11",
+          "subgoals": [
+            "Step 1: Calculate how many cupcakes Sarah saves for Michael.",
+            "Step 2: Subtract the number of cupcakes given from the total to find out how many she has left.",
+            "Step 3: Add the remaining cupcakes to the cookies Michael gave her.",
+            "Step 1: Calculate how many cupcakes Sarah saves for Michael.",
+            "Step 2: Subtract the number of cupcakes given from the total to find out how many she has left.",
+            "Step 3: Add the remaining cupcakes to the cookies Michael gave her.",
+            "Step 1: Calculate how many cupcakes Sarah saves for Michael.",
+            "Step 2: Subtract the number of cupcakes given from the total to find out how many she has left."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 8,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.6831261217594147,
+          "base_score": 0.5245957374572754,
+          "hopfield_score": 0.841656506061554,
+          "hopfield_attention": 0.12601956725120544
+        }
+      ],
+      "plan": [
+        "answer",
+        "______",
+        "Step 1:",
+        "Determine the initial amount of seashells in the jar.",
+        "Step 2:",
+        "Calculate the increase in seashells each week based on the given information.",
+        "Step 3:",
+        "Sum the initial amount and the weekly increases over the course of a month."
+      ],
+      "final_answer": "4",
+      "final_answer_source": "last_step",
+      "correct": false,
+      "step_answers": [
+        "320",
+        "20",
+        "450",
+        "25",
+        "130",
+        "105",
+        "130",
+        "4"
+      ],
+      "steps": [
+        {
+          "idx": 0,
+          "subgoal": "answer",
+          "answer": "320"
+        },
+        {
+          "idx": 1,
+          "subgoal": "______",
+          "answer": "20"
+        },
+        {
+          "idx": 2,
+          "subgoal": "Step 1:",
+          "answer": "450"
+        },
+        {
+          "idx": 3,
+          "subgoal": "Determine the initial amount of seashells in the jar.",
+          "answer": "25"
+        },
+        {
+          "idx": 4,
+          "subgoal": "Step 2:",
+          "answer": "130"
+        },
+        {
+          "idx": 5,
+          "subgoal": "Calculate the increase in seashells each week based on the given information.",
+          "answer": "105"
+        },
+        {
+          "idx": 6,
+          "subgoal": "Step 3:",
+          "answer": "130"
+        },
+        {
+          "idx": 7,
+          "subgoal": "Sum the initial amount and the weekly increases over the course of a month.",
+          "answer": "4"
+        }
+      ]
+    },
+    {
+      "q_idx": 7378,
+      "question": "On Tuesday, 12,000 ice cream cones were sold. On Wednesday, the number of ice cream cones sold was double the amount sold on Tuesday. How many ice cream cones have been sold in total?",
+      "ground_truth": "36",
+      "retrieved_cases": [
+        {
+          "question": "A school bought pencils and pens. A pencil costs $2.50, while a pen costs $3.50. How much do 38 pencils and 56 pens cost?",
+          "normalized_question": "a school bought pencils and pens. a pencil costs $2.50, while a pen costs $3.50. how much do 38 pencils and 56 pens cost?",
+          "question_tokens": [
+            "a",
+            "school",
+            "bought",
+            "pencils",
+            "and",
+            "pens",
+            "a",
+            "pencil",
+            "costs",
+            "2",
+            "50",
+            "while",
+            "a",
+            "pen",
+            "costs",
+            "3",
+            "50",
+            "how",
+            "much",
+            "do",
+            "38",
+            "pencils",
+            "and",
+            "56",
+            "pens",
+            "cost"
+          ],
+          "plan": [
+            "Step 1: Calculate the total cost of pencils.",
+            "Step 2: Calculate the total cost of pens.",
+            "Step 3: Add the two totals to get the final amount."
+          ],
+          "final_answer": "291",
+          "subgoals": [
+            "Step 1: Calculate the total cost of pencils.",
+            "Step 2: Calculate the total cost of pens.",
+            "Step 3: Add the two totals to get the final amount."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 3,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.6919091790914536,
+          "base_score": 0.49127355217933655,
+          "hopfield_score": 0.8925448060035706,
+          "hopfield_attention": 0.1817081719636917
+        },
+        {
+          "question": "A florist offers for sale 75 narcissus flowers and 90 chrysanthemums. Using all the flowers, how many bouquets containing 5 flowers each can he make?",
+          "normalized_question": "a florist offers for sale 75 narcissus flowers and 90 chrysanthemums. using all the flowers, how many bouquets containing 5 flowers each can he make?",
+          "question_tokens": [
+            "a",
+            "florist",
+            "offers",
+            "for",
+            "sale",
+            "75",
+            "narcissus",
+            "flowers",
+            "and",
+            "90",
+            "chrysanthemums",
+            "using",
+            "all",
+            "the",
+            "flowers",
+            "how",
+            "many",
+            "bouquets",
+            "containing",
+            "5",
+            "flowers",
+            "each",
+            "can",
+            "he",
+            "make"
+          ],
+          "plan": [
+            "Step 1: Calculate the total number of flowers.",
+            "Step 2: Determine how many bouquets can be made using those flowers.",
+            "Step 3: Answer the original question."
+          ],
+          "final_answer": "33",
+          "subgoals": [
+            "Step 1: Calculate the total number of flowers.",
+            "Step 2: Determine how many bouquets can be made using those flowers.",
+            "Step 3: Answer the original question."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 3,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.6907613575458527,
+          "base_score": 0.5113841891288757,
+          "hopfield_score": 0.8701385259628296,
+          "hopfield_attention": 0.21342533826828003
+        },
+        {
+          "question": "Issac has to buy pens and pencils for the upcoming school year. Issac buys 108 writing utensils total. He buys 12 more than 5 times the number of pencils than pens. How many pens did Issac buy?",
+          "normalized_question": "issac has to buy pens and pencils for the upcoming school year. issac buys 108 writing utensils total. he buys 12 more than 5 times the number of pencils than pens. how many pens did issac buy?",
+          "question_tokens": [
+            "issac",
+            "has",
+            "to",
+            "buy",
+            "pens",
+            "and",
+            "pencils",
+            "for",
+            "the",
+            "upcoming",
+            "school",
+            "year",
+            "issac",
+            "buys",
+            "108",
+            "writing",
+            "utensils",
+            "total",
+            "he",
+            "buys",
+            "12",
+            "more",
+            "than",
+            "5",
+            "times",
+            "the",
+            "number",
+            "of",
+            "pencils",
+            "than",
+            "pens",
+            "how",
+            "many",
+            "pens",
+            "did",
+            "issac",
+            "buy"
+          ],
+          "plan": [
+            "Step 1: Let p represent the number of pens and c represent the number of pencils.",
+            "Step 2: Write an equation based on the information given: p + c = 108.",
+            "Step 3: Use the relationship between pens and pencils (p = 5c + 12) to substitute in Step 2's equation.",
+            "Step 4: Solve the resulting equation for p.",
+            "Step 5: The solution will give us the number of pens Isaac bought.",
+            "Answer the original question directly using the previous results. State the final quantity requested in: Issac has to buy pens and pencils for the upcoming school year. Issac buys 108 writing utensils total. He buys 12 more than 5 times the number of pencils than pens. How many pens did Issac buy?"
+          ],
+          "final_answer": "16",
+          "subgoals": [
+            "Step 1: Let p represent the number of pens and c represent the number of pencils.",
+            "Step 2: Write an equation based on the information given: p + c = 108.",
+            "Step 3: Use the relationship between pens and pencils (p = 5c + 12) to substitute in Step 2's equation.",
+            "Step 4: Solve the resulting equation for p.",
+            "Step 5: The solution will give us the number of pens Isaac bought.",
+            "Answer the original question directly using the previous results. State the final quantity requested in: Issac has to buy pens and pencils for the upcoming school year. Issac buys 108 writing utensils total. He buys 12 more than 5 times the number of pencils than pens. How many pens did Issac buy?"
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 6,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.6424647718667984,
+          "base_score": 0.44250205159187317,
+          "hopfield_score": 0.8424274921417236,
+          "hopfield_attention": 0.12300561368465424
+        }
+      ],
+      "plan": [
+        "final-answer-bearing-step",
+        "Step 3: Add the total number of ice cream cones sold on Tuesday and Wednesday.",
+        "Step 1: Calculate the number of ice cream cones sold on Wednesday.",
+        "Step 2: Sum the number of ice cream cones sold on Tuesday and Wednesday.",
+        "Step 3: Answer the original question.",
+        "final-answer-bearing-step",
+        "Step 3: Add the total number of ice cream cones sold on Tuesday and Wednesday.",
+        "Step 1: Calculate the number of ice cream cones sold on Wednesday. Then answer the original question directly using the previous results."
+      ],
+      "final_answer": "36",
+      "final_answer_source": "last_step",
+      "correct": true,
+      "step_answers": [
+        "36000",
+        "36000",
+        "20",
+        "36000",
+        "36000",
+        "36000",
+        "36000",
+        "36"
+      ],
+      "steps": [
+        {
+          "idx": 0,
+          "subgoal": "final-answer-bearing-step",
+          "answer": "36000"
+        },
+        {
+          "idx": 1,
+          "subgoal": "Step 3: Add the total number of ice cream cones sold on Tuesday and Wednesday.",
+          "answer": "36000"
+        },
+        {
+          "idx": 2,
+          "subgoal": "Step 1: Calculate the number of ice cream cones sold on Wednesday.",
+          "answer": "20"
+        },
+        {
+          "idx": 3,
+          "subgoal": "Step 2: Sum the number of ice cream cones sold on Tuesday and Wednesday.",
+          "answer": "36000"
+        },
+        {
+          "idx": 4,
+          "subgoal": "Step 3: Answer the original question.",
+          "answer": "36000"
+        },
+        {
+          "idx": 5,
+          "subgoal": "final-answer-bearing-step",
+          "answer": "36000"
+        },
+        {
+          "idx": 6,
+          "subgoal": "Step 3: Add the total number of ice cream cones sold on Tuesday and Wednesday.",
+          "answer": "36000"
+        },
+        {
+          "idx": 7,
+          "subgoal": "Step 1: Calculate the number of ice cream cones sold on Wednesday. Then answer the original question directly using the previous results.",
+          "answer": "36"
+        }
+      ]
+    },
+    {
+      "q_idx": 118,
+      "question": "Jeanette is practicing her juggling. Each week she can juggle 2 more objects than the week before. If she starts out juggling 3 objects and practices for 5 weeks, how many objects can she juggle?",
+      "ground_truth": "13",
+      "retrieved_cases": [
+        {
+          "question": "Steph needs to cook fried chicken for the kid's party. She bought 24 pieces of drumstick and 4 fewer breast parts. How many fried chickens can Steph make?",
+          "normalized_question": "steph needs to cook fried chicken for the kid's party. she bought 24 pieces of drumstick and 4 fewer breast parts. how many fried chickens can steph make?",
+          "question_tokens": [
+            "steph",
+            "needs",
+            "to",
+            "cook",
+            "fried",
+            "chicken",
+            "for",
+            "the",
+            "kid",
+            "s",
+            "party",
+            "she",
+            "bought",
+            "24",
+            "pieces",
+            "of",
+            "drumstick",
+            "and",
+            "4",
+            "fewer",
+            "breast",
+            "parts",
+            "how",
+            "many",
+            "fried",
+            "chickens",
+            "can",
+            "steph",
+            "make"
+          ],
+          "plan": [
+            "Step 1:",
+            "Calculate the number of breast parts.",
+            "Step 2:",
+            "Add the number of drumsticks and breast parts together.",
+            "Step 3:",
+            "Determine how many fried chickens Steph can make.",
+            "Step 1:",
+            "Identify the total number of drumsticks."
+          ],
+          "final_answer": "44",
+          "subgoals": [
+            "Step 1:",
+            "Calculate the number of breast parts.",
+            "Step 2:",
+            "Add the number of drumsticks and breast parts together.",
+            "Step 3:",
+            "Determine how many fried chickens Steph can make.",
+            "Step 1:",
+            "Identify the total number of drumsticks."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 8,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.8059159815311432,
+          "base_score": 0.6993363499641418,
+          "hopfield_score": 0.9124956130981445,
+          "hopfield_attention": 0.21157985925674438
+        },
+        {
+          "question": "Janet has 1/3 of a bottle of rose shampoo and 1/4 of a bottle of jasmine shampoo. If she uses 1/12 of a bottle of shampoo per day, how many days will her shampoo last?",
+          "normalized_question": "janet has 1/3 of a bottle of rose shampoo and 1/4 of a bottle of jasmine shampoo. if she uses 1/12 of a bottle of shampoo per day, how many days will her shampoo last?",
+          "question_tokens": [
+            "janet",
+            "has",
+            "1",
+            "3",
+            "of",
+            "a",
+            "bottle",
+            "of",
+            "rose",
+            "shampoo",
+            "and",
+            "1",
+            "4",
+            "of",
+            "a",
+            "bottle",
+            "of",
+            "jasmine",
+            "shampoo",
+            "if",
+            "she",
+            "uses",
+            "1",
+            "12",
+            "of",
+            "a",
+            "bottle",
+            "of",
+            "shampoo",
+            "per",
+            "day",
+            "how",
+            "many",
+            "days",
+            "will",
+            "her",
+            "shampoo",
+            "last"
+          ],
+          "plan": [
+            "Step 1: Find out how much shampoo Janet has in total.",
+            "Step 2: Calculate how long Janet's shampoo will last based on the daily usage rate.",
+            "Step 3: Answer the original question."
+          ],
+          "final_answer": "7",
+          "subgoals": [
+            "Step 1: Find out how much shampoo Janet has in total.",
+            "Step 2: Calculate how long Janet's shampoo will last based on the daily usage rate.",
+            "Step 3: Answer the original question."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 3,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.7784000039100647,
+          "base_score": 0.6601353287696838,
+          "hopfield_score": 0.8966646790504456,
+          "hopfield_attention": 0.15462368726730347
+        },
+        {
+          "question": "Samson is going to another town which is 140 km away. He will use his car that uses ten liters of gasoline for a distance of 70 km. How many liters of gasoline will Samson need for a one-way trip?",
+          "normalized_question": "samson is going to another town which is 140 km away. he will use his car that uses ten liters of gasoline for a distance of 70 km. how many liters of gasoline will samson need for a one-way trip?",
+          "question_tokens": [
+            "samson",
+            "is",
+            "going",
+            "to",
+            "another",
+            "town",
+            "which",
+            "is",
+            "140",
+            "km",
+            "away",
+            "he",
+            "will",
+            "use",
+            "his",
+            "car",
+            "that",
+            "uses",
+            "ten",
+            "liters",
+            "of",
+            "gasoline",
+            "for",
+            "a",
+            "distance",
+            "of",
+            "70",
+            "km",
+            "how",
+            "many",
+            "liters",
+            "of",
+            "gasoline",
+            "will",
+            "samson",
+            "need",
+            "for",
+            "a",
+            "one",
+            "way",
+            "trip"
+          ],
+          "plan": [
+            "Step 1: Calculate how much gasoline Samson needs per kilometer.",
+            "Step 2: Multiply the result from Step 1 by the total distance of the trip."
+          ],
+          "final_answer": "20",
+          "subgoals": [
+            "Step 1: Calculate how much gasoline Samson needs per kilometer.",
+            "Step 2: Multiply the result from Step 1 by the total distance of the trip."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 2,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.7519772052764893,
+          "base_score": 0.6388810873031616,
+          "hopfield_score": 0.8650733232498169,
+          "hopfield_attention": 0.13044613599777222
+        }
+      ],
+      "plan": [
+        "answer",
+        "______",
+        "Step 1:",
+        "Determine the initial number of objects Jeanette can juggle.",
+        "Identify the weekly increase in the number of objects she can juggle.",
+        "answer",
+        "Jeanette can juggle 11 objects after 5 weeks.",
+        "Answer the original question directly using the previous results. State the final quantity requested in: Jeanette is practicing her juggling. Each week she can juggle 2 more objects than the week before. If she starts out juggling 3 objects and practices for 5 weeks, how many objects can she juggle?"
+      ],
+      "final_answer": "13",
+      "final_answer_source": "last_step",
+      "correct": true,
+      "step_answers": [
+        "11",
+        "5",
+        "2",
+        "0",
+        "13",
+        "11",
+        "13",
+        "13"
+      ],
+      "steps": [
+        {
+          "idx": 0,
+          "subgoal": "answer",
+          "answer": "11"
+        },
+        {
+          "idx": 1,
+          "subgoal": "______",
+          "answer": "5"
+        },
+        {
+          "idx": 2,
+          "subgoal": "Step 1:",
+          "answer": "2"
+        },
+        {
+          "idx": 3,
+          "subgoal": "Determine the initial number of objects Jeanette can juggle.",
+          "answer": "0"
+        },
+        {
+          "idx": 4,
+          "subgoal": "Identify the weekly increase in the number of objects she can juggle.",
+          "answer": "13"
+        },
+        {
+          "idx": 5,
+          "subgoal": "answer",
+          "answer": "11"
+        },
+        {
+          "idx": 6,
+          "subgoal": "Jeanette can juggle 11 objects after 5 weeks.",
+          "answer": "13"
+        },
+        {
+          "idx": 7,
+          "subgoal": "Answer the original question directly using the previous results. State the final quantity requested in: Jeanette is practicing her juggling. Each week she can juggle 2 more objects than the week before. If she starts out juggling 3 objects and practices for 5 weeks, how many objects can she juggle?",
+          "answer": "13"
+        }
+      ]
+    },
+    {
+      "q_idx": 220,
+      "question": "A car uses 20 gallons of gas to travel 400 miles. Mr. Montero's car has 8 gallons in it. How many more gallons of gas does he need to travel 600 miles, back and forth?",
+      "ground_truth": "52",
+      "retrieved_cases": [
+        {
+          "question": "Steph needs to cook fried chicken for the kid's party. She bought 24 pieces of drumstick and 4 fewer breast parts. How many fried chickens can Steph make?",
+          "normalized_question": "steph needs to cook fried chicken for the kid's party. she bought 24 pieces of drumstick and 4 fewer breast parts. how many fried chickens can steph make?",
+          "question_tokens": [
+            "steph",
+            "needs",
+            "to",
+            "cook",
+            "fried",
+            "chicken",
+            "for",
+            "the",
+            "kid",
+            "s",
+            "party",
+            "she",
+            "bought",
+            "24",
+            "pieces",
+            "of",
+            "drumstick",
+            "and",
+            "4",
+            "fewer",
+            "breast",
+            "parts",
+            "how",
+            "many",
+            "fried",
+            "chickens",
+            "can",
+            "steph",
+            "make"
+          ],
+          "plan": [
+            "Step 1:",
+            "Calculate the number of breast parts.",
+            "Step 2:",
+            "Add the number of drumsticks and breast parts together.",
+            "Step 3:",
+            "Determine how many fried chickens Steph can make.",
+            "Step 1:",
+            "Identify the total number of drumsticks."
+          ],
+          "final_answer": "44",
+          "subgoals": [
+            "Step 1:",
+            "Calculate the number of breast parts.",
+            "Step 2:",
+            "Add the number of drumsticks and breast parts together.",
+            "Step 3:",
+            "Determine how many fried chickens Steph can make.",
+            "Step 1:",
+            "Identify the total number of drumsticks."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 8,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.689011961221695,
+          "base_score": 0.4649280309677124,
+          "hopfield_score": 0.9130958914756775,
+          "hopfield_attention": 0.14891698956489563
+        },
+        {
+          "question": "A school bought pencils and pens. A pencil costs $2.50, while a pen costs $3.50. How much do 38 pencils and 56 pens cost?",
+          "normalized_question": "a school bought pencils and pens. a pencil costs $2.50, while a pen costs $3.50. how much do 38 pencils and 56 pens cost?",
+          "question_tokens": [
+            "a",
+            "school",
+            "bought",
+            "pencils",
+            "and",
+            "pens",
+            "a",
+            "pencil",
+            "costs",
+            "2",
+            "50",
+            "while",
+            "a",
+            "pen",
+            "costs",
+            "3",
+            "50",
+            "how",
+            "much",
+            "do",
+            "38",
+            "pencils",
+            "and",
+            "56",
+            "pens",
+            "cost"
+          ],
+          "plan": [
+            "Step 1: Calculate the total cost of pencils.",
+            "Step 2: Calculate the total cost of pens.",
+            "Step 3: Add the two totals to get the final amount."
+          ],
+          "final_answer": "291",
+          "subgoals": [
+            "Step 1: Calculate the total cost of pencils.",
+            "Step 2: Calculate the total cost of pens.",
+            "Step 3: Add the two totals to get the final amount."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 3,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.6669078171253204,
+          "base_score": 0.45479410886764526,
+          "hopfield_score": 0.8790215253829956,
+          "hopfield_attention": 0.13732050359249115
+        },
+        {
+          "question": "A florist offers for sale 75 narcissus flowers and 90 chrysanthemums. Using all the flowers, how many bouquets containing 5 flowers each can he make?",
+          "normalized_question": "a florist offers for sale 75 narcissus flowers and 90 chrysanthemums. using all the flowers, how many bouquets containing 5 flowers each can he make?",
+          "question_tokens": [
+            "a",
+            "florist",
+            "offers",
+            "for",
+            "sale",
+            "75",
+            "narcissus",
+            "flowers",
+            "and",
+            "90",
+            "chrysanthemums",
+            "using",
+            "all",
+            "the",
+            "flowers",
+            "how",
+            "many",
+            "bouquets",
+            "containing",
+            "5",
+            "flowers",
+            "each",
+            "can",
+            "he",
+            "make"
+          ],
+          "plan": [
+            "Step 1: Calculate the total number of flowers.",
+            "Step 2: Determine how many bouquets can be made using those flowers.",
+            "Step 3: Answer the original question."
+          ],
+          "final_answer": "33",
+          "subgoals": [
+            "Step 1: Calculate the total number of flowers.",
+            "Step 2: Determine how many bouquets can be made using those flowers.",
+            "Step 3: Answer the original question."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 3,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.6527338773012161,
+          "base_score": 0.4557661712169647,
+          "hopfield_score": 0.8497015833854675,
+          "hopfield_attention": 0.13839255273342133
+        }
+      ],
+      "plan": [
+        "**Find the slope of the given line**:",
+        "**Determine the slope of the perpendicular line**:",
+        "Answer the original question directly using the previous results. State the final quantity requested in: A car uses 20 gallons of gas to travel 400 miles. Mr. Montero's car has 8 gallons in it. How many more gallons of gas does he need to travel 600 miles, back and forth?"
+      ],
+      "final_answer": "600",
+      "final_answer_source": "last_step",
+      "correct": false,
+      "step_answers": [
+        "20",
+        "600",
+        "600"
+      ],
+      "steps": [
+        {
+          "idx": 0,
+          "subgoal": "**Find the slope of the given line**:",
+          "answer": "20"
+        },
+        {
+          "idx": 1,
+          "subgoal": "**Determine the slope of the perpendicular line**:",
+          "answer": "600"
+        },
+        {
+          "idx": 2,
+          "subgoal": "Answer the original question directly using the previous results. State the final quantity requested in: A car uses 20 gallons of gas to travel 400 miles. Mr. Montero's car has 8 gallons in it. How many more gallons of gas does he need to travel 600 miles, back and forth?",
+          "answer": "600"
+        }
+      ]
+    },
+    {
+      "q_idx": 228,
+      "question": "A company has 200 employees.  60% of the employees drive to work.  Of the employees who don't drive to work, half take public transportation. How many more employees drive to work than take public transportation?",
+      "ground_truth": "40",
+      "retrieved_cases": [
+        {
+          "question": "John can read a book 60% faster than his brother.  If his brother takes 8 hours to read a book, how long would it take John to read 3 books?",
+          "normalized_question": "john can read a book 60% faster than his brother. if his brother takes 8 hours to read a book, how long would it take john to read 3 books?",
+          "question_tokens": [
+            "john",
+            "can",
+            "read",
+            "a",
+            "book",
+            "60",
+            "faster",
+            "than",
+            "his",
+            "brother",
+            "if",
+            "his",
+            "brother",
+            "takes",
+            "8",
+            "hours",
+            "to",
+            "read",
+            "a",
+            "book",
+            "how",
+            "long",
+            "would",
+            "it",
+            "take",
+            "john",
+            "to",
+            "read",
+            "3",
+            "books"
+          ],
+          "plan": [
+            "Step 1: Determine John's reading speed relative to his brother.",
+            "Step 2: Calculate the time it takes for John to read one book.",
+            "Step 3: Multiply the time it takes for John to read one book by three to find out how long it will take him to read three books.",
+            "Determine John's reading speed relative to his brother.",
+            "Calculate the time it takes for John to read one book.",
+            "Multiply the time it takes for John to read one book by three to find out how long it will take him to read three books.",
+            "Determine John's reading speed relative to his brother.",
+            "Calculate the time it takes for John to read one book. Then answer the original question directly using the previous results."
+          ],
+          "final_answer": "15",
+          "subgoals": [
+            "Step 1: Determine John's reading speed relative to his brother.",
+            "Step 2: Calculate the time it takes for John to read one book.",
+            "Step 3: Multiply the time it takes for John to read one book by three to find out how long it will take him to read three books.",
+            "Determine John's reading speed relative to his brother.",
+            "Calculate the time it takes for John to read one book.",
+            "Multiply the time it takes for John to read one book by three to find out how long it will take him to read three books.",
+            "Determine John's reading speed relative to his brother.",
+            "Calculate the time it takes for John to read one book. Then answer the original question directly using the previous results."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 8,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.74531289935112,
+          "base_score": 0.5909399390220642,
+          "hopfield_score": 0.8996858596801758,
+          "hopfield_attention": 0.3113389015197754
+        },
+        {
+          "question": "Tom cannot afford a normal doctor, so he goes to a discount clinic that is 70% cheaper.   It takes two visits, though, instead of 1.   A normal doctor charges $200 for a visit.   How much money does he save?",
+          "normalized_question": "tom cannot afford a normal doctor, so he goes to a discount clinic that is 70% cheaper. it takes two visits, though, instead of 1. a normal doctor charges $200 for a visit. how much money does he save?",
+          "question_tokens": [
+            "tom",
+            "cannot",
+            "afford",
+            "a",
+            "normal",
+            "doctor",
+            "so",
+            "he",
+            "goes",
+            "to",
+            "a",
+            "discount",
+            "clinic",
+            "that",
+            "is",
+            "70",
+            "cheaper",
+            "it",
+            "takes",
+            "two",
+            "visits",
+            "though",
+            "instead",
+            "of",
+            "1",
+            "a",
+            "normal",
+            "doctor",
+            "charges",
+            "200",
+            "for",
+            "a",
+            "visit",
+            "how",
+            "much",
+            "money",
+            "does",
+            "he",
+            "save"
+          ],
+          "plan": [
+            "**Calculate the cost of visiting the discount clinic:**",
+            "**Determine the number of visits needed at the discount clinic",
+            "Answer the original question directly using the previous results. State the final quantity requested in: Tom cannot afford a normal doctor, so he goes to a discount clinic that is 70% cheaper.   It takes two visits, though, instead of 1.   A normal doctor charges $200 for a visit.   How much money does he save?"
+          ],
+          "final_answer": "80",
+          "subgoals": [
+            "**Calculate the cost of visiting the discount clinic:**",
+            "**Determine the number of visits needed at the discount clinic",
+            "Answer the original question directly using the previous results. State the final quantity requested in: Tom cannot afford a normal doctor, so he goes to a discount clinic that is 70% cheaper.   It takes two visits, though, instead of 1.   A normal doctor charges $200 for a visit.   How much money does he save?"
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 3,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.6787629723548889,
+          "base_score": 0.5313618779182434,
+          "hopfield_score": 0.8261640667915344,
+          "hopfield_attention": 0.19330275058746338
+        },
+        {
+          "question": "A florist offers for sale 75 narcissus flowers and 90 chrysanthemums. Using all the flowers, how many bouquets containing 5 flowers each can he make?",
+          "normalized_question": "a florist offers for sale 75 narcissus flowers and 90 chrysanthemums. using all the flowers, how many bouquets containing 5 flowers each can he make?",
+          "question_tokens": [
+            "a",
+            "florist",
+            "offers",
+            "for",
+            "sale",
+            "75",
+            "narcissus",
+            "flowers",
+            "and",
+            "90",
+            "chrysanthemums",
+            "using",
+            "all",
+            "the",
+            "flowers",
+            "how",
+            "many",
+            "bouquets",
+            "containing",
+            "5",
+            "flowers",
+            "each",
+            "can",
+            "he",
+            "make"
+          ],
+          "plan": [
+            "Step 1: Calculate the total number of flowers.",
+            "Step 2: Determine how many bouquets can be made using those flowers.",
+            "Step 3: Answer the original question."
+          ],
+          "final_answer": "33",
+          "subgoals": [
+            "Step 1: Calculate the total number of flowers.",
+            "Step 2: Determine how many bouquets can be made using those flowers.",
+            "Step 3: Answer the original question."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 3,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.655007928609848,
+          "base_score": 0.4735596776008606,
+          "hopfield_score": 0.8364561796188354,
+          "hopfield_attention": 0.12173419445753098
+        }
+      ],
+      "plan": [
+        "answer",
+        "Step 1: Determine the percentage of employees who do not drive to work.",
+        "Step 2: Calculate the number of employees who do not drive to work.",
+        "Step 3: Find out how many of those employees use public transportation.",
+        "Step 4: Subtract the number of employees taking public transportation from the number driving to work to find the difference.",
+        "answer",
+        "Step 1: Calculate the number of employees who drive to work.",
+        "Step 2: Calculate the number of employees who do not drive to work. Then answer the original question directly using the previous results."
+      ],
+      "final_answer": "80",
+      "final_answer_source": "last_step",
+      "correct": false,
+      "step_answers": [
+        "2",
+        "80",
+        "80",
+        "80",
+        "30",
+        "80",
+        "80",
+        "80"
+      ],
+      "steps": [
+        {
+          "idx": 0,
+          "subgoal": "answer",
+          "answer": "2"
+        },
+        {
+          "idx": 1,
+          "subgoal": "Step 1: Determine the percentage of employees who do not drive to work.",
+          "answer": "80"
+        },
+        {
+          "idx": 2,
+          "subgoal": "Step 2: Calculate the number of employees who do not drive to work.",
+          "answer": "80"
+        },
+        {
+          "idx": 3,
+          "subgoal": "Step 3: Find out how many of those employees use public transportation.",
+          "answer": "80"
+        },
+        {
+          "idx": 4,
+          "subgoal": "Step 4: Subtract the number of employees taking public transportation from the number driving to work to find the difference.",
+          "answer": "30"
+        },
+        {
+          "idx": 5,
+          "subgoal": "answer",
+          "answer": "80"
+        },
+        {
+          "idx": 6,
+          "subgoal": "Step 1: Calculate the number of employees who drive to work.",
+          "answer": "80"
+        },
+        {
+          "idx": 7,
+          "subgoal": "Step 2: Calculate the number of employees who do not drive to work. Then answer the original question directly using the previous results.",
+          "answer": "80"
+        }
+      ]
+    },
+    {
+      "q_idx": 902,
+      "question": "Troy had 300 straws. He fed 3/5 of the straws to the adult pigs and an equal number of straws to the piglets. If there were 20 piglets, how many straws did each piglet eat?",
+      "ground_truth": "6",
+      "retrieved_cases": [
+        {
+          "question": "In a field where there are 200 animals, there are 40 cows, 56 sheep and goats. How many goats are there?",
+          "normalized_question": "in a field where there are 200 animals, there are 40 cows, 56 sheep and goats. how many goats are there?",
+          "question_tokens": [
+            "in",
+            "a",
+            "field",
+            "where",
+            "there",
+            "are",
+            "200",
+            "animals",
+            "there",
+            "are",
+            "40",
+            "cows",
+            "56",
+            "sheep",
+            "and",
+            "goats",
+            "how",
+            "many",
+            "goats",
+            "are",
+            "there"
+          ],
+          "plan": [
+            "Count the total number of animals in the field.",
+            "Subtract the number of cows from the total to find the combined number of sheep and goats.",
+            "Since we know the number of sheep, subtract that from the combined number of sheep and goats to find the number of goats.",
+            "Answer the original question directly using the previous results. State the final quantity requested in: In a field where there are 200 animals, there are 40 cows, 56 sheep and goats. How many goats are there?"
+          ],
+          "final_answer": "104",
+          "subgoals": [
+            "Count the total number of animals in the field.",
+            "Subtract the number of cows from the total to find the combined number of sheep and goats.",
+            "Since we know the number of sheep, subtract that from the combined number of sheep and goats to find the number of goats.",
+            "Answer the original question directly using the previous results. State the final quantity requested in: In a field where there are 200 animals, there are 40 cows, 56 sheep and goats. How many goats are there?"
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 4,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.7247771620750427,
+          "base_score": 0.5589509010314941,
+          "hopfield_score": 0.8906034231185913,
+          "hopfield_attention": 0.15748648345470428
+        },
+        {
+          "question": "Steph needs to cook fried chicken for the kid's party. She bought 24 pieces of drumstick and 4 fewer breast parts. How many fried chickens can Steph make?",
+          "normalized_question": "steph needs to cook fried chicken for the kid's party. she bought 24 pieces of drumstick and 4 fewer breast parts. how many fried chickens can steph make?",
+          "question_tokens": [
+            "steph",
+            "needs",
+            "to",
+            "cook",
+            "fried",
+            "chicken",
+            "for",
+            "the",
+            "kid",
+            "s",
+            "party",
+            "she",
+            "bought",
+            "24",
+            "pieces",
+            "of",
+            "drumstick",
+            "and",
+            "4",
+            "fewer",
+            "breast",
+            "parts",
+            "how",
+            "many",
+            "fried",
+            "chickens",
+            "can",
+            "steph",
+            "make"
+          ],
+          "plan": [
+            "Step 1:",
+            "Calculate the number of breast parts.",
+            "Step 2:",
+            "Add the number of drumsticks and breast parts together.",
+            "Step 3:",
+            "Determine how many fried chickens Steph can make.",
+            "Step 1:",
+            "Identify the total number of drumsticks."
+          ],
+          "final_answer": "44",
+          "subgoals": [
+            "Step 1:",
+            "Calculate the number of breast parts.",
+            "Step 2:",
+            "Add the number of drumsticks and breast parts together.",
+            "Step 3:",
+            "Determine how many fried chickens Steph can make.",
+            "Step 1:",
+            "Identify the total number of drumsticks."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 8,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.7194840312004089,
+          "base_score": 0.5458071231842041,
+          "hopfield_score": 0.8931609392166138,
+          "hopfield_attention": 0.14176765084266663
+        },
+        {
+          "question": "Susan has 21 cats and Bob has 3 cats. If Susan gives Robert 4 of her cats, how many more cats does Susan have than Bob?",
+          "normalized_question": "susan has 21 cats and bob has 3 cats. if susan gives robert 4 of her cats, how many more cats does susan have than bob?",
+          "question_tokens": [
+            "susan",
+            "has",
+            "21",
+            "cats",
+            "and",
+            "bob",
+            "has",
+            "3",
+            "cats",
+            "if",
+            "susan",
+            "gives",
+            "robert",
+            "4",
+            "of",
+            "her",
+            "cats",
+            "how",
+            "many",
+            "more",
+            "cats",
+            "does",
+            "susan",
+            "have",
+            "than",
+            "bob"
+          ],
+          "plan": [
+            "Step 1: Determine the number of cats each person has after Susan gives some to Bob.",
+            "Step 2: Calculate the difference in the number of cats between Susan and Bob.",
+            "Determine the number of cats each person has after Susan gives some to Bob.",
+            "Calculate the difference in the number of cats between Susan and Bob.",
+            "Step 1: Subtract the number of cats Bob initially has from the number he will have after receiving 4 from Susan.",
+            "Step 2: Subtract the result from Step 1 from the number of cats Susan initially has to find out how many more cats she has than Bob."
+          ],
+          "final_answer": "14",
+          "subgoals": [
+            "Step 1: Determine the number of cats each person has after Susan gives some to Bob.",
+            "Step 2: Calculate the difference in the number of cats between Susan and Bob.",
+            "Determine the number of cats each person has after Susan gives some to Bob.",
+            "Calculate the difference in the number of cats between Susan and Bob.",
+            "Step 1: Subtract the number of cats Bob initially has from the number he will have after receiving 4 from Susan.",
+            "Step 2: Subtract the result from Step 1 from the number of cats Susan initially has to find out how many more cats she has than Bob."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 6,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.7022892832756042,
+          "base_score": 0.5260677933692932,
+          "hopfield_score": 0.8785107731819153,
+          "hopfield_attention": 0.12105860561132431
+        }
+      ],
+      "plan": [
+        "answer",
+        "each piglet ate 15 straws",
+        "step 1:",
+        "Troy had 300 straws.",
+        "Step 2:",
+        "He fed 3/5 of the straws to the adult pigs.",
+        "Step 3:",
+        "An equal number of straws was given to the piglets. Then answer the original question directly using the previous results."
+      ],
+      "final_answer": "6",
+      "final_answer_source": "last_step",
+      "correct": true,
+      "step_answers": [
+        "15",
+        "6",
+        "6",
+        "1",
+        "5",
+        "6",
+        "6",
+        "6"
+      ],
+      "steps": [
+        {
+          "idx": 0,
+          "subgoal": "answer",
+          "answer": "15"
+        },
+        {
+          "idx": 1,
+          "subgoal": "each piglet ate 15 straws",
+          "answer": "6"
+        },
+        {
+          "idx": 2,
+          "subgoal": "step 1:",
+          "answer": "6"
+        },
+        {
+          "idx": 3,
+          "subgoal": "Troy had 300 straws.",
+          "answer": "1"
+        },
+        {
+          "idx": 4,
+          "subgoal": "Step 2:",
+          "answer": "5"
+        },
+        {
+          "idx": 5,
+          "subgoal": "He fed 3/5 of the straws to the adult pigs.",
+          "answer": "6"
+        },
+        {
+          "idx": 6,
+          "subgoal": "Step 3:",
+          "answer": "6"
+        },
+        {
+          "idx": 7,
+          "subgoal": "An equal number of straws was given to the piglets. Then answer the original question directly using the previous results.",
+          "answer": "6"
+        }
+      ]
+    },
+    {
+      "q_idx": 1302,
+      "question": "Reina has three times the number of counters and four times the number of marbles as Kevin. If Kevin has 40 counters and 50 marbles, calculate the number of counters and marbles that Reina has?",
+      "ground_truth": "320",
+      "retrieved_cases": [
+        {
+          "question": "Issac has to buy pens and pencils for the upcoming school year. Issac buys 108 writing utensils total. He buys 12 more than 5 times the number of pencils than pens. How many pens did Issac buy?",
+          "normalized_question": "issac has to buy pens and pencils for the upcoming school year. issac buys 108 writing utensils total. he buys 12 more than 5 times the number of pencils than pens. how many pens did issac buy?",
+          "question_tokens": [
+            "issac",
+            "has",
+            "to",
+            "buy",
+            "pens",
+            "and",
+            "pencils",
+            "for",
+            "the",
+            "upcoming",
+            "school",
+            "year",
+            "issac",
+            "buys",
+            "108",
+            "writing",
+            "utensils",
+            "total",
+            "he",
+            "buys",
+            "12",
+            "more",
+            "than",
+            "5",
+            "times",
+            "the",
+            "number",
+            "of",
+            "pencils",
+            "than",
+            "pens",
+            "how",
+            "many",
+            "pens",
+            "did",
+            "issac",
+            "buy"
+          ],
+          "plan": [
+            "Step 1: Let p represent the number of pens and c represent the number of pencils.",
+            "Step 2: Write an equation based on the information given: p + c = 108.",
+            "Step 3: Use the relationship between pens and pencils (p = 5c + 12) to substitute in Step 2's equation.",
+            "Step 4: Solve the resulting equation for p.",
+            "Step 5: The solution will give us the number of pens Isaac bought.",
+            "Answer the original question directly using the previous results. State the final quantity requested in: Issac has to buy pens and pencils for the upcoming school year. Issac buys 108 writing utensils total. He buys 12 more than 5 times the number of pencils than pens. How many pens did Issac buy?"
+          ],
+          "final_answer": "16",
+          "subgoals": [
+            "Step 1: Let p represent the number of pens and c represent the number of pencils.",
+            "Step 2: Write an equation based on the information given: p + c = 108.",
+            "Step 3: Use the relationship between pens and pencils (p = 5c + 12) to substitute in Step 2's equation.",
+            "Step 4: Solve the resulting equation for p.",
+            "Step 5: The solution will give us the number of pens Isaac bought.",
+            "Answer the original question directly using the previous results. State the final quantity requested in: Issac has to buy pens and pencils for the upcoming school year. Issac buys 108 writing utensils total. He buys 12 more than 5 times the number of pencils than pens. How many pens did Issac buy?"
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 6,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.7032967805862427,
+          "base_score": 0.5486932992935181,
+          "hopfield_score": 0.8579002618789673,
+          "hopfield_attention": 0.19926892220973969
+        },
+        {
+          "question": "Steve is 5'6\".  He grows 6 inches.  How tall is he in inches?",
+          "normalized_question": "steve is 5'6\". he grows 6 inches. how tall is he in inches?",
+          "question_tokens": [
+            "steve",
+            "is",
+            "5",
+            "6",
+            "he",
+            "grows",
+            "6",
+            "inches",
+            "how",
+            "tall",
+            "is",
+            "he",
+            "in",
+            "inches"
+          ],
+          "plan": [
+            "**Identify Variables",
+            "Answer the original question directly using the previous results. State the final quantity requested in: Steve is 5'6\".  He grows 6 inches.  How tall is he in inches?"
+          ],
+          "final_answer": "72",
+          "subgoals": [
+            "**Identify Variables",
+            "Answer the original question directly using the previous results. State the final quantity requested in: Steve is 5'6\".  He grows 6 inches.  How tall is he in inches?"
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 2,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.6711054593324661,
+          "base_score": 0.4954376518726349,
+          "hopfield_score": 0.8467732667922974,
+          "hopfield_attention": 0.13013991713523865
+        },
+        {
+          "question": "A school bought pencils and pens. A pencil costs $2.50, while a pen costs $3.50. How much do 38 pencils and 56 pens cost?",
+          "normalized_question": "a school bought pencils and pens. a pencil costs $2.50, while a pen costs $3.50. how much do 38 pencils and 56 pens cost?",
+          "question_tokens": [
+            "a",
+            "school",
+            "bought",
+            "pencils",
+            "and",
+            "pens",
+            "a",
+            "pencil",
+            "costs",
+            "2",
+            "50",
+            "while",
+            "a",
+            "pen",
+            "costs",
+            "3",
+            "50",
+            "how",
+            "much",
+            "do",
+            "38",
+            "pencils",
+            "and",
+            "56",
+            "pens",
+            "cost"
+          ],
+          "plan": [
+            "Step 1: Calculate the total cost of pencils.",
+            "Step 2: Calculate the total cost of pens.",
+            "Step 3: Add the two totals to get the final amount."
+          ],
+          "final_answer": "291",
+          "subgoals": [
+            "Step 1: Calculate the total cost of pencils.",
+            "Step 2: Calculate the total cost of pens.",
+            "Step 3: Add the two totals to get the final amount."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 3,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.6707438826560974,
+          "base_score": 0.47266077995300293,
+          "hopfield_score": 0.8688269853591919,
+          "hopfield_attention": 0.10846148431301117
+        }
+      ],
+      "plan": [
+        "answer",
+        "Reina has 120 counters and 200 marbles.",
+        "Let c represent the number of counters and m represent the number of marbles.",
+        "Step 1: Write an equation based on the information given: c = 3 * k and m = 4 * k.",
+        "Step 2: Substitute the value of k (Kevin's counters) into the equations: c = 3 * 40 and m = 4 * 50.",
+        "Step 3: Solve the equations to find the values of c and m.",
+        "Step 4: Combine the results to state the final quantities requested in: Reina has three times the number of counters and four times the number of marbles as Kevin. If Kevin has 40 counters and 50 marbles, calculate the number of counters and marbles that Reina has?",
+        "answer Then answer the original question directly using the previous results."
+      ],
+      "final_answer": "200",
+      "final_answer_source": "last_step",
+      "correct": false,
+      "step_answers": [
+        "200",
+        "160",
+        "250",
+        "200",
+        "200",
+        "12",
+        "200",
+        "200"
+      ],
+      "steps": [
+        {
+          "idx": 0,
+          "subgoal": "answer",
+          "answer": "200"
+        },
+        {
+          "idx": 1,
+          "subgoal": "Reina has 120 counters and 200 marbles.",
+          "answer": "160"
+        },
+        {
+          "idx": 2,
+          "subgoal": "Let c represent the number of counters and m represent the number of marbles.",
+          "answer": "250"
+        },
+        {
+          "idx": 3,
+          "subgoal": "Step 1: Write an equation based on the information given: c = 3 * k and m = 4 * k.",
+          "answer": "200"
+        },
+        {
+          "idx": 4,
+          "subgoal": "Step 2: Substitute the value of k (Kevin's counters) into the equations: c = 3 * 40 and m = 4 * 50.",
+          "answer": "200"
+        },
+        {
+          "idx": 5,
+          "subgoal": "Step 3: Solve the equations to find the values of c and m.",
+          "answer": "12"
+        },
+        {
+          "idx": 6,
+          "subgoal": "Step 4: Combine the results to state the final quantities requested in: Reina has three times the number of counters and four times the number of marbles as Kevin. If Kevin has 40 counters and 50 marbles, calculate the number of counters and marbles that Reina has?",
+          "answer": "200"
+        },
+        {
+          "idx": 7,
+          "subgoal": "answer Then answer the original question directly using the previous results.",
+          "answer": "200"
+        }
+      ]
+    },
+    {
+      "q_idx": 2752,
+      "question": "The town of Centerville spends 15% of its annual budget on its public library. Centerville spent $3,000 on its public library and 24% on the public parks. How much is left of the annual budget?",
+      "ground_truth": "12",
+      "retrieved_cases": [
+        {
+          "question": "A florist offers for sale 75 narcissus flowers and 90 chrysanthemums. Using all the flowers, how many bouquets containing 5 flowers each can he make?",
+          "normalized_question": "a florist offers for sale 75 narcissus flowers and 90 chrysanthemums. using all the flowers, how many bouquets containing 5 flowers each can he make?",
+          "question_tokens": [
+            "a",
+            "florist",
+            "offers",
+            "for",
+            "sale",
+            "75",
+            "narcissus",
+            "flowers",
+            "and",
+            "90",
+            "chrysanthemums",
+            "using",
+            "all",
+            "the",
+            "flowers",
+            "how",
+            "many",
+            "bouquets",
+            "containing",
+            "5",
+            "flowers",
+            "each",
+            "can",
+            "he",
+            "make"
+          ],
+          "plan": [
+            "Step 1: Calculate the total number of flowers.",
+            "Step 2: Determine how many bouquets can be made using those flowers.",
+            "Step 3: Answer the original question."
+          ],
+          "final_answer": "33",
+          "subgoals": [
+            "Step 1: Calculate the total number of flowers.",
+            "Step 2: Determine how many bouquets can be made using those flowers.",
+            "Step 3: Answer the original question."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 3,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.6681343615055084,
+          "base_score": 0.47877228260040283,
+          "hopfield_score": 0.857496440410614,
+          "hopfield_attention": 0.20235177874565125
+        },
+        {
+          "question": "The school has 14 boys and 10 girls. If 4 boys and 3 girls drop out, how many boys and girls are left?",
+          "normalized_question": "the school has 14 boys and 10 girls. if 4 boys and 3 girls drop out, how many boys and girls are left?",
+          "question_tokens": [
+            "the",
+            "school",
+            "has",
+            "14",
+            "boys",
+            "and",
+            "10",
+            "girls",
+            "if",
+            "4",
+            "boys",
+            "and",
+            "3",
+            "girls",
+            "drop",
+            "out",
+            "how",
+            "many",
+            "boys",
+            "and",
+            "girls",
+            "are",
+            "left"
+          ],
+          "plan": [
+            "Step 1: Start with the initial number of boys and girls.",
+            "Step 2: Subtract the number of boys who dropped out from the total number of boys.",
+            "Step 3: Subtract the number of girls who dropped out from the total number of girls.",
+            "Step 4: Combine the remaining numbers of boys and girls to get the final count.",
+            "Start with the initial number of boys and girls.",
+            "Subtract the number of boys who dropped out from the total number of boys.",
+            "Subtract the number of girls who dropped out from the total number of girls.",
+            "Combine the remaining numbers of boys and girls to get the final count."
+          ],
+          "final_answer": "17",
+          "subgoals": [
+            "Step 1: Start with the initial number of boys and girls.",
+            "Step 2: Subtract the number of boys who dropped out from the total number of boys.",
+            "Step 3: Subtract the number of girls who dropped out from the total number of girls.",
+            "Step 4: Combine the remaining numbers of boys and girls to get the final count.",
+            "Start with the initial number of boys and girls.",
+            "Subtract the number of boys who dropped out from the total number of boys.",
+            "Subtract the number of girls who dropped out from the total number of girls.",
+            "Combine the remaining numbers of boys and girls to get the final count."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 8,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.6542643457651138,
+          "base_score": 0.4390842616558075,
+          "hopfield_score": 0.8694444298744202,
+          "hopfield_attention": 0.1473047435283661
+        },
+        {
+          "question": "Steph needs to cook fried chicken for the kid's party. She bought 24 pieces of drumstick and 4 fewer breast parts. How many fried chickens can Steph make?",
+          "normalized_question": "steph needs to cook fried chicken for the kid's party. she bought 24 pieces of drumstick and 4 fewer breast parts. how many fried chickens can steph make?",
+          "question_tokens": [
+            "steph",
+            "needs",
+            "to",
+            "cook",
+            "fried",
+            "chicken",
+            "for",
+            "the",
+            "kid",
+            "s",
+            "party",
+            "she",
+            "bought",
+            "24",
+            "pieces",
+            "of",
+            "drumstick",
+            "and",
+            "4",
+            "fewer",
+            "breast",
+            "parts",
+            "how",
+            "many",
+            "fried",
+            "chickens",
+            "can",
+            "steph",
+            "make"
+          ],
+          "plan": [
+            "Step 1:",
+            "Calculate the number of breast parts.",
+            "Step 2:",
+            "Add the number of drumsticks and breast parts together.",
+            "Step 3:",
+            "Determine how many fried chickens Steph can make.",
+            "Step 1:",
+            "Identify the total number of drumsticks."
+          ],
+          "final_answer": "44",
+          "subgoals": [
+            "Step 1:",
+            "Calculate the number of breast parts.",
+            "Step 2:",
+            "Add the number of drumsticks and breast parts together.",
+            "Step 3:",
+            "Determine how many fried chickens Steph can make.",
+            "Step 1:",
+            "Identify the total number of drumsticks."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 8,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.653501957654953,
+          "base_score": 0.4213840365409851,
+          "hopfield_score": 0.8856198787689209,
+          "hopfield_attention": 0.12785562872886658
+        }
+      ],
+      "plan": [
+        "answer",
+        "$6,000",
+        "Step 1:",
+        "Calculate the total annual budget.",
+        "Determine the amount spent on public parks.",
+        "Subtract the amounts spent on the library and parks from the total budget.",
+        "answer",
+        "$6,000 Then answer the original question directly using the previous results."
+      ],
+      "final_answer": "12200",
+      "final_answer_source": "last_step",
+      "correct": false,
+      "step_answers": [
+        "3000",
+        "24",
+        "12200",
+        "12200",
+        "3000",
+        "-2",
+        "76",
+        "12200"
+      ],
+      "steps": [
+        {
+          "idx": 0,
+          "subgoal": "answer",
+          "answer": "3000"
+        },
+        {
+          "idx": 1,
+          "subgoal": "$6,000",
+          "answer": "24"
+        },
+        {
+          "idx": 2,
+          "subgoal": "Step 1:",
+          "answer": "12200"
+        },
+        {
+          "idx": 3,
+          "subgoal": "Calculate the total annual budget.",
+          "answer": "12200"
+        },
+        {
+          "idx": 4,
+          "subgoal": "Determine the amount spent on public parks.",
+          "answer": "3000"
+        },
+        {
+          "idx": 5,
+          "subgoal": "Subtract the amounts spent on the library and parks from the total budget.",
+          "answer": "-2"
+        },
+        {
+          "idx": 6,
+          "subgoal": "answer",
+          "answer": "76"
+        },
+        {
+          "idx": 7,
+          "subgoal": "$6,000 Then answer the original question directly using the previous results.",
+          "answer": "12200"
+        }
+      ]
+    },
+    {
+      "q_idx": 3205,
+      "question": "Jason's dog has a tail that's half the length of its body, and a head that's 1/6 the length of its body. If the dog is 30 inches long overall, how long is its tail?",
+      "ground_truth": "9",
+      "retrieved_cases": [
+        {
+          "question": "Steve is 5'6\".  He grows 6 inches.  How tall is he in inches?",
+          "normalized_question": "steve is 5'6\". he grows 6 inches. how tall is he in inches?",
+          "question_tokens": [
+            "steve",
+            "is",
+            "5",
+            "6",
+            "he",
+            "grows",
+            "6",
+            "inches",
+            "how",
+            "tall",
+            "is",
+            "he",
+            "in",
+            "inches"
+          ],
+          "plan": [
+            "**Identify Variables",
+            "Answer the original question directly using the previous results. State the final quantity requested in: Steve is 5'6\".  He grows 6 inches.  How tall is he in inches?"
+          ],
+          "final_answer": "72",
+          "subgoals": [
+            "**Identify Variables",
+            "Answer the original question directly using the previous results. State the final quantity requested in: Steve is 5'6\".  He grows 6 inches.  How tall is he in inches?"
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 2,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.721925288438797,
+          "base_score": 0.5518627762794495,
+          "hopfield_score": 0.8919878005981445,
+          "hopfield_attention": 0.24033337831497192
+        },
+        {
+          "question": "For every 1 year a human ages, a dog ages 7 years.  When Max is 3, how much older, in dog years, will his 3-year-old dog be?",
+          "normalized_question": "for every 1 year a human ages, a dog ages 7 years. when max is 3, how much older, in dog years, will his 3-year-old dog be?",
+          "question_tokens": [
+            "for",
+            "every",
+            "1",
+            "year",
+            "a",
+            "human",
+            "ages",
+            "a",
+            "dog",
+            "ages",
+            "7",
+            "years",
+            "when",
+            "max",
+            "is",
+            "3",
+            "how",
+            "much",
+            "older",
+            "in",
+            "dog",
+            "years",
+            "will",
+            "his",
+            "3",
+            "year",
+            "old",
+            "dog",
+            "be"
+          ],
+          "plan": [
+            "Determine the age of the dog in human years.",
+            "Convert the dog's age from human years to dog years.",
+            "Calculate the difference"
+          ],
+          "final_answer": "18",
+          "subgoals": [
+            "Determine the age of the dog in human years.",
+            "Convert the dog's age from human years to dog years.",
+            "Calculate the difference"
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 3,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.6824022531509399,
+          "base_score": 0.5150895118713379,
+          "hopfield_score": 0.849714994430542,
+          "hopfield_attention": 0.1790814846754074
+        },
+        {
+          "question": "Steph needs to cook fried chicken for the kid's party. She bought 24 pieces of drumstick and 4 fewer breast parts. How many fried chickens can Steph make?",
+          "normalized_question": "steph needs to cook fried chicken for the kid's party. she bought 24 pieces of drumstick and 4 fewer breast parts. how many fried chickens can steph make?",
+          "question_tokens": [
+            "steph",
+            "needs",
+            "to",
+            "cook",
+            "fried",
+            "chicken",
+            "for",
+            "the",
+            "kid",
+            "s",
+            "party",
+            "she",
+            "bought",
+            "24",
+            "pieces",
+            "of",
+            "drumstick",
+            "and",
+            "4",
+            "fewer",
+            "breast",
+            "parts",
+            "how",
+            "many",
+            "fried",
+            "chickens",
+            "can",
+            "steph",
+            "make"
+          ],
+          "plan": [
+            "Step 1:",
+            "Calculate the number of breast parts.",
+            "Step 2:",
+            "Add the number of drumsticks and breast parts together.",
+            "Step 3:",
+            "Determine how many fried chickens Steph can make.",
+            "Step 1:",
+            "Identify the total number of drumsticks."
+          ],
+          "final_answer": "44",
+          "subgoals": [
+            "Step 1:",
+            "Calculate the number of breast parts.",
+            "Step 2:",
+            "Add the number of drumsticks and breast parts together.",
+            "Step 3:",
+            "Determine how many fried chickens Steph can make.",
+            "Step 1:",
+            "Identify the total number of drumsticks."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 8,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.6450604200363159,
+          "base_score": 0.435727059841156,
+          "hopfield_score": 0.8543937802314758,
+          "hopfield_attention": 0.09491115808486938
+        }
+      ],
+      "plan": [
+        "answer",
+        "Jason's dog's tail is 10 inches long.",
+        "Identify Variables",
+        "Answer the original question directly using the previous results. State the final quantity requested in: Jason's dog has a tail that's half the length of its body, and a head that's 1/6 the length of its body. If the dog is 30 inches long overall, how long is its tail?",
+        "Final-step pattern: Answer the original question directly using the previous results. State the final quantity requested in: Jason's dog has a tail that's half the length of its body, and a head that's 1/6 the length of its body. If the dog is 30 inches long overall, how long is its tail?",
+        "answer",
+        "Jason's dog's tail is 10 inches long.",
+        "Determine the length of the body. Then answer the original question directly using the previous results."
+      ],
+      "final_answer": "9",
+      "final_answer_source": "last_step",
+      "correct": true,
+      "step_answers": [
+        "15",
+        "9",
+        "9",
+        "9",
+        "18",
+        "4",
+        "9",
+        "9"
+      ],
+      "steps": [
+        {
+          "idx": 0,
+          "subgoal": "answer",
+          "answer": "15"
+        },
+        {
+          "idx": 1,
+          "subgoal": "Jason's dog's tail is 10 inches long.",
+          "answer": "9"
+        },
+        {
+          "idx": 2,
+          "subgoal": "Identify Variables",
+          "answer": "9"
+        },
+        {
+          "idx": 3,
+          "subgoal": "Answer the original question directly using the previous results. State the final quantity requested in: Jason's dog has a tail that's half the length of its body, and a head that's 1/6 the length of its body. If the dog is 30 inches long overall, how long is its tail?",
+          "answer": "9"
+        },
+        {
+          "idx": 4,
+          "subgoal": "Final-step pattern: Answer the original question directly using the previous results. State the final quantity requested in: Jason's dog has a tail that's half the length of its body, and a head that's 1/6 the length of its body. If the dog is 30 inches long overall, how long is its tail?",
+          "answer": "18"
+        },
+        {
+          "idx": 5,
+          "subgoal": "answer",
+          "answer": "4"
+        },
+        {
+          "idx": 6,
+          "subgoal": "Jason's dog's tail is 10 inches long.",
+          "answer": "9"
+        },
+        {
+          "idx": 7,
+          "subgoal": "Determine the length of the body. Then answer the original question directly using the previous results.",
+          "answer": "9"
+        }
+      ]
+    }
+  ]
+}

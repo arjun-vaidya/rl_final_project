@@ -1,0 +1,17 @@
+{
+  "embedding_model": "experiments/probe_retriever_stage2_20260513_033652/retriever_e5small_probe_structural_stage2",
+  "num_docs": 2987,
+  "num_positive_docs": 1065,
+  "num_negative_only_docs": 1922,
+  "num_queries": 2130,
+  "num_positive_signature_buckets": 45,
+  "same_question_pairs": 1928,
+  "same_target_pairs": 2130,
+  "same_signature_pairs": 2126,
+  "same_question_mrr": 0.5248556938547505,
+  "same_target_mrr": 0.23862501152306007,
+  "same_signature_mrr": 0.1962043420625979,
+  "same_signature_recall_at_1": 0.015051740357478834,
+  "same_signature_recall_at_3": 0.06491063029162747,
+  "same_signature_recall_at_5": 0.5413922859830668
+}

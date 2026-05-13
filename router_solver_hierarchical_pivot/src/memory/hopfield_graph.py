@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 import re
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set, Tuple
@@ -32,6 +33,45 @@ def _tokenize(text: str) -> List[str]:
     return re.findall(r"[a-z0-9]+", str(text or "").lower())
 
 
+def _infer_target_type(question: str) -> str:
+    lowered = str(question or "").lower()
+    if any(token in lowered for token in ["altogether", "total", "in all", "sum", "combined"]):
+        return "total"
+    if any(token in lowered for token in ["left", "remain", "remaining", "still need", "more money", "difference", "how many more"]):
+        return "difference_or_remaining"
+    if any(token in lowered for token in ["each", "per", "rate", "hour", "hours", "every"]):
+        return "rate_or_ratio"
+    return "direct_answer"
+
+
+def _infer_operation_signature(question: str, plan: Optional[List[str]] = None) -> str:
+    text = " ".join([str(question or "")] + [str(step or "") for step in (plan or [])]).lower()
+    ops: List[str] = []
+    if any(token in text for token in ["times", "each", "per", "product", "rows of", "groups of"]):
+        ops.append("mul")
+    if any(token in text for token in ["left", "remain", "remaining", "difference", "more", "less", "spent", "after paying"]):
+        ops.append("sub")
+    if any(token in text for token in ["total", "altogether", "in all", "combined", "sum"]):
+        ops.append("add")
+    if any(token in text for token in ["share", "equally", "average", "half", "third", "quarter", "divide"]):
+        ops.append("div")
+    if not ops:
+        ops.append("direct")
+    seen: List[str] = []
+    for op in ops:
+        if op not in seen:
+            seen.append(op)
+    return "|".join(seen)
+
+
+def _lexical_jaccard(tokens_a: List[str], tokens_b: List[str]) -> float:
+    a = set(tokens_a)
+    b = set(tokens_b)
+    if not a or not b:
+        return 0.0
+    return float(len(a & b) / max(1, len(a | b)))
+
+
 @dataclass
 class HeteroNode:
     node_id: str
@@ -54,23 +94,111 @@ class HeteroHopfieldMemory:
         self,
         embed_dim: int = 384,
         beta: float = 8.0,
+        retrieval_pool_size: int = 8,
+        hopfield_rerank_weight: float = 0.5,
         embedding_model_name: str = "sentence-transformers/all-MiniLM-L6-v2",
         embedding_device: str = "cpu",
+        reranker_path: str = "",
+        retrieval_gate_threshold: float = 0.0,
+        retrieval_gate_coherence: float = 0.0,
+        use_hopfield_readout: bool = True,
+        use_learned_reranker: bool = True,
     ):
         self.embed_dim = embed_dim
         self.beta = beta
+        self.retrieval_pool_size = retrieval_pool_size
+        self.hopfield_rerank_weight = hopfield_rerank_weight
         self.embedding_model_name = embedding_model_name
         self.embedding_device = embedding_device
         self.embedder = None if embedding_model_name == "hash" else RetrievalTextEmbedder(embedding_model_name, device=embedding_device)
+        self.reranker_path = reranker_path
+        self.retrieval_gate_threshold = retrieval_gate_threshold
+        self.retrieval_gate_coherence = retrieval_gate_coherence
+        self.use_hopfield_readout = use_hopfield_readout
+        self.use_learned_reranker = use_learned_reranker
         self.nodes: Dict[str, HeteroNode] = {}
         self.edges: List[HeteroEdge] = []
         self.case_ids: List[str] = []
         self.case_payloads: Dict[str, Dict[str, object]] = {}
         self.case_embeddings: List[torch.Tensor] = []
+        self.reranker_spec = self._load_reranker(reranker_path)
+
+    def fork(
+        self,
+        *,
+        use_hopfield_readout: Optional[bool] = None,
+        use_learned_reranker: Optional[bool] = None,
+        retrieval_gate_threshold: Optional[float] = None,
+        retrieval_gate_coherence: Optional[float] = None,
+    ) -> "HeteroHopfieldMemory":
+        other = HeteroHopfieldMemory(
+            embed_dim=self.embed_dim,
+            beta=self.beta,
+            retrieval_pool_size=self.retrieval_pool_size,
+            hopfield_rerank_weight=self.hopfield_rerank_weight,
+            embedding_model_name=self.embedding_model_name,
+            embedding_device=self.embedding_device,
+            reranker_path=self.reranker_path,
+            retrieval_gate_threshold=self.retrieval_gate_threshold if retrieval_gate_threshold is None else retrieval_gate_threshold,
+            retrieval_gate_coherence=self.retrieval_gate_coherence if retrieval_gate_coherence is None else retrieval_gate_coherence,
+            use_hopfield_readout=self.use_hopfield_readout if use_hopfield_readout is None else use_hopfield_readout,
+            use_learned_reranker=self.use_learned_reranker if use_learned_reranker is None else use_learned_reranker,
+        )
+        other.embedder = self.embedder
+        other.nodes = self.nodes
+        other.edges = self.edges
+        other.case_ids = self.case_ids
+        other.case_payloads = self.case_payloads
+        other.case_embeddings = self.case_embeddings
+        other.reranker_spec = self.reranker_spec
+        return other
 
     @property
     def num_cases(self) -> int:
         return len(self.case_ids)
+
+    @staticmethod
+    def _load_reranker(path: str) -> Optional[Dict[str, object]]:
+        if not path:
+            return None
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"Reranker spec not found: {path}")
+        with open(path, "r", encoding="ascii", errors="ignore") as f:
+            spec = json.load(f)
+        return spec
+
+    def _candidate_feature_vector(
+        self,
+        query_tokens: List[str],
+        query_target_type: str,
+        base_score: float,
+        hopfield_score: float,
+        attention_weight: float,
+        payload: Dict[str, object],
+    ) -> List[float]:
+        return [
+            float(base_score),
+            float(hopfield_score),
+            float(attention_weight),
+            float(_lexical_jaccard(query_tokens, payload.get("question_tokens", []))),
+            1.0 if payload.get("target_type") == query_target_type else 0.0,
+            float(payload.get("quality_score", 0.0)),
+            1.0 if payload.get("has_answer_bearing_step") else 0.0,
+        ]
+
+    def _apply_reranker(self, features: List[float]) -> Optional[float]:
+        if self.reranker_spec is None:
+            return None
+        weights = self.reranker_spec.get("weights", [])
+        bias = float(self.reranker_spec.get("bias", 0.0))
+        threshold = float(self.reranker_spec.get("threshold", 0.5))
+        if len(weights) != len(features):
+            return None
+        logit = bias
+        for weight, feature in zip(weights, features):
+            logit += float(weight) * float(feature)
+        score = 1.0 / (1.0 + torch.exp(torch.tensor(-logit, dtype=torch.float32)).item())
+        return max(0.0, min(1.0, (score - threshold) / max(1e-6, 1.0 - threshold)))
 
     def _add_node(self, node_id: str, node_type: str, text: str, metadata: Optional[Dict[str, object]] = None) -> None:
         embedding = self.embedder.encode_one(text, role="doc") if self.embedder is not None else _hash_embed(text, self.embed_dim)
@@ -143,6 +271,15 @@ class HeteroHopfieldMemory:
         step_nodes = [self.nodes[f"{case_id}:S:{step_idx}"].embedding for step_idx in range(len(subgoals))]
         step_mean = torch.stack(step_nodes).mean(dim=0) if step_nodes else torch.zeros_like(question_node)
         case_embedding = F.normalize((0.7 * question_node) + (0.2 * plan_node) + (0.1 * step_mean), dim=0)
+        target_type = str(diagnostics.get("target_type") or _infer_target_type(question))
+        operation_signature = str(diagnostics.get("operation_signature") or _infer_operation_signature(question, plan))
+        answer_bearing_idx = diagnostics.get("answer_bearing_step_idx")
+        has_answer_bearing_step = isinstance(answer_bearing_idx, int) and 0 <= answer_bearing_idx < len(subgoals)
+        quality_score = 0.0
+        if diagnostics.get("relaxed_match", False):
+            quality_score += 1.0
+        if has_answer_bearing_step:
+            quality_score += 0.5
 
         self.case_ids.append(case_id)
         self.case_embeddings.append(case_embedding)
@@ -154,6 +291,10 @@ class HeteroHopfieldMemory:
             "final_answer": final_answer,
             "subgoals": subgoals,
             "diagnostics": diagnostics,
+            "target_type": target_type,
+            "operation_signature": operation_signature,
+            "has_answer_bearing_step": has_answer_bearing_step,
+            "quality_score": quality_score,
         }
 
     def retrieve(self, question: str, k: int = 3) -> List[Dict[str, object]]:
@@ -161,6 +302,8 @@ class HeteroHopfieldMemory:
             return []
 
         normalized_query = _normalize_text(question)
+        query_tokens = _tokenize(question)
+        query_target_type = _infer_target_type(question)
         query = self.embedder.encode_one(question, role="query") if self.embedder is not None else _hash_embed(question, self.embed_dim)
         memory_matrix = torch.stack(self.case_embeddings)
         sims = torch.mv(memory_matrix, query)
@@ -175,13 +318,55 @@ class HeteroHopfieldMemory:
             return []
 
         candidate_rows.sort(key=lambda item: item[0], reverse=True)
-        top_rows = candidate_rows[: min(k, len(candidate_rows))]
+        top_pool = candidate_rows[: min(max(k, self.retrieval_pool_size), len(candidate_rows))]
+
+        pool_indices = [idx for _score, idx in top_pool]
+        pool_scores = torch.tensor([score for score, _idx in top_pool], dtype=torch.float32)
+        pool_embeddings = torch.stack([self.case_embeddings[idx] for idx in pool_indices], dim=0)
+        if self.use_hopfield_readout:
+            attn = torch.softmax(self.beta * pool_scores, dim=0)
+            hopfield_state = F.normalize((attn.unsqueeze(1) * pool_embeddings).sum(dim=0), dim=0)
+        else:
+            attn = torch.softmax(torch.zeros_like(pool_scores), dim=0)
+            hopfield_state = F.normalize(query, dim=0)
+
+        reranked_rows: List[Tuple[float, float, float, int, float]] = []
+        for pool_rank, (base_score, idx) in enumerate(top_pool):
+            hopfield_score = float(torch.dot(hopfield_state, self.case_embeddings[idx]))
+            attn_weight = float(attn[pool_rank].item())
+            payload = self.case_payloads[self.case_ids[idx]]
+            features = self._candidate_feature_vector(
+                query_tokens=query_tokens,
+                query_target_type=query_target_type,
+                base_score=float(base_score),
+                hopfield_score=hopfield_score,
+                attention_weight=attn_weight,
+                payload=payload,
+            )
+            learned_score = self._apply_reranker(features) if self.use_learned_reranker else None
+            rerank_score = learned_score if learned_score is not None else (
+                ((self.hopfield_rerank_weight * float(base_score)) + ((1.0 - self.hopfield_rerank_weight) * hopfield_score))
+                if self.use_hopfield_readout else float(base_score)
+            )
+            reranked_rows.append((rerank_score, float(base_score), hopfield_score, idx, attn_weight, features))
+        reranked_rows.sort(key=lambda item: item[0], reverse=True)
+        top_rows = reranked_rows[: min(k, len(reranked_rows))]
+        if top_rows and self.retrieval_gate_threshold > 0.0 and top_rows[0][0] < self.retrieval_gate_threshold:
+            return []
+        if top_rows and self.retrieval_gate_coherence > 0.0:
+            mean_coherence = sum(row[2] for row in top_rows[: min(3, len(top_rows))]) / float(min(3, len(top_rows)))
+            if mean_coherence < self.retrieval_gate_coherence:
+                return []
 
         results: List[Dict[str, object]] = []
-        for score, idx in top_rows:
+        for rerank_score, base_score, hopfield_score, idx, attn_weight, features in top_rows:
             case_id = self.case_ids[idx]
             payload = dict(self.case_payloads[case_id])
-            payload["score"] = score
+            payload["score"] = rerank_score
+            payload["base_score"] = base_score
+            payload["hopfield_score"] = hopfield_score
+            payload["hopfield_attention"] = attn_weight
+            payload["reranker_features"] = features
             results.append(payload)
         return results
 
@@ -192,8 +377,21 @@ class HeteroHopfieldMemory:
         exclude_questions: Optional[Set[str]] = None,
         embedding_model_name: str = "sentence-transformers/all-MiniLM-L6-v2",
         embedding_device: str = "cpu",
+        reranker_path: str = "",
+        retrieval_gate_threshold: float = 0.0,
+        retrieval_gate_coherence: float = 0.0,
+        use_hopfield_readout: bool = True,
+        use_learned_reranker: bool = True,
     ) -> "HeteroHopfieldMemory":
-        memory = cls(embedding_model_name=embedding_model_name, embedding_device=embedding_device)
+        memory = cls(
+            embedding_model_name=embedding_model_name,
+            embedding_device=embedding_device,
+            reranker_path=reranker_path,
+            retrieval_gate_threshold=retrieval_gate_threshold,
+            retrieval_gate_coherence=retrieval_gate_coherence,
+            use_hopfield_readout=use_hopfield_readout,
+            use_learned_reranker=use_learned_reranker,
+        )
         excluded = {_normalize_text(q) for q in (exclude_questions or set())}
         with open(trace_path, "r", encoding="ascii", errors="ignore") as f:
             for line in f:
@@ -235,8 +433,21 @@ class HeteroHopfieldMemory:
         corpus_json: str,
         embedding_model_name: str = "sentence-transformers/all-MiniLM-L6-v2",
         embedding_device: str = "cpu",
+        reranker_path: str = "",
+        retrieval_gate_threshold: float = 0.0,
+        retrieval_gate_coherence: float = 0.0,
+        use_hopfield_readout: bool = True,
+        use_learned_reranker: bool = True,
     ) -> "HeteroHopfieldMemory":
-        memory = cls(embedding_model_name=embedding_model_name, embedding_device=embedding_device)
+        memory = cls(
+            embedding_model_name=embedding_model_name,
+            embedding_device=embedding_device,
+            reranker_path=reranker_path,
+            retrieval_gate_threshold=retrieval_gate_threshold,
+            retrieval_gate_coherence=retrieval_gate_coherence,
+            use_hopfield_readout=use_hopfield_readout,
+            use_learned_reranker=use_learned_reranker,
+        )
         with open(corpus_json, "r", encoding="ascii", errors="ignore") as f:
             corpus = json.load(f)
         for doc in corpus.get("docs", []):

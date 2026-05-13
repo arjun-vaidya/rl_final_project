@@ -11,6 +11,7 @@ class Config:
 
     router_max_tokens: int = 300
     solver_max_tokens: int = 200
+    train_solver_max_tokens: int = 200
     synthesis_max_tokens: int = 64
     max_subgoals: int = 8
     router_temperature: float = 1.0
@@ -30,6 +31,7 @@ class Config:
     use_lora: bool = True
     lora_rank: int = 8
     lora_alpha: int = 16
+    gradient_checkpointing: bool = True
 
     use_judge: bool = True
     judge_model: str = "gpt-4o-mini"
@@ -52,12 +54,16 @@ class Config:
     router_prompt_hardening: bool = False
     plan_parse_repair: bool = False
     outcome_credit_all_steps: bool = False
+    outcome_credit_mode: str = "last"
     strict_answer_format: bool = False
     execution_branch: str = "soft"
     memory_trace_input: str = ""
     memory_top_k: int = 3
     memory_embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     memory_embedding_device: str = "cpu"
+    informative_group_sampling: bool = False
+    informative_max_resamples: int = 8
+    informative_group_mode: str = "final_only"
 
     @property
     def total_per_batch(self) -> int:

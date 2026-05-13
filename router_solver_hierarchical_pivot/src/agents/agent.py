@@ -81,6 +81,8 @@ class Agent:
         execution_branch: str = "soft",
         graph_memory = None,
         retrieval_top_k: int = 3,
+        hard_prompt_top_k: int = 2,
+        vllm_bridge = None,
     ):
         self.model = model
         self.tokenizer = tokenizer
@@ -107,6 +109,9 @@ class Agent:
         self.execution_branch = execution_branch
         self.graph_memory = graph_memory
         self.retrieval_top_k = retrieval_top_k
+        self.hard_prompt_top_k = hard_prompt_top_k
+        self.vllm_bridge = vllm_bridge
+        self.active_adapter = router_adapter
         if self.tokenizer.pad_token_id is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
         if hasattr(self.model, "generation_config") and self.model.generation_config is not None:
@@ -157,6 +162,7 @@ class Agent:
         return self.stop_token_ids
 
     def _set_adapter(self, name: str):
+        self.active_adapter = name
         if hasattr(self.model, "set_adapter"):
             self.model.set_adapter(name)
 
@@ -171,6 +177,13 @@ class Agent:
         max_tokens: int,
         temp: float = 1.0,
     ) -> List[Tuple[str, torch.Tensor, torch.Tensor]]:
+        if self.vllm_bridge is not None:
+            return self.vllm_bridge.generate_batch(
+                prompts=list(prompts),
+                max_tokens=max_tokens,
+                temperature=temp,
+                adapter_name=self.active_adapter,
+            )
         device = getattr(self.model, 'device', torch.device('cuda' if torch.cuda.is_available() else 'cpu'))
         prompts = list(prompts)
         if not prompts:
@@ -254,7 +267,7 @@ class Agent:
         retrieval_block = ""
         if retrieved_cases:
             rendered_cases = []
-            for idx, case in enumerate(retrieved_cases[: self.retrieval_top_k], start=1):
+            for idx, case in enumerate(retrieved_cases[: self.hard_prompt_top_k], start=1):
                 subgoals = case.get("subgoals") or []
                 diagnostics = case.get("diagnostics") or {}
                 answer_bearing_idx = diagnostics.get("answer_bearing_step_idx")
@@ -267,20 +280,22 @@ class Agent:
                 if answer_bearing_text and answer_bearing_text not in key_subgoals:
                     key_subgoals.append(answer_bearing_text)
                 rendered_cases.append(
-                    f"{idx}. Problem: {case.get('question', '')}\n"
-                    f"   Key step pattern: {key_subgoals}\n"
-                    f"   Diagnostics: source={diagnostics.get('final_answer_source', '')}, "
-                    f"steps={diagnostics.get('num_steps', 0)}, relaxed={diagnostics.get('relaxed_match', False)}, "
-                    f"answer_bearing_step={answer_bearing_idx}\n"
-                    f"   Final-step pattern: {answer_bearing_text}"
+                    f"{idx}. Archetype: target={case.get('target_type', 'unknown')}, "
+                    f"ops={case.get('operation_signature', 'unknown')}\n"
+                    f"   Problem: {case.get('question', '')}\n"
+                    f"   Plan skeleton: {key_subgoals}\n"
+                    f"   Answer-bearing step: {answer_bearing_text}\n"
+                    f"   Retrieval: rerank={case.get('score', 0.0):.3f}, base={case.get('base_score', 0.0):.3f}, "
+                    f"hopfield={case.get('hopfield_score', 0.0):.3f}"
                 )
             retrieval_block = (
-                "Similar solved problems from memory:\n"
+                "Retrieved structural exemplars from memory:\n"
                 + "\n".join(rendered_cases)
                 + "\n\nUse these as structural exemplars only.\n"
                 "Prefer plans whose final step directly answers the original question.\n"
                 "Do not copy numbers or full plans from memory.\n"
-                "Reuse only the decomposition pattern and the form of the final answer-bearing step.\n\n"
+                "Reuse only the decomposition pattern and the form of the final answer-bearing step.\n"
+                "If the exemplars disagree, prefer the pattern whose answer-bearing step best matches the asked quantity.\n\n"
             )
 
         if not self.router_prompt_hardening:
@@ -315,8 +330,8 @@ JSON:"""
         history = ""
         if previous_answers:
             history = "Previous steps:\n"
-            for i, (step_text, answer_text) in enumerate(zip(plan[:step_idx], previous_answers)):
-                history += f"Step {i+1}: {step_text}\nAnswer: {answer_text}\n"
+            for i, answer_text in enumerate(previous_answers):
+                history += f"A{i+1}: {answer_text}\n"
         final_step_instruction = ""
         if step_idx == len(plan) - 1:
             final_step_instruction = (

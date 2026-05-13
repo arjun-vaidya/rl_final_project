@@ -1,0 +1,17 @@
+{
+  "embedding_model": "experiments/probe_retriever_train_gpu_batch_20260513_032325/retriever_e5small_probe_structural",
+  "num_docs": 2987,
+  "num_positive_docs": 1065,
+  "num_negative_only_docs": 1922,
+  "num_queries": 2130,
+  "num_positive_signature_buckets": 45,
+  "same_question_pairs": 1928,
+  "same_target_pairs": 2130,
+  "same_signature_pairs": 2126,
+  "same_question_mrr": 0.524458677187072,
+  "same_target_mrr": 0.23036904528458738,
+  "same_signature_mrr": 0.18956135106411048,
+  "same_signature_recall_at_1": 0.016462841015992474,
+  "same_signature_recall_at_3": 0.05221072436500471,
+  "same_signature_recall_at_5": 0.5164628410159925
+}

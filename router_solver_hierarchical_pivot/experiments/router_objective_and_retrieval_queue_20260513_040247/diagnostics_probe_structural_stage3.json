@@ -1,0 +1,17 @@
+{
+  "embedding_model": "experiments/router_objective_and_retrieval_queue_20260513_040247/retriever_e5small_probe_structural_stage3",
+  "num_docs": 2987,
+  "num_positive_docs": 1065,
+  "num_negative_only_docs": 1922,
+  "num_queries": 2130,
+  "num_positive_signature_buckets": 45,
+  "same_question_pairs": 1928,
+  "same_target_pairs": 2130,
+  "same_signature_pairs": 2126,
+  "same_question_mrr": 0.5294160771818112,
+  "same_target_mrr": 0.2167647892511535,
+  "same_signature_mrr": 0.17295499661167896,
+  "same_signature_recall_at_1": 0.012699905926622766,
+  "same_signature_recall_at_3": 0.04609595484477893,
+  "same_signature_recall_at_5": 0.44967074317968014
+}

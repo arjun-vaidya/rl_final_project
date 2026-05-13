@@ -11,10 +11,11 @@ from transformers import AutoModel, AutoTokenizer
 class RetrievalTextEmbedder:
     _MODEL_CACHE = {}
 
-    def __init__(self, model_name: str = "sentence-transformers/all-MiniLM-L6-v2", device: str = "cpu", max_length: int = 256):
+    def __init__(self, model_name: str = "sentence-transformers/all-MiniLM-L6-v2", device: str = "cpu", max_length: int = 256, batch_size: int = 64):
         self.model_name = model_name
         self.device = device
         self.max_length = max_length
+        self.batch_size = batch_size
         self.query_prefix = ""
         self.doc_prefix = ""
         self.projector = None
@@ -51,34 +52,40 @@ class RetrievalTextEmbedder:
             if projector_dim <= 0:
                 raise ValueError(f"Invalid projector_dim in {config_path}")
             self.projector = nn.Linear(hidden_size, projector_dim, bias=False)
-            state = torch.load(projector_state_path, map_location="cpu")
+            state = torch.load(projector_state_path, map_location=device)
             self.projector.load_state_dict(state)
             self.projector.to(device)
             self.projector.eval()
             self.output_dim = projector_dim
 
     @torch.inference_mode()
-    def encode(self, texts: Sequence[str], role: str = "query") -> torch.Tensor:
+    def encode(self, texts: Sequence[str], role: str = "query", keep_on_device: bool = False, output_dtype: torch.dtype = torch.float32) -> torch.Tensor:
         prefix = self.query_prefix if role == "query" else self.doc_prefix
         texts = [prefix + str(text or "") for text in texts]
         if not texts:
-            return torch.empty(0, self.output_dim, dtype=torch.float32)
-        batch = self.tokenizer(
-            texts,
-            padding=True,
-            truncation=True,
-            max_length=self.max_length,
-            return_tensors="pt",
-        )
-        batch = {k: v.to(self.device) for k, v in batch.items()}
-        outputs = self.model(**batch)
-        token_embeddings = outputs.last_hidden_state
-        attention_mask = batch["attention_mask"].unsqueeze(-1)
-        pooled = (token_embeddings * attention_mask).sum(dim=1) / attention_mask.sum(dim=1).clamp_min(1)
-        if self.projector is not None:
-            pooled = self.projector(pooled)
-        pooled = F.normalize(pooled, dim=1)
-        return pooled.detach().cpu()
+            return torch.empty(0, self.output_dim, dtype=output_dtype, device=self.device if keep_on_device else "cpu")
+        batches = []
+        for start in range(0, len(texts), self.batch_size):
+            batch_texts = texts[start:start + self.batch_size]
+            batch = self.tokenizer(
+                batch_texts,
+                padding=True,
+                truncation=True,
+                max_length=self.max_length,
+                return_tensors="pt",
+            )
+            batch = {k: v.to(self.device) for k, v in batch.items()}
+            model_outputs = self.model(**batch)
+            token_embeddings = model_outputs.last_hidden_state
+            attention_mask = batch["attention_mask"].unsqueeze(-1)
+            pooled = (token_embeddings * attention_mask).sum(dim=1) / attention_mask.sum(dim=1).clamp_min(1)
+            if self.projector is not None:
+                pooled = self.projector(pooled)
+            pooled = F.normalize(pooled, dim=1)
+            if output_dtype != pooled.dtype:
+                pooled = pooled.to(output_dtype)
+            batches.append(pooled.detach() if keep_on_device else pooled.detach().cpu())
+        return torch.cat(batches, dim=0)
 
     def encode_one(self, text: str, role: str = "query") -> torch.Tensor:
         return self.encode([text], role=role)[0]

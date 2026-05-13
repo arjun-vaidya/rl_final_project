@@ -1,0 +1,31 @@
+{
+  "feature_names": [
+    "base_score",
+    "hopfield_score",
+    "attention_weight",
+    "lexical_jaccard",
+    "target_match",
+    "quality_score",
+    "has_answer_bearing_step"
+  ],
+  "weights": [
+    0.1284457892179489,
+    -0.44674643874168396,
+    -0.2604239881038666,
+    -0.45453503727912903,
+    0.381028413772583,
+    1.0895171165466309,
+    -0.008832679130136967
+  ],
+  "bias": -0.7104007005691528,
+  "threshold": 0.53,
+  "train_examples": 1000,
+  "positive_labels": 351,
+  "train_precision": 0.5484375,
+  "train_recall": 1.0,
+  "train_f1": 0.7083753784056509,
+  "top_k": 5,
+  "pool_size": 8,
+  "beta": 8.0,
+  "retriever_dir": "/home/machina/pvd2112/rl_final_project/router_solver_hierarchical_pivot/experiments/probe_retriever_stage2_20260513_033652/retriever_e5small_probe_structural_stage2"
+}

@@ -11,11 +11,15 @@ from typing import List
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import wandb
+from dotenv import load_dotenv
 from transformers import AutoModel, AutoTokenizer
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
+
+load_dotenv()
 
 
 @dataclass
@@ -152,6 +156,9 @@ def main():
     parser.add_argument("--device", default="")
     parser.add_argument("--positive-mode", choices=["self", "structural"], default="self")
     parser.add_argument("--output-dir", required=True)
+    parser.add_argument("--wandb-project", default="router_solver_hierarchical_pivot")
+    parser.add_argument("--wandb-run-name", default=None)
+    parser.add_argument("--no-wandb", action="store_true")
     args = parser.parse_args()
 
     examples = build_examples(args.corpus_json, args.negatives_json, positive_mode=args.positive_mode)
@@ -159,6 +166,45 @@ def main():
         raise ValueError("No training examples were built")
 
     device = torch.device(args.device or ("cuda" if torch.cuda.is_available() else "cpu"))
+    if not args.no_wandb:
+        try:
+            wandb.init(
+                project=args.wandb_project,
+                name=args.wandb_run_name,
+                config={
+                    "corpus_json": args.corpus_json,
+                    "negatives_json": args.negatives_json,
+                    "base_model": args.base_model,
+                    "projection_dim": args.projection_dim,
+                    "epochs": args.epochs,
+                    "batch_size": args.batch_size,
+                    "learning_rate": args.learning_rate,
+                    "max_length": args.max_length,
+                    "device": str(device),
+                    "positive_mode": args.positive_mode,
+                    "num_examples": len(examples),
+                },
+            )
+        except Exception as e:
+            print(f"W&B online init failed ({e}); falling back to offline mode.", flush=True)
+            wandb.init(
+                project=args.wandb_project,
+                name=args.wandb_run_name,
+                mode="offline",
+                config={
+                    "corpus_json": args.corpus_json,
+                    "negatives_json": args.negatives_json,
+                    "base_model": args.base_model,
+                    "projection_dim": args.projection_dim,
+                    "epochs": args.epochs,
+                    "batch_size": args.batch_size,
+                    "learning_rate": args.learning_rate,
+                    "max_length": args.max_length,
+                    "device": str(device),
+                    "positive_mode": args.positive_mode,
+                    "num_examples": len(examples),
+                },
+            )
     model = TrainableRetriever(
         backbone_model_name=args.base_model,
         projection_dim=args.projection_dim,
@@ -167,6 +213,7 @@ def main():
     )
     model.to(device)
     optimizer = torch.optim.AdamW(model.projector.parameters(), lr=args.learning_rate)
+    epoch_losses = []
 
     for epoch in range(args.epochs):
         epoch_loss = 0.0
@@ -191,7 +238,11 @@ def main():
 
             epoch_loss += float(loss.item())
             batch_count += 1
-        print(f"[retriever-train] epoch={epoch} loss={epoch_loss / max(batch_count, 1):.4f}", flush=True)
+        avg_loss = epoch_loss / max(batch_count, 1)
+        epoch_losses.append(avg_loss)
+        print(f"[retriever-train] epoch={epoch} loss={avg_loss:.4f}", flush=True)
+        if wandb.run is not None:
+            wandb.log({"train/epoch": epoch, "train/loss": avg_loss})
 
     os.makedirs(args.output_dir, exist_ok=True)
     torch.save(model.projector.state_dict(), os.path.join(args.output_dir, "projector.pt"))
@@ -219,11 +270,14 @@ def main():
                 "learning_rate": args.learning_rate,
                 "device": str(device),
                 "positive_mode": args.positive_mode,
+                "epoch_losses": epoch_losses,
             },
             f,
             indent=2,
             ensure_ascii=True,
         )
+    if wandb.run is not None:
+        wandb.finish()
 
 
 if __name__ == "__main__":

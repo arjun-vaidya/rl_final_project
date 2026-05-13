@@ -1,0 +1,17 @@
+{
+  "num_examples": 2130,
+  "base_model": "experiments/probe_retriever_train_gpu_batch_20260513_032325/retriever_e5small_probe_structural",
+  "projection_dim": 256,
+  "epochs": 5,
+  "batch_size": 64,
+  "learning_rate": 0.001,
+  "device": "cuda",
+  "positive_mode": "structural",
+  "epoch_losses": [
+    3.9272038796368767,
+    3.3097539158428417,
+    2.9851738424862133,
+    2.7411451059229233,
+    2.532510322682998
+  ]
+}

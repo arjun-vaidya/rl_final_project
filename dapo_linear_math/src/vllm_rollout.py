@@ -4,7 +4,7 @@ import tempfile
 import torch
 from typing import List, Optional
 
-from src.agent import Trajectory
+from agent import Trajectory
 
 try:
     from vllm import LLM, SamplingParams

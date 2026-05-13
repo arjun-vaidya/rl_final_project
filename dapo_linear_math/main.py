@@ -12,18 +12,17 @@ from datasets import load_dataset
 from peft import LoraConfig, get_peft_model
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-# Reuse the existing agent and reward modules from linear_reasoning.
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "linear_reasoning"))
+ROOT = os.path.dirname(os.path.abspath(__file__))
+LINEAR_SRC = os.path.join(ROOT, "..", "linear_reasoning", "src")
+DAPO_SRC = os.path.join(ROOT, "src")
+sys.path.insert(0, LINEAR_SRC)
+sys.path.insert(0, DAPO_SRC)
 
-from src.agent import LinearReasoningAgent
-from src.config import get_config
-
-# Local DAPO loop and self-consistency eval.
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__))))
-
-from src.train_dapo import train_dapo
-from src.eval_sc import evaluate_sc
-from src.vllm_rollout import VLLMRollout, VLLM_AVAILABLE
+from agent import LinearReasoningAgent
+from config import get_config
+from train_dapo import train_dapo
+from eval_sc import evaluate_sc
+from vllm_rollout import VLLMRollout, VLLM_AVAILABLE
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 

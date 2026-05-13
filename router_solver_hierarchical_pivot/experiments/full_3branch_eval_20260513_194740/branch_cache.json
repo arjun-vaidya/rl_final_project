@@ -1,0 +1,296 @@
+[
+  {
+    "q_idx": 43,
+    "question": "An earthquake caused four buildings to collapse. Experts predicted that each following earthquake would have double the number of collapsing buildings as the previous one, since each one would make the foundations less stable. After three more earthquakes, how many buildings had collapsed including those from the first earthquake?",
+    "ground_truth": "60",
+    "branch_summaries": {
+      "easy": {
+        "majority_answer": "28",
+        "majority_vote_count": 1,
+        "majority_vote_fraction": 1.0,
+        "majority_exact_match": false,
+        "majority_relaxed_match": false,
+        "any_exact_match": false,
+        "any_relaxed_match": false,
+        "valid_rollouts": 1,
+        "total_rollouts": 1,
+        "final_answer_source_counts": {
+          "easy_cot": 1
+        }
+      },
+      "soft": {
+        "majority_answer": "1020",
+        "majority_vote_count": 1,
+        "majority_vote_fraction": 0.2,
+        "majority_exact_match": false,
+        "majority_relaxed_match": false,
+        "any_exact_match": false,
+        "any_relaxed_match": false,
+        "valid_rollouts": 5,
+        "total_rollouts": 5,
+        "final_answer_source_counts": {
+          "last_step": 5
+        }
+      },
+      "hard": {
+        "majority_answer": "1",
+        "majority_vote_count": 1,
+        "majority_vote_fraction": 0.2,
+        "majority_exact_match": false,
+        "majority_relaxed_match": false,
+        "any_exact_match": true,
+        "any_relaxed_match": true,
+        "valid_rollouts": 5,
+        "total_rollouts": 5,
+        "final_answer_source_counts": {
+          "last_step": 5
+        }
+      }
+    }
+  },
+  {
+    "q_idx": 76,
+    "question": "A garden produced 237 potatoes, 60 fewer cucumbers and twice as many peppers than the cucumbers. How many vegetables did the garden produce?",
+    "ground_truth": "768",
+    "branch_summaries": {
+      "easy": {
+        "majority_answer": "20",
+        "majority_vote_count": 1,
+        "majority_vote_fraction": 1.0,
+        "majority_exact_match": false,
+        "majority_relaxed_match": false,
+        "any_exact_match": false,
+        "any_relaxed_match": false,
+        "valid_rollouts": 1,
+        "total_rollouts": 1,
+        "final_answer_source_counts": {
+          "easy_cot": 1
+        }
+      },
+      "soft": {
+        "majority_answer": "768",
+        "majority_vote_count": 3,
+        "majority_vote_fraction": 0.6,
+        "majority_exact_match": true,
+        "majority_relaxed_match": true,
+        "any_exact_match": true,
+        "any_relaxed_match": true,
+        "valid_rollouts": 5,
+        "total_rollouts": 5,
+        "final_answer_source_counts": {
+          "last_step": 5
+        }
+      },
+      "hard": {
+        "majority_answer": "768",
+        "majority_vote_count": 4,
+        "majority_vote_fraction": 0.8,
+        "majority_exact_match": true,
+        "majority_relaxed_match": true,
+        "any_exact_match": true,
+        "any_relaxed_match": true,
+        "valid_rollouts": 5,
+        "total_rollouts": 5,
+        "final_answer_source_counts": {
+          "last_step": 5
+        }
+      }
+    }
+  },
+  {
+    "q_idx": 9,
+    "question": "Tina makes $18.00 an hour.  If she works more than 8 hours per shift, she is eligible for overtime, which is paid by your hourly wage + 1/2 your hourly wage.  If she works 10 hours every day for 5 days, how much money does she make?",
+    "ground_truth": "990",
+    "branch_summaries": {
+      "easy": {
+        "majority_answer": "1800",
+        "majority_vote_count": 1,
+        "majority_vote_fraction": 1.0,
+        "majority_exact_match": false,
+        "majority_relaxed_match": false,
+        "any_exact_match": false,
+        "any_relaxed_match": false,
+        "valid_rollouts": 1,
+        "total_rollouts": 1,
+        "final_answer_source_counts": {
+          "easy_cot": 1
+        }
+      },
+      "soft": {
+        "majority_answer": "2",
+        "majority_vote_count": 2,
+        "majority_vote_fraction": 0.4,
+        "majority_exact_match": false,
+        "majority_relaxed_match": false,
+        "any_exact_match": false,
+        "any_relaxed_match": false,
+        "valid_rollouts": 5,
+        "total_rollouts": 5,
+        "final_answer_source_counts": {
+          "last_step": 5
+        }
+      },
+      "hard": {
+        "majority_answer": "1260",
+        "majority_vote_count": 1,
+        "majority_vote_fraction": 0.2,
+        "majority_exact_match": false,
+        "majority_relaxed_match": false,
+        "any_exact_match": false,
+        "any_relaxed_match": false,
+        "valid_rollouts": 5,
+        "total_rollouts": 5,
+        "final_answer_source_counts": {
+          "last_step": 5
+        }
+      }
+    }
+  },
+  {
+    "q_idx": 15,
+    "question": "James creates a media empire.  He creates a movie for $2000.  Each DVD cost $6 to make.  He sells it for 2.5 times that much.  He sells 500 movies a day for 5 days a week.  How much profit does he make in 20 weeks?",
+    "ground_truth": "448000",
+    "branch_summaries": {
+      "easy": {
+        "majority_answer": "8",
+        "majority_vote_count": 1,
+        "majority_vote_fraction": 1.0,
+        "majority_exact_match": false,
+        "majority_relaxed_match": false,
+        "any_exact_match": false,
+        "any_relaxed_match": false,
+        "valid_rollouts": 1,
+        "total_rollouts": 1,
+        "final_answer_source_counts": {
+          "easy_cot": 1
+        }
+      },
+      "soft": {
+        "majority_answer": "750000",
+        "majority_vote_count": 2,
+        "majority_vote_fraction": 0.4,
+        "majority_exact_match": false,
+        "majority_relaxed_match": false,
+        "any_exact_match": false,
+        "any_relaxed_match": false,
+        "valid_rollouts": 5,
+        "total_rollouts": 5,
+        "final_answer_source_counts": {
+          "last_step": 5
+        }
+      },
+      "hard": {
+        "majority_answer": "1704000",
+        "majority_vote_count": 1,
+        "majority_vote_fraction": 0.2,
+        "majority_exact_match": false,
+        "majority_relaxed_match": false,
+        "any_exact_match": false,
+        "any_relaxed_match": false,
+        "valid_rollouts": 5,
+        "total_rollouts": 5,
+        "final_answer_source_counts": {
+          "last_step": 5
+        }
+      }
+    }
+  },
+  {
+    "q_idx": 108,
+    "question": "Henry took 9 pills a day for 14 days. Of these 9 pills, 4 pills cost $1.50 each, and the other pills each cost $5.50 more. How much did he spend in total on the pills?",
+    "ground_truth": "41",
+    "branch_summaries": {
+      "easy": {
+        "majority_answer": "53.5",
+        "majority_vote_count": 1,
+        "majority_vote_fraction": 1.0,
+        "majority_exact_match": false,
+        "majority_relaxed_match": false,
+        "any_exact_match": false,
+        "any_relaxed_match": false,
+        "valid_rollouts": 1,
+        "total_rollouts": 1,
+        "final_answer_source_counts": {
+          "easy_cot": 1
+        }
+      },
+      "soft": {
+        "majority_answer": "1",
+        "majority_vote_count": 1,
+        "majority_vote_fraction": 0.2,
+        "majority_exact_match": false,
+        "majority_relaxed_match": false,
+        "any_exact_match": true,
+        "any_relaxed_match": true,
+        "valid_rollouts": 5,
+        "total_rollouts": 5,
+        "final_answer_source_counts": {
+          "last_step": 5
+        }
+      },
+      "hard": {
+        "majority_answer": "126",
+        "majority_vote_count": 2,
+        "majority_vote_fraction": 0.4,
+        "majority_exact_match": false,
+        "majority_relaxed_match": false,
+        "any_exact_match": false,
+        "any_relaxed_match": false,
+        "valid_rollouts": 5,
+        "total_rollouts": 5,
+        "final_answer_source_counts": {
+          "last_step": 5
+        }
+      }
+    }
+  },
+  {
+    "q_idx": 118,
+    "question": "Jeanette is practicing her juggling. Each week she can juggle 2 more objects than the week before. If she starts out juggling 3 objects and practices for 5 weeks, how many objects can she juggle?",
+    "ground_truth": "13",
+    "branch_summaries": {
+      "easy": {
+        "majority_answer": "35",
+        "majority_vote_count": 1,
+        "majority_vote_fraction": 1.0,
+        "majority_exact_match": false,
+        "majority_relaxed_match": false,
+        "any_exact_match": false,
+        "any_relaxed_match": false,
+        "valid_rollouts": 1,
+        "total_rollouts": 1,
+        "final_answer_source_counts": {
+          "easy_cot": 1
+        }
+      },
+      "soft": {
+        "majority_answer": "13",
+        "majority_vote_count": 2,
+        "majority_vote_fraction": 0.4,
+        "majority_exact_match": true,
+        "majority_relaxed_match": true,
+        "any_exact_match": true,
+        "any_relaxed_match": true,
+        "valid_rollouts": 5,
+        "total_rollouts": 5,
+        "final_answer_source_counts": {
+          "last_step": 5
+        }
+      },
+      "hard": {
+        "majority_answer": "0",
+        "majority_vote_count": 2,
+        "majority_vote_fraction": 0.4,
+        "majority_exact_match": false,
+        "majority_relaxed_match": false,
+        "any_exact_match": true,
+        "any_relaxed_match": true,
+        "valid_rollouts": 5,
+        "total_rollouts": 5,
+        "final_answer_source_counts": {
+          "last_step": 5
+        }
+      }
+    }
+  }
+]

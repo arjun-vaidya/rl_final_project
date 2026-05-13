@@ -54,6 +54,23 @@ def _candidate_quality_score(rollout: Any, candidate: str) -> float:
     return score
 
 
+def _extract_all_numeric_values(text: str) -> List[float]:
+    cleaned = clean_answer_text(text)
+    if not cleaned:
+        return []
+    values: List[float] = []
+    for chunk in cleaned.replace(",", " ").split():
+        numeric = extract_numeric_value(chunk)
+        if numeric is not None:
+            values.append(float(numeric))
+    return values
+
+
+def _contains_value(values: List[float], target: Any, tol: float = 1e-6) -> bool:
+    target_float = _safe_float(target)
+    return any(abs(value - target_float) < tol for value in values)
+
+
 def summarize_rollout_group(rollouts: List[Any], ground_truth: str) -> Dict[str, Any]:
     vote_counts: Dict[str, int] = {}
     quality_scores: Dict[str, float] = {}
@@ -107,10 +124,28 @@ def summarize_rollout_group(rollouts: List[Any], ground_truth: str) -> Dict[str,
 
 
 def serialize_rollout(rollout, exact_match: bool, relaxed_match: bool) -> Dict[str, Any]:
+    steps = rollout.steps or []
+    step_answers = [getattr(step, "answer", "") for step in steps]
+    step_reasonings = [getattr(step, "reasoning", "") for step in steps]
+    gt_num = extract_numeric_value(getattr(rollout, "ground_truth", ""))
+    answer_idx = getattr(rollout, "answer_bearing_step_idx", None)
+    answer_bearing_step_correct = False
+    if answer_idx is not None and 0 <= int(answer_idx) < len(step_answers):
+        answer_bearing_step_correct = _relaxed_numeric_match(step_answers[int(answer_idx)], rollout.ground_truth)
+    trace_nums: List[float] = []
+    for text in step_answers + step_reasonings:
+        trace_nums.extend(_extract_all_numeric_values(text))
+    correct_number_in_trace = _contains_value(trace_nums, gt_num)
+    plan = rollout.plan or []
+    last_plan_step = plan[-1] if plan else ""
+    plan_endpoint_answer_like = any(
+        token in clean_answer_text(last_plan_step).lower()
+        for token in ("answer", "final", "original question", "total", "remaining", "left", "how many", "how much")
+    )
     return {
         "valid": rollout.is_valid(),
         "invalid_reason": rollout.invalid_reason,
-        "plan": rollout.plan,
+        "plan": plan,
         "router_raw_text": rollout.router_raw_text,
         "final_answer": rollout.final_answer,
         "final_answer_source": getattr(rollout, "final_answer_source", None),
@@ -125,6 +160,9 @@ def serialize_rollout(rollout, exact_match: bool, relaxed_match: bool) -> Dict[s
         "retrieved_cases": getattr(rollout, "retrieved_cases", []),
         "exact_match": exact_match,
         "relaxed_match": relaxed_match,
+        "plan_endpoint_answer_like": plan_endpoint_answer_like,
+        "answer_bearing_step_correct": answer_bearing_step_correct,
+        "correct_number_in_trace": correct_number_in_trace,
         "router_reward": _safe_float(getattr(rollout, "_router_reward", 0.0)),
         "step_rewards": [_safe_float(x) for x in getattr(rollout, "_step_rewards", [])],
         "outcome_reward": _safe_float(getattr(rollout, "_outcome_reward", 0.0)),

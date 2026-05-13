@@ -4,8 +4,8 @@ from collections import Counter
 from tqdm import tqdm
 from typing import List
 
-from src.agent import LinearReasoningAgent
-from src.reward import compute_reward, extract_boxed_answer, numeric_match, extract_last_number
+from agent import LinearReasoningAgent
+from reward import compute_reward, extract_boxed_answer, numeric_match, extract_last_number
 
 
 def _vote(predictions: List[str], ground_truth: str):

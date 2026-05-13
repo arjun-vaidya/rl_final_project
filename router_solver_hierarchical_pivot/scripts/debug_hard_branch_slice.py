@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import sys
+import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
@@ -11,6 +12,7 @@ if ROOT not in sys.path:
 
 from main import load_checkpoint_if_available, load_data, load_model
 from src.agents.agent import Agent
+from src.agents.vllm_bridge import RouterSolverVLLMBridge, VLLM_AVAILABLE
 from src.memory.hopfield_graph import HeteroHopfieldMemory
 from src.utils.config import get_config
 
@@ -23,6 +25,14 @@ def main():
     parser.add_argument("--dataset", choices=["full", "slim"], default="slim")
     parser.add_argument("--indices", default="2,3,5")
     parser.add_argument("--memory-top-k", type=int, default=2)
+    parser.add_argument("--prompt-top-k", type=int, default=2)
+    parser.add_argument("--reranker-path", default="")
+    parser.add_argument("--retrieval-gate-threshold", type=float, default=0.0)
+    parser.add_argument("--retrieval-gate-coherence", type=float, default=0.0)
+    parser.add_argument("--use-hopfield-readout", choices=["on", "off"], default="on")
+    parser.add_argument("--use-learned-reranker", choices=["on", "off"], default="on")
+    parser.add_argument("--use-vllm", action="store_true")
+    parser.add_argument("--vllm-gpu-memory-utilization", type=float, default=0.65)
     parser.add_argument("--router-max-tokens", type=int, default=300)
     parser.add_argument("--solver-max-tokens", type=int, default=512)
     parser.add_argument("--embedding-model", default="sentence-transformers/all-MiniLM-L6-v2")
@@ -35,7 +45,7 @@ def main():
 
     cfg = get_config()
     cfg.dataset_variant = args.dataset
-    cfg.train_questions = 400
+    cfg.train_questions = 10000
     cfg.router_temperature = 0.2
     cfg.solver_temperature = 0.7
     cfg.router_max_tokens = args.router_max_tokens
@@ -59,6 +69,25 @@ def main():
     train_qs = train_qs[:cfg.train_questions]
     train_gts = train_gts[:cfg.train_questions]
     load_checkpoint_if_available(model, None, args.checkpoint, len(train_qs))
+    vllm_bridge = None
+    if args.use_vllm:
+        if not VLLM_AVAILABLE:
+            raise RuntimeError("--use-vllm passed but vllm is not importable")
+        adapter_root = tempfile.mkdtemp(prefix="router_solver_vllm_")
+        router_dir = os.path.join(adapter_root, "router")
+        solver_dir = os.path.join(adapter_root, "solver")
+        model.save_pretrained(router_dir, selected_adapters=["router"])
+        model.save_pretrained(solver_dir, selected_adapters=["solver"])
+        vllm_bridge = RouterSolverVLLMBridge(
+            base_model=cfg.base_model,
+            tokenizer=tokenizer,
+            adapter_paths={
+                "router": os.path.join(router_dir, "router"),
+                "solver": os.path.join(solver_dir, "solver"),
+            },
+            max_lora_rank=cfg.lora_rank,
+            gpu_memory_utilization=args.vllm_gpu_memory_utilization,
+        )
 
     indices = [int(part.strip()) for part in args.indices.split(",") if part.strip()]
     exclude_questions = {train_qs[idx] for idx in indices}
@@ -67,6 +96,11 @@ def main():
             args.corpus_json,
             embedding_model_name=args.embedding_model,
             embedding_device=args.embedding_device,
+            reranker_path=args.reranker_path,
+            retrieval_gate_threshold=args.retrieval_gate_threshold,
+            retrieval_gate_coherence=args.retrieval_gate_coherence,
+            use_hopfield_readout=args.use_hopfield_readout == "on",
+            use_learned_reranker=args.use_learned_reranker == "on",
         )
     else:
         memory = HeteroHopfieldMemory.from_rollout_traces(
@@ -74,6 +108,11 @@ def main():
             exclude_questions=exclude_questions,
             embedding_model_name=args.embedding_model,
             embedding_device=args.embedding_device,
+            reranker_path=args.reranker_path,
+            retrieval_gate_threshold=args.retrieval_gate_threshold,
+            retrieval_gate_coherence=args.retrieval_gate_coherence,
+            use_hopfield_readout=args.use_hopfield_readout == "on",
+            use_learned_reranker=args.use_learned_reranker == "on",
         )
     agent = Agent(
         model,
@@ -99,6 +138,8 @@ def main():
         execution_branch="hard",
         graph_memory=memory,
         retrieval_top_k=cfg.memory_top_k,
+        hard_prompt_top_k=args.prompt_top_k,
+        vllm_bridge=vllm_bridge,
     )
 
     rows = []

@@ -66,6 +66,7 @@ def main():
     parser.add_argument("--questions", type=int, default=6)
     parser.add_argument("--train-questions", type=int, default=4)
     parser.add_argument("--start-index", type=int, default=0)
+    parser.add_argument("--indices-json", default="", help="Optional JSON file containing explicit train indices to evaluate")
     parser.add_argument("--soft-rollouts-per-q", type=int, default=2)
     parser.add_argument("--hard-rollouts-per-q", type=int, default=2)
     parser.add_argument("--memory-trace-input", required=True)
@@ -83,11 +84,11 @@ def main():
     cfg.solver_temperature = 0.7
     cfg.router_max_tokens = 300
     cfg.solver_max_tokens = 512
-    cfg.synthesis_max_tokens = 128
+    cfg.synthesis_max_tokens = 64
     cfg.use_answer_synthesis = False
-    cfg.constrained_final_answer_decoding = True
+    cfg.constrained_final_answer_decoding = False
     cfg.plan_parse_repair = True
-    cfg.answer_bearing_step_hint = True
+    cfg.answer_bearing_step_hint = False
     cfg.strict_answer_format = False
     cfg.heuristic_final_selector = False
     cfg.heuristic_final_selector_refined = False
@@ -105,10 +106,15 @@ def main():
     train_gts = train_gts[:cfg.train_questions]
     load_checkpoint_if_available(model, None, args.checkpoint, len(train_qs))
 
-    start = args.start_index
-    end = start + args.questions
-    slice_qs = train_qs[start:end]
-    slice_gts = train_gts[start:end]
+    if args.indices_json:
+        with open(args.indices_json, "r", encoding="ascii", errors="ignore") as f:
+            selected_indices = json.load(f)
+        selected_indices = [int(idx) for idx in selected_indices[: args.questions]]
+        slice_rows = [(idx, train_qs[idx], train_gts[idx]) for idx in selected_indices]
+    else:
+        start = args.start_index
+        end = start + args.questions
+        slice_rows = [(idx, q, gt) for idx, (q, gt) in enumerate(zip(train_qs[start:end], train_gts[start:end]), start=start)]
 
     examples: List[RouterExample] = []
     audits: List[Dict] = []
@@ -128,7 +134,7 @@ def main():
         soft_agent = build_agent(model, tokenizer, cfg, branch="soft")
         hard_agent = build_agent(model, tokenizer, cfg, branch="hard", memory=memory)
 
-        for idx, (question, gt) in enumerate(zip(slice_qs, slice_gts), start=start):
+        for idx, question, gt in slice_rows:
             print(f"[multibranch-router] q_idx={idx} evaluating easy", flush=True)
             easy_summary = summarize_branch(easy_agent, question, gt, 1)
             print(f"[multibranch-router] q_idx={idx} easy majority={easy_summary['majority_answer']} correct={easy_summary['majority_relaxed_match']}", flush=True)
@@ -197,6 +203,7 @@ def main():
             "questions": args.questions,
             "train_questions": args.train_questions,
             "start_index": args.start_index,
+            "indices_json": args.indices_json,
             "soft_rollouts_per_q": args.soft_rollouts_per_q,
             "hard_rollouts_per_q": args.hard_rollouts_per_q,
             "memory_trace_input": args.memory_trace_input,

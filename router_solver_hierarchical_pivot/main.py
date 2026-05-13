@@ -14,6 +14,7 @@ import argparse
 import os
 import torch
 import logging
+import wandb
 from dotenv import load_dotenv
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import get_peft_model, LoraConfig
@@ -54,6 +55,12 @@ def load_model(cfg):
         device_map="auto",
     )
     print(f"Done: Model loaded")
+
+    if getattr(cfg, "gradient_checkpointing", False):
+        if hasattr(model.config, "use_cache"):
+            model.config.use_cache = False
+        model.gradient_checkpointing_enable()
+        print("Gradient checkpointing: enabled")
 
     print(f"[2/3] Loading tokenizer...")
     tokenizer = AutoTokenizer.from_pretrained(cfg.base_model)
@@ -149,6 +156,54 @@ def load_checkpoint_if_available(model, optimizer, checkpoint_path, train_len: i
     return resume_epoch, resume_q_idx
 
 
+def _flatten_for_wandb(prefix, obj):
+    flat = {}
+    if isinstance(obj, dict):
+        for key, value in obj.items():
+            child_prefix = f"{prefix}/{key}" if prefix else str(key)
+            flat.update(_flatten_for_wandb(child_prefix, value))
+    elif isinstance(obj, (int, float, bool)):
+        flat[prefix] = obj
+    return flat
+
+
+def _init_wandb(args, cfg):
+    if args.no_wandb:
+        return None
+    init_kwargs = {
+        "project": args.wandb_project,
+        "name": args.wandb_run_name,
+        "config": {
+            "mode": args.mode,
+            "dataset_variant": cfg.dataset_variant,
+            "train_questions": cfg.train_questions,
+            "eval_questions": cfg.eval_questions,
+            "rollouts_per_q": cfg.rollouts_per_q,
+            "diagnostic_questions": args.diagnostic_questions,
+            "diagnostic_rollouts_per_q": args.diagnostic_rollouts_per_q,
+            "router_max_tokens": cfg.router_max_tokens,
+            "solver_max_tokens": cfg.solver_max_tokens,
+            "synthesis_max_tokens": cfg.synthesis_max_tokens,
+            "router_temperature": cfg.router_temperature,
+            "solver_temperature": cfg.solver_temperature,
+            "use_answer_synthesis": cfg.use_answer_synthesis,
+            "candidate_rerank": cfg.candidate_rerank,
+            "router_prompt_hardening": cfg.router_prompt_hardening,
+            "plan_parse_repair": cfg.plan_parse_repair,
+            "strict_answer_format": cfg.strict_answer_format,
+            "execution_branch": cfg.execution_branch,
+            "output_dir": cfg.output_dir,
+            "checkpoint": args.checkpoint,
+        },
+    }
+    try:
+        return wandb.init(**init_kwargs)
+    except Exception as e:
+        print(f"W&B online init failed ({e}); falling back to offline mode.")
+        init_kwargs["mode"] = "offline"
+        return wandb.init(**init_kwargs)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", default="train_eval", choices=["train", "eval", "train_eval", "diagnose", "taxonomy", "trace_rollouts"])
@@ -167,6 +222,7 @@ def main():
     parser.add_argument("--log-every", type=int, default=None, help="Logging cadence in questions")
     parser.add_argument("--router-max-tokens", type=int, default=None, help="Router generation cap")
     parser.add_argument("--solver-max-tokens", type=int, default=None, help="Solver generation cap")
+    parser.add_argument("--train-solver-max-tokens", type=int, default=None, help="Solver generation cap used only during training rollouts")
     parser.add_argument("--synthesis-max-tokens", type=int, default=None, help="Final answer synthesis generation cap")
     parser.add_argument("--router-temperature", type=float, default=None, help="Router sampling temperature")
     parser.add_argument("--solver-temperature", type=float, default=None, help="Solver sampling temperature")
@@ -193,12 +249,20 @@ def main():
     parser.add_argument("--memory-embedding-model", default=None, help="Embedding model used for Hopfield memory retrieval")
     parser.add_argument("--memory-embedding-device", default=None, help="Device for the memory embedding model")
     parser.add_argument("--outcome-credit-all-steps", choices=["on", "off"], default=None, help="Distribute outcome credit across all solver steps during training")
+    parser.add_argument("--outcome-credit-mode", choices=["last", "all", "answer_bearing", "answer_bearing_final", "dependency_local", "structured_component"], default=None, help="How to distribute outcome credit across solver steps during training")
+    parser.add_argument("--gradient-checkpointing", choices=["on", "off"], default=None, help="Enable gradient checkpointing during training")
+    parser.add_argument("--informative-group-sampling", choices=["on", "off"], default=None, help="Drop all-correct and all-wrong rollout groups during training")
+    parser.add_argument("--informative-max-resamples", type=int, default=None, help="Warn after this many consecutive dropped rollout groups")
+    parser.add_argument("--informative-group-mode", choices=["final_only", "structured"], default=None, help="Criterion for deciding whether a rollout group is informative")
     parser.add_argument("--diagnostic-questions", type=int, default=10, help="Questions per split for diagnostics")
     parser.add_argument("--diagnostic-rollouts-per-q", type=int, default=6, help="Rollouts per question for stochastic diagnostics")
     parser.add_argument("--diagnostic-output", default=None, help="Optional markdown path for diagnostics report")
     parser.add_argument("--trace-input", default=None, help="Path to rollout_traces.jsonl for offline taxonomy analysis")
     parser.add_argument("--taxonomy-output", default=None, help="Optional markdown path for taxonomy report")
     parser.add_argument("--taxonomy-max-failures", type=int, default=50, help="Maximum failed rollouts to include in the taxonomy result")
+    parser.add_argument("--wandb-project", default="router_solver_hierarchical_pivot", help="W&B project name")
+    parser.add_argument("--wandb-run-name", default=None, help="W&B run name")
+    parser.add_argument("--no-wandb", action="store_true", help="Disable W&B logging")
     args = parser.parse_args()
 
     cfg = get_config()
@@ -230,6 +294,8 @@ def main():
         cfg.router_max_tokens = args.router_max_tokens
     if args.solver_max_tokens is not None:
         cfg.solver_max_tokens = args.solver_max_tokens
+    if args.train_solver_max_tokens is not None:
+        cfg.train_solver_max_tokens = args.train_solver_max_tokens
     if args.synthesis_max_tokens is not None:
         cfg.synthesis_max_tokens = args.synthesis_max_tokens
     if args.router_temperature is not None:
@@ -282,6 +348,18 @@ def main():
         cfg.memory_embedding_device = args.memory_embedding_device
     if args.outcome_credit_all_steps is not None:
         cfg.outcome_credit_all_steps = args.outcome_credit_all_steps == "on"
+        cfg.outcome_credit_mode = "all" if cfg.outcome_credit_all_steps else "last"
+    if args.outcome_credit_mode is not None:
+        cfg.outcome_credit_mode = args.outcome_credit_mode
+        cfg.outcome_credit_all_steps = args.outcome_credit_mode == "all"
+    if args.gradient_checkpointing is not None:
+        cfg.gradient_checkpointing = args.gradient_checkpointing == "on"
+    if args.informative_group_sampling is not None:
+        cfg.informative_group_sampling = args.informative_group_sampling == "on"
+    if args.informative_max_resamples is not None:
+        cfg.informative_max_resamples = args.informative_max_resamples
+    if args.informative_group_mode is not None:
+        cfg.informative_group_mode = args.informative_group_mode
     if cfg.save_rollout_traces and not cfg.rollout_trace_path:
         cfg.rollout_trace_path = os.path.join(cfg.output_dir, "rollout_traces.jsonl")
 
@@ -300,6 +378,8 @@ def main():
         print(f"Taxonomy report saved: {taxonomy_output}")
         print("\nDone!")
         return
+
+    _init_wandb(args, cfg)
 
     print("\n" + "="*70)
     print("Config for the Script")
@@ -328,7 +408,8 @@ def main():
     )
     print(f"Checkpoint every: {cfg.checkpoint_every} | Output dir: {cfg.output_dir}")
     print(f"Rollout traces: {cfg.save_rollout_traces} | Trace path: {cfg.rollout_trace_path or '-'}")
-    print(f"Router prompt hardening: {cfg.router_prompt_hardening} | Plan parse repair: {cfg.plan_parse_repair} | Outcome credit all steps: {cfg.outcome_credit_all_steps}")
+    print(f"Router prompt hardening: {cfg.router_prompt_hardening} | Plan parse repair: {cfg.plan_parse_repair} | Outcome credit mode: {cfg.outcome_credit_mode}")
+    print(f"Informative group sampling: {cfg.informative_group_sampling} | Informative mode: {cfg.informative_group_mode} | Informative max resamples: {cfg.informative_max_resamples}")
     print(f"Execution branch: {cfg.execution_branch}")
     print(
         f"Memory trace input: {cfg.memory_trace_input or '-'} | Memory top-k: {cfg.memory_top_k} | "
@@ -419,6 +500,8 @@ def main():
         print("\nEvaluating on test set...")
         results = evaluate(agent, test_qs[:cfg.eval_questions], test_gts[:cfg.eval_questions], cfg)
         print_eval_results(results, "(Test Set)")
+        if wandb.run is not None:
+            wandb.log(_flatten_for_wandb("eval", results))
 
     if args.mode == "diagnose":
         load_checkpoint_if_available(model, None, args.checkpoint, len(train_qs))
@@ -440,6 +523,8 @@ def main():
             diagnostic_output = os.path.join(cfg.output_dir, "diagnostics_report.md")
         save_diagnostics_report(diagnostics, diagnostic_output)
         print(f"Diagnostics report saved: {diagnostic_output}")
+        if wandb.run is not None:
+            wandb.log(_flatten_for_wandb("diagnostics", diagnostics))
 
     if args.mode == "trace_rollouts":
         load_checkpoint_if_available(model, None, args.checkpoint, len(train_qs))
@@ -449,17 +534,21 @@ def main():
         print("\nCollecting rollout traces...")
         summary = collect_rollout_traces(
             agent,
-            train_qs,
-            train_gts,
-            args.diagnostic_questions,
-            args.diagnostic_rollouts_per_q,
+            test_qs,
+            test_gts,
+            cfg.eval_questions,
+            cfg.rollouts_per_q,
             trace_output,
         )
         print("Trace collection complete:")
         print(summary)
         print(f"Trace file saved: {trace_output}")
+        if wandb.run is not None:
+            wandb.log(_flatten_for_wandb("trace_rollouts", summary))
 
     print("\nDone!")
+    if wandb.run is not None:
+        wandb.finish()
 
 
 if __name__ == "__main__":

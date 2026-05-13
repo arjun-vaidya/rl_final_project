@@ -6,8 +6,8 @@ import wandb
 from tqdm import tqdm
 from typing import List, Tuple
 
-from src.agent import LinearReasoningAgent, Trajectory
-from src.reward import compute_reward
+from agent import LinearReasoningAgent, Trajectory
+from reward import compute_reward
 
 
 def compute_logprobs_batch(model, prompt_ids_list, completion_ids_list, pad_token_id):
