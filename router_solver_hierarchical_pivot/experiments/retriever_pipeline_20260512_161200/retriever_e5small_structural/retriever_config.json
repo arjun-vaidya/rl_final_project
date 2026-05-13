@@ -1,0 +1,7 @@
+{
+  "backbone_model_name": "intfloat/e5-small-v2",
+  "projection_dim": 256,
+  "query_prefix": "query: ",
+  "doc_prefix": "passage: ",
+  "max_length": 256
+}

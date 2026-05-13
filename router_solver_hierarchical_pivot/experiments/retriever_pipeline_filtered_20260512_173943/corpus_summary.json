@@ -1,0 +1,18 @@
+{
+  "num_docs": 34,
+  "num_positive_docs": 0,
+  "num_negative_only_docs": 34,
+  "difficulty_counts": {
+    "trivial": 54,
+    "mixed": 7
+  },
+  "positive_difficulty_counts": {},
+  "rejected_counts": {
+    "invalid_or_incorrect": 235,
+    "weak_final_step": 58,
+    "duplicated_steps": 17,
+    "junk_step": 14
+  },
+  "num_signature_buckets": 0,
+  "top_signature_buckets": []
+}

@@ -1,0 +1,15 @@
+[Unit]
+Description=vLLM Judge Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/judge
+EnvironmentFile=/opt/judge/judge.env
+ExecStart=/bin/bash -lc '/opt/judge/venv/bin/vllm serve "$JUDGE_MODEL" --host 127.0.0.1 --port "$JUDGE_PORT" --api-key "$JUDGE_API_KEY" --dtype "$JUDGE_DTYPE" --gpu-memory-utilization "$JUDGE_GPU_MEMORY_UTILIZATION" --max-model-len "$JUDGE_MAX_MODEL_LEN" $JUDGE_EXTRA_ARGS'
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

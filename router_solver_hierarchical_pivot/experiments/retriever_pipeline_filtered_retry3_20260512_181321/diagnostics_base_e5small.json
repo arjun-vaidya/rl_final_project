@@ -1,0 +1,17 @@
+{
+  "embedding_model": "intfloat/e5-small-v2",
+  "num_docs": 109,
+  "num_positive_docs": 6,
+  "num_negative_only_docs": 103,
+  "num_queries": 18,
+  "num_positive_signature_buckets": 4,
+  "same_question_pairs": 6,
+  "same_target_pairs": 18,
+  "same_signature_pairs": 6,
+  "same_question_mrr": 0.42226107226107223,
+  "same_target_mrr": 0.0686284803633583,
+  "same_signature_mrr": 0.028070450698896413,
+  "same_signature_recall_at_1": 0.0,
+  "same_signature_recall_at_3": 0.0,
+  "same_signature_recall_at_5": 0.0
+}

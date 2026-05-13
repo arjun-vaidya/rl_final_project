@@ -1,0 +1,10 @@
+{
+  "trace_input": "",
+  "corpus_json": "experiments/retriever_pipeline_filtered_retry3_20260512_181321/retrieval_corpus_filtered.json",
+  "excluded_questions": 0,
+  "embedding_model": "experiments/retriever_pipeline_filtered_retry3_20260512_181321/retriever_e5small_structural_filtered",
+  "embedding_device": "cuda",
+  "num_cases": 6,
+  "num_nodes": 44,
+  "num_edges": 70
+}

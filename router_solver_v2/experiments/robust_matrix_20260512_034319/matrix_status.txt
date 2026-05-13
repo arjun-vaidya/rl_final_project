@@ -1,0 +1,3 @@
+variant=robust_guarded_selector
+2026-05-12T04:07:22+00:00
+extra_args=--constrained-final-answer-decoding on --synthesis-self-consistency on --synthesis-self-consistency-samples 5 --heuristic-final-selector-refined on --guarded-heuristic-fallback on --answer-bearing-step-hint on

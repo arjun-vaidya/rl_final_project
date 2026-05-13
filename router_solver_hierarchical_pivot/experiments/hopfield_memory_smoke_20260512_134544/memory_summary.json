@@ -1,0 +1,70 @@
+{
+  "trace_input": "experiments/final_temp07_10q_20260512_121824/rollout_traces.jsonl",
+  "num_cases": 29,
+  "num_nodes": 521,
+  "num_edges": 926,
+  "probe_question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?",
+  "probe_results": [
+    {
+      "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?",
+      "plan": [
+        "Step 1: Find out how many clips Natalia sold in May.",
+        "Step 2: Add the number of clips sold in April and May together.",
+        "Step 1: Find out how many clips Natalia sold in May.",
+        "Step 2: Add the number of clips sold in April and May together.",
+        "Answer the original question directly using the previous results. State the final quantity requested in: Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+      ],
+      "final_answer": "72",
+      "subgoals": [
+        "Step 1: Find out how many clips Natalia sold in May.",
+        "Step 2: Add the number of clips sold in April and May together.",
+        "Step 1: Find out how many clips Natalia sold in May.",
+        "Step 2: Add the number of clips sold in April and May together.",
+        "Answer the original question directly using the previous results. State the final quantity requested in: Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+      ],
+      "score": 0.2045031636953354
+    },
+    {
+      "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?",
+      "plan": [
+        "Step 1:",
+        "Natalia sold clips to 48 of her friends in April.",
+        "Step 2:",
+        "In May, she sold half as many clips as she did in April.",
+        "Step 3:",
+        "To find out how many clips she sold in May, divide the number of clips sold in April by 2.",
+        "Step 4:",
+        "Add the number of clips sold in April and May together to get the total number of clips sold."
+      ],
+      "final_answer": "72",
+      "subgoals": [
+        "Step 1:",
+        "Natalia sold clips to 48 of her friends in April.",
+        "Step 2:",
+        "In May, she sold half as many clips as she did in April.",
+        "Step 3:",
+        "To find out how many clips she sold in May, divide the number of clips sold in April by 2.",
+        "Step 4:",
+        "Add the number of clips sold in April and May together to get the total number of clips sold."
+      ],
+      "score": 0.19570791721343994
+    },
+    {
+      "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?",
+      "plan": [
+        "Identify the key pieces of information provided:",
+        "Determine the sequence of actions needed to solve the problem:",
+        "Organize the steps in a logical order:",
+        "Answer the original question directly using the previous results. State the final quantity requested in: Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+      ],
+      "final_answer": "72",
+      "subgoals": [
+        "Identify the key pieces of information provided:",
+        "Determine the sequence of actions needed to solve the problem:",
+        "Organize the steps in a logical order:",
+        "Answer the original question directly using the previous results. State the final quantity requested in: Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+      ],
+      "score": 0.19554822146892548
+    }
+  ]
+}

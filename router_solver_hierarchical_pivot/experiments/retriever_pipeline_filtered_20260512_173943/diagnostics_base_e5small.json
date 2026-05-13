@@ -1,0 +1,17 @@
+{
+  "embedding_model": "intfloat/e5-small-v2",
+  "num_docs": 34,
+  "num_positive_docs": 0,
+  "num_negative_only_docs": 34,
+  "num_queries": 0,
+  "num_positive_signature_buckets": 0,
+  "same_question_pairs": 0,
+  "same_target_pairs": 0,
+  "same_signature_pairs": 0,
+  "same_question_mrr": 0.0,
+  "same_target_mrr": 0.0,
+  "same_signature_mrr": 0.0,
+  "same_signature_recall_at_1": 0.0,
+  "same_signature_recall_at_3": 0.0,
+  "same_signature_recall_at_5": 0.0
+}

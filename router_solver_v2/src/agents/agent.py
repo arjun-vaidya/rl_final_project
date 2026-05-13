@@ -71,6 +71,7 @@ class Agent:
         synthesis_self_consistency_samples: int = 3,
         router_prompt_hardening: bool = False,
         plan_parse_repair: bool = False,
+        strict_answer_format: bool = False,
     ):
         self.model = model
         self.tokenizer = tokenizer
@@ -93,10 +94,55 @@ class Agent:
         self.synthesis_self_consistency_samples = max(1, synthesis_self_consistency_samples)
         self.router_prompt_hardening = router_prompt_hardening
         self.plan_parse_repair = plan_parse_repair
+        self.strict_answer_format = strict_answer_format
         if self.tokenizer.pad_token_id is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
         if hasattr(self.model, "generation_config") and self.model.generation_config is not None:
             self.model.generation_config.use_cache = True
+        self.stop_token_ids = self._build_stop_token_ids()
+
+    @staticmethod
+    def _trim_at_eos(completion_ids: torch.Tensor, stop_token_ids) -> torch.Tensor:
+        """Trim completion tokens at the first stop token (inclusive)."""
+        if isinstance(stop_token_ids, int):
+            stop_token_ids = [stop_token_ids]
+
+        mask = torch.zeros_like(completion_ids, dtype=torch.bool)
+        for token_id in stop_token_ids:
+            if token_id is None:
+                continue
+            mask = mask | (completion_ids == token_id)
+
+        positions = mask.nonzero(as_tuple=False)
+        if positions.numel() > 0:
+            first_stop = positions[0].item()
+            return completion_ids[: first_stop + 1]
+        return completion_ids
+
+    def _build_stop_token_ids(self) -> List[int]:
+        stop_ids: List[int] = []
+
+        def _add(token_id: int):
+            if token_id is None:
+                return
+            try:
+                token_id_int = int(token_id)
+            except (TypeError, ValueError):
+                return
+            if token_id_int >= 0 and token_id_int not in stop_ids:
+                stop_ids.append(token_id_int)
+
+        _add(self.tokenizer.eos_token_id)
+        _add(self.tokenizer.convert_tokens_to_ids("<|im_end|>"))
+        _add(self.tokenizer.convert_tokens_to_ids("</s>"))
+        return stop_ids or ([self.tokenizer.eos_token_id] if self.tokenizer.eos_token_id is not None else [0])
+
+    def _eos_token_param(self):
+        if not self.stop_token_ids:
+            return None
+        if len(self.stop_token_ids) == 1:
+            return self.stop_token_ids[0]
+        return self.stop_token_ids
 
     def _set_adapter(self, name: str):
         if hasattr(self.model, "set_adapter"):
@@ -125,6 +171,7 @@ class Agent:
         generate_kwargs = {
             "max_new_tokens": max_tokens,
             "pad_token_id": self.tokenizer.eos_token_id,
+            "eos_token_id": self._eos_token_param(),
         }
         if temp is not None and temp > 0:
             generate_kwargs["temperature"] = temp
@@ -141,6 +188,7 @@ class Agent:
             prompt_ids = inputs.input_ids[row_idx][prompt_mask].detach()
             full_ids = outputs[row_idx]
             completion_ids = full_ids[prompt_width:].detach()
+            completion_ids = self._trim_at_eos(completion_ids, self.stop_token_ids)
             text = self.tokenizer.decode(completion_ids, skip_special_tokens=True)
             results.append((text, prompt_ids, completion_ids))
 
@@ -170,6 +218,7 @@ class Agent:
             **inputs,
             max_new_tokens=max_tokens,
             pad_token_id=self.tokenizer.eos_token_id,
+            eos_token_id=self._eos_token_param(),
             temperature=temp,
             do_sample=True,
             num_return_sequences=num_return_sequences,
@@ -182,6 +231,7 @@ class Agent:
         for row_idx in range(num_return_sequences):
             full_ids = outputs[row_idx]
             completion_ids = full_ids[prompt_width:].detach()
+            completion_ids = self._trim_at_eos(completion_ids, self.stop_token_ids)
             text = self.tokenizer.decode(completion_ids, skip_special_tokens=True)
             results.append((text, prompt_ids.clone(), completion_ids))
 
@@ -623,7 +673,7 @@ If the question asks how much remains or is still needed, prefer the remaining/d
         return lines[:8] if len(lines) >= 2 else None
 
     def _extract_answer(self, text: str) -> str:
-        return extract_final_answer(text)
+        return extract_final_answer(text, strict=self.strict_answer_format)
 
     @staticmethod
     def extract_numeric_value(text: str) -> Optional[float]:
@@ -721,74 +771,75 @@ If the question asks how much remains or is still needed, prefer the remaining/d
             for idx in synthesis_indices:
                 if self.answer_bearing_step_hint:
                     rollouts[idx].answer_bearing_step_idx = self._choose_answer_bearing_step_idx(question, rollouts[idx])
-            if self.synthesis_self_consistency:
-                for rollout_idx in synthesis_indices:
-                    rollout = rollouts[rollout_idx]
-                    prompt = self._build_synthesis_prompt(
-                        question,
-                        rollout.plan,
-                        rollout.steps,
-                        rollout.answer_bearing_step_idx if self.answer_bearing_step_hint else None,
-                    )
-                    synth_generations = self._generate_same_prompt(
-                        prompt,
-                        num_return_sequences=self.synthesis_self_consistency_samples,
-                        max_tokens=8 if self.constrained_final_answer_decoding else self.synthesis_max_tokens,
-                        temp=0.7,
-                    )
-                    vote_counts: Dict[str, int] = {}
-                    chosen_text = None
-                    chosen_prompt_ids = None
-                    chosen_comp_ids = None
-                    rollout.synthesis_vote_answers = []
-                    for synth_text, synth_prompt_ids, synth_comp_ids in synth_generations:
-                        if self.constrained_final_answer_decoding:
-                            answer = self._normalize_numeric_answer(synth_text)
-                        else:
-                            answer = self._extract_answer(synth_text)
-                        rollout.synthesis_vote_answers.append(answer)
-                        if answer:
-                            vote_counts[answer] = vote_counts.get(answer, 0) + 1
-                            current_votes = vote_counts[answer]
-                            best_votes = vote_counts.get(chosen_text, 0) if chosen_text else -1
-                            if chosen_text is None or current_votes > best_votes:
-                                chosen_text = answer
-                                chosen_prompt_ids = synth_prompt_ids
-                                chosen_comp_ids = synth_comp_ids
-                    if chosen_text:
-                        rollout.final_answer = chosen_text
-                        rollout.final_answer_source = "synthesis_self_consistency"
-                    if synth_generations:
-                        rollout.synthesis_reasoning = synth_generations[0][0]
-                    rollout.synthesis_prompt_ids = chosen_prompt_ids
-                    rollout.synthesis_completion_ids = chosen_comp_ids
-            else:
-                synthesis_prompts = [
-                    self._build_synthesis_prompt(
-                        question,
-                        rollouts[idx].plan,
-                        rollouts[idx].steps,
-                        rollouts[idx].answer_bearing_step_idx if self.answer_bearing_step_hint else None,
-                    )
-                    for idx in synthesis_indices
-                ]
-                synthesis_generations = self._generate_batch(
-                    synthesis_prompts,
-                    max_tokens=8 if self.constrained_final_answer_decoding else self.synthesis_max_tokens,
-                    temp=0.0,
+        if self.synthesis_self_consistency:
+            for rollout_idx in synthesis_indices:
+                rollout = rollouts[rollout_idx]
+                synth_max_tokens = max(16 if self.constrained_final_answer_decoding else 1, self.synthesis_max_tokens)
+                prompt = self._build_synthesis_prompt(
+                    question,
+                    rollout.plan,
+                    rollout.steps,
+                    rollout.answer_bearing_step_idx if self.answer_bearing_step_hint else None,
                 )
-                for rollout_idx, (synth_text, synth_prompt_ids, synth_comp_ids) in zip(synthesis_indices, synthesis_generations):
-                    rollout = rollouts[rollout_idx]
+                synth_generations = self._generate_same_prompt(
+                    prompt,
+                    num_return_sequences=self.synthesis_self_consistency_samples,
+                    max_tokens=synth_max_tokens,
+                    temp=0.7,
+                )
+                vote_counts: Dict[str, int] = {}
+                chosen_text = None
+                chosen_prompt_ids = None
+                chosen_comp_ids = None
+                rollout.synthesis_vote_answers = []
+                for synth_text, synth_prompt_ids, synth_comp_ids in synth_generations:
                     if self.constrained_final_answer_decoding:
-                        synthesized_answer = self._normalize_numeric_answer(synth_text)
+                        answer = self._normalize_numeric_answer(synth_text)
                     else:
-                        synthesized_answer = self._extract_answer(synth_text)
-                    if synthesized_answer:
-                        rollout.final_answer = synthesized_answer
-                        rollout.final_answer_source = "synthesis_constrained" if self.constrained_final_answer_decoding else "synthesis"
-                    rollout.synthesis_reasoning = synth_text
-                    rollout.synthesis_prompt_ids = synth_prompt_ids
-                    rollout.synthesis_completion_ids = synth_comp_ids
+                        answer = self._extract_answer(synth_text)
+                    rollout.synthesis_vote_answers.append(answer)
+                    if answer:
+                        vote_counts[answer] = vote_counts.get(answer, 0) + 1
+                        current_votes = vote_counts[answer]
+                        best_votes = vote_counts.get(chosen_text, 0) if chosen_text else -1
+                        if chosen_text is None or current_votes > best_votes:
+                            chosen_text = answer
+                            chosen_prompt_ids = synth_prompt_ids
+                            chosen_comp_ids = synth_comp_ids
+                if chosen_text:
+                    rollout.final_answer = chosen_text
+                    rollout.final_answer_source = "synthesis_self_consistency"
+                if synth_generations:
+                    rollout.synthesis_reasoning = synth_generations[0][0]
+                rollout.synthesis_prompt_ids = chosen_prompt_ids
+                rollout.synthesis_completion_ids = chosen_comp_ids
+        else:
+            synthesis_prompts = [
+                self._build_synthesis_prompt(
+                    question,
+                    rollouts[idx].plan,
+                    rollouts[idx].steps,
+                    rollouts[idx].answer_bearing_step_idx if self.answer_bearing_step_hint else None,
+                )
+                for idx in synthesis_indices
+            ]
+            synthesis_generations = self._generate_batch(
+                synthesis_prompts,
+                max_tokens=max(16 if self.constrained_final_answer_decoding else 1, self.synthesis_max_tokens),
+                temp=0.0,
+            )
+            for rollout_idx, (synth_text, synth_prompt_ids, synth_comp_ids) in zip(synthesis_indices, synthesis_generations):
+                rollout = rollouts[rollout_idx]
+                if self.constrained_final_answer_decoding:
+                    synthesized_answer = self._normalize_numeric_answer(synth_text)
+                else:
+                    synthesized_answer = self._extract_answer(synth_text)
+                if synthesized_answer:
+                    rollout.final_answer = synthesized_answer
+                    rollout.final_answer_source = "synthesis_constrained" if self.constrained_final_answer_decoding else "synthesis"
+                rollout.synthesis_reasoning = synth_text
+                rollout.synthesis_prompt_ids = synth_prompt_ids
+                rollout.synthesis_completion_ids = synth_comp_ids
 
         if self.guarded_heuristic_fallback:
             guard_indices = [idx for idx, rollout in enumerate(rollouts) if rollout.steps]

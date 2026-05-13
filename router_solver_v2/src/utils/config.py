@@ -52,6 +52,7 @@ class Config:
     router_prompt_hardening: bool = False
     plan_parse_repair: bool = False
     outcome_credit_all_steps: bool = False
+    strict_answer_format: bool = False
 
     @property
     def total_per_batch(self) -> int:

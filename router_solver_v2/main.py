@@ -185,6 +185,7 @@ def main():
     parser.add_argument("--synthesis-self-consistency-samples", type=int, default=None, help="Number of synthesis samples for self-consistency voting")
     parser.add_argument("--router-prompt-hardening", choices=["on", "off"], default=None, help="Use a stricter router prompt without enabling repair fallback")
     parser.add_argument("--plan-parse-repair", choices=["on", "off"], default=None, help="Enable parser repair fallback for router plans")
+    parser.add_argument("--strict-answer-format", choices=["on", "off"], default=None, help="Require strict final-answer extraction pattern during decoding")
     parser.add_argument("--outcome-credit-all-steps", choices=["on", "off"], default=None, help="Distribute outcome credit across all solver steps during training")
     parser.add_argument("--diagnostic-questions", type=int, default=10, help="Questions per split for diagnostics")
     parser.add_argument("--diagnostic-rollouts-per-q", type=int, default=6, help="Rollouts per question for stochastic diagnostics")
@@ -261,6 +262,8 @@ def main():
         cfg.router_prompt_hardening = args.router_prompt_hardening == "on"
     if args.plan_parse_repair is not None:
         cfg.plan_parse_repair = args.plan_parse_repair == "on"
+    if args.strict_answer_format is not None:
+        cfg.strict_answer_format = args.strict_answer_format == "on"
     if args.outcome_credit_all_steps is not None:
         cfg.outcome_credit_all_steps = args.outcome_credit_all_steps == "on"
     if cfg.save_rollout_traces and not cfg.rollout_trace_path:
@@ -295,7 +298,11 @@ def main():
     )
     print(f"Router max tokens: {cfg.router_max_tokens} @ temp {cfg.router_temperature}")
     print(f"Solver max tokens: {cfg.solver_max_tokens} @ temp {cfg.solver_temperature}")
-    print(f"Synthesis max tokens: {cfg.synthesis_max_tokens} | Use synthesis: {cfg.use_answer_synthesis} | Constrained final decode: {cfg.constrained_final_answer_decoding} | Candidate rerank: {cfg.candidate_rerank}")
+    print(
+        f"Synthesis max tokens: {cfg.synthesis_max_tokens} | Use synthesis: {cfg.use_answer_synthesis} | "
+        f"Constrained final decode: {cfg.constrained_final_answer_decoding} | Candidate rerank: {cfg.candidate_rerank} | "
+        f"Strict answer format: {cfg.strict_answer_format}"
+    )
     print(
         "Trace consistency guard: "
         f"{cfg.trace_consistency_guard} | Answer-bearing step hint: {cfg.answer_bearing_step_hint} | "
@@ -331,6 +338,7 @@ def main():
         synthesis_self_consistency_samples=cfg.synthesis_self_consistency_samples,
         router_prompt_hardening=cfg.router_prompt_hardening,
         plan_parse_repair=cfg.plan_parse_repair,
+        strict_answer_format=cfg.strict_answer_format,
     )
 
     # Load data

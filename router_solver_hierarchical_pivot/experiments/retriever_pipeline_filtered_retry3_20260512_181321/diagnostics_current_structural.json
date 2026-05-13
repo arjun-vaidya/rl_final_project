@@ -1,0 +1,17 @@
+{
+  "embedding_model": "experiments/retriever_pipeline_plus_pool_full_20260512_165500/retriever_e5small_structural",
+  "num_docs": 109,
+  "num_positive_docs": 6,
+  "num_negative_only_docs": 103,
+  "num_queries": 18,
+  "num_positive_signature_buckets": 4,
+  "same_question_pairs": 6,
+  "same_target_pairs": 18,
+  "same_signature_pairs": 6,
+  "same_question_mrr": 0.48333333333333334,
+  "same_target_mrr": 0.02380065032446147,
+  "same_signature_mrr": 0.016716083473598927,
+  "same_signature_recall_at_1": 0.0,
+  "same_signature_recall_at_3": 0.0,
+  "same_signature_recall_at_5": 0.0
+}

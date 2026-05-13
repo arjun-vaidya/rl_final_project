@@ -1,0 +1,61 @@
+{
+  "config": {
+    "checkpoint": "experiments/slim_g6_20260508_153045/phase4_final.pt",
+    "dataset": "slim",
+    "questions": 3,
+    "train_questions": 2,
+    "start_index": 0,
+    "soft_rollouts_per_q": 1,
+    "hard_rollouts_per_q": 1,
+    "memory_trace_input": "experiments/final_temp07_10q_20260512_121824/rollout_traces.jsonl",
+    "memory_top_k": 2
+  },
+  "metrics": {
+    "train_router_accuracy": 1.0,
+    "train_routed_accuracy": 0.5,
+    "train_oracle_accuracy": 0.5,
+    "train_count": 2,
+    "train_easy_accuracy": 0.5,
+    "train_soft_accuracy": 0.0,
+    "train_hard_accuracy": 0.5,
+    "eval_router_accuracy": 1.0,
+    "eval_routed_accuracy": 0.0,
+    "eval_oracle_accuracy": 0.0,
+    "eval_count": 1,
+    "eval_easy_accuracy": 0.0,
+    "eval_soft_accuracy": 0.0,
+    "eval_hard_accuracy": 0.0
+  },
+  "audits": [
+    {
+      "q_idx": 0,
+      "label": "easy",
+      "easy_majority_correct": true,
+      "soft_majority_correct": false,
+      "hard_majority_correct": true,
+      "easy_vote_support": 1.0,
+      "soft_vote_support": 1.0,
+      "hard_vote_support": 1.0
+    },
+    {
+      "q_idx": 1,
+      "label": "easy",
+      "easy_majority_correct": false,
+      "soft_majority_correct": false,
+      "hard_majority_correct": false,
+      "easy_vote_support": 1.0,
+      "soft_vote_support": 1.0,
+      "hard_vote_support": 1.0
+    },
+    {
+      "q_idx": 2,
+      "label": "easy",
+      "easy_majority_correct": false,
+      "soft_majority_correct": false,
+      "hard_majority_correct": false,
+      "easy_vote_support": 1.0,
+      "soft_vote_support": 1.0,
+      "hard_vote_support": 1.0
+    }
+  ]
+}

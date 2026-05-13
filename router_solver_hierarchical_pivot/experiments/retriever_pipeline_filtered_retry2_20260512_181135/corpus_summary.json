@@ -1,0 +1,41 @@
+{
+  "num_docs": 48,
+  "num_positive_docs": 4,
+  "num_negative_only_docs": 44,
+  "difficulty_counts": {
+    "trivial": 109,
+    "mixed": 42
+  },
+  "positive_difficulty_counts": {
+    "mixed": 4
+  },
+  "rejected_counts": {
+    "invalid_or_incorrect": 305,
+    "weak_final_step": 61,
+    "duplicated_steps": 20,
+    "junk_step": 14
+  },
+  "num_signature_buckets": 4,
+  "top_signature_buckets": [
+    {
+      "target_type": "total",
+      "operation_signature": "add|mul",
+      "count": 1
+    },
+    {
+      "target_type": "direct_answer",
+      "operation_signature": "add",
+      "count": 1
+    },
+    {
+      "target_type": "total",
+      "operation_signature": "add",
+      "count": 1
+    },
+    {
+      "target_type": "direct_answer",
+      "operation_signature": "add|mul",
+      "count": 1
+    }
+  ]
+}

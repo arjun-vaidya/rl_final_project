@@ -1,0 +1,567 @@
+{
+  "corpus_json": "experiments/retriever_pipeline_filtered_retry3_20260512_181321/retrieval_corpus_filtered.json",
+  "embedding_model": "experiments/retriever_pipeline_plus_pool_full_20260512_165500/retriever_e5small_structural",
+  "embedding_device": "cuda",
+  "top_k": 5,
+  "num_queries": 18,
+  "negatives": [
+    {
+      "query_id": "query_0",
+      "doc_id": "doc_96",
+      "hard_negatives": [
+        {
+          "doc_id": "doc_76",
+          "score": 0.40892061591148376,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_2",
+          "score": 0.40892061591148376,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_3",
+          "score": 0.40892061591148376,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_4",
+          "score": 0.40892061591148376,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_5",
+          "score": 0.40892061591148376,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        }
+      ]
+    },
+    {
+      "query_id": "query_1",
+      "doc_id": "doc_96",
+      "hard_negatives": [
+        {
+          "doc_id": "doc_95",
+          "score": 0.8200502991676331,
+          "question": "A car is driving through a tunnel with many turns. After a while, the car must travel through a ring that requires a total of 4 right-hand turns. After the 1st turn, it travels 5 meters. After the 2nd turn, it travels 8 meters. After the 3rd turn, it travels a little further and at the 4th turn, it immediately exits the tunnel. If the car has driven a total of 23 meters around the ring, how far did it have to travel after the 3rd turn?"
+        },
+        {
+          "doc_id": "doc_40",
+          "score": 0.7326130867004395,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_35",
+          "score": 0.7031307220458984,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_75",
+          "score": 0.6767809391021729,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_88",
+          "score": 0.6767151951789856,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        }
+      ]
+    },
+    {
+      "query_id": "query_2",
+      "doc_id": "doc_96",
+      "hard_negatives": [
+        {
+          "doc_id": "doc_40",
+          "score": 0.7495332360267639,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_68",
+          "score": 0.702709972858429,
+          "question": "James writes a 3-page letter to 2 different friends twice a week.  How many pages does he write a year?"
+        },
+        {
+          "doc_id": "doc_95",
+          "score": 0.6993231773376465,
+          "question": "A car is driving through a tunnel with many turns. After a while, the car must travel through a ring that requires a total of 4 right-hand turns. After the 1st turn, it travels 5 meters. After the 2nd turn, it travels 8 meters. After the 3rd turn, it travels a little further and at the 4th turn, it immediately exits the tunnel. If the car has driven a total of 23 meters around the ring, how far did it have to travel after the 3rd turn?"
+        },
+        {
+          "doc_id": "doc_51",
+          "score": 0.6957347989082336,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_36",
+          "score": 0.6837098598480225,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        }
+      ]
+    },
+    {
+      "query_id": "query_3",
+      "doc_id": "doc_103",
+      "hard_negatives": [
+        {
+          "doc_id": "doc_76",
+          "score": 0.40892061591148376,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_2",
+          "score": 0.40892061591148376,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_3",
+          "score": 0.40892061591148376,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_4",
+          "score": 0.40892061591148376,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_5",
+          "score": 0.40892061591148376,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        }
+      ]
+    },
+    {
+      "query_id": "query_4",
+      "doc_id": "doc_103",
+      "hard_negatives": [
+        {
+          "doc_id": "doc_95",
+          "score": 0.5284637808799744,
+          "question": "A car is driving through a tunnel with many turns. After a while, the car must travel through a ring that requires a total of 4 right-hand turns. After the 1st turn, it travels 5 meters. After the 2nd turn, it travels 8 meters. After the 3rd turn, it travels a little further and at the 4th turn, it immediately exits the tunnel. If the car has driven a total of 23 meters around the ring, how far did it have to travel after the 3rd turn?"
+        },
+        {
+          "doc_id": "doc_32",
+          "score": 0.4890589118003845,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_86",
+          "score": 0.48602864146232605,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_61",
+          "score": 0.4857856333255768,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_50",
+          "score": 0.4840666651725769,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        }
+      ]
+    },
+    {
+      "query_id": "query_5",
+      "doc_id": "doc_103",
+      "hard_negatives": [
+        {
+          "doc_id": "doc_95",
+          "score": 0.5538703799247742,
+          "question": "A car is driving through a tunnel with many turns. After a while, the car must travel through a ring that requires a total of 4 right-hand turns. After the 1st turn, it travels 5 meters. After the 2nd turn, it travels 8 meters. After the 3rd turn, it travels a little further and at the 4th turn, it immediately exits the tunnel. If the car has driven a total of 23 meters around the ring, how far did it have to travel after the 3rd turn?"
+        },
+        {
+          "doc_id": "doc_50",
+          "score": 0.5065246820449829,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_63",
+          "score": 0.5061807632446289,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_61",
+          "score": 0.5037204623222351,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_74",
+          "score": 0.5035994052886963,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        }
+      ]
+    },
+    {
+      "query_id": "query_6",
+      "doc_id": "doc_105",
+      "hard_negatives": [
+        {
+          "doc_id": "doc_40",
+          "score": 0.3675411641597748,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_51",
+          "score": 0.3623996675014496,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_62",
+          "score": 0.35878786444664,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_68",
+          "score": 0.35390743613243103,
+          "question": "James writes a 3-page letter to 2 different friends twice a week.  How many pages does he write a year?"
+        },
+        {
+          "doc_id": "doc_14",
+          "score": 0.33960965275764465,
+          "question": "James writes a 3-page letter to 2 different friends twice a week.  How many pages does he write a year?"
+        }
+      ]
+    },
+    {
+      "query_id": "query_7",
+      "doc_id": "doc_105",
+      "hard_negatives": [
+        {
+          "doc_id": "doc_75",
+          "score": 0.47245150804519653,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_40",
+          "score": 0.432183176279068,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_51",
+          "score": 0.41994839906692505,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_36",
+          "score": 0.38717734813690186,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_88",
+          "score": 0.38717734813690186,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        }
+      ]
+    },
+    {
+      "query_id": "query_8",
+      "doc_id": "doc_105",
+      "hard_negatives": [
+        {
+          "doc_id": "doc_37",
+          "score": 0.4197971522808075,
+          "question": "Ken created a care package to send to his brother, who was away at boarding school.  Ken placed a box on a scale, and then he poured into the box enough jelly beans to bring the weight to 2 pounds.  Then, he added enough brownies to cause the weight to triple.  Next, he added another 2 pounds of jelly beans.  And finally, he added enough gummy worms to double the weight once again.  What was the final weight of the box of goodies, in pounds?"
+        },
+        {
+          "doc_id": "doc_28",
+          "score": 0.4133584499359131,
+          "question": "Ken created a care package to send to his brother, who was away at boarding school.  Ken placed a box on a scale, and then he poured into the box enough jelly beans to bring the weight to 2 pounds.  Then, he added enough brownies to cause the weight to triple.  Next, he added another 2 pounds of jelly beans.  And finally, he added enough gummy worms to double the weight once again.  What was the final weight of the box of goodies, in pounds?"
+        },
+        {
+          "doc_id": "doc_46",
+          "score": 0.4133584499359131,
+          "question": "Ken created a care package to send to his brother, who was away at boarding school.  Ken placed a box on a scale, and then he poured into the box enough jelly beans to bring the weight to 2 pounds.  Then, he added enough brownies to cause the weight to triple.  Next, he added another 2 pounds of jelly beans.  And finally, he added enough gummy worms to double the weight once again.  What was the final weight of the box of goodies, in pounds?"
+        },
+        {
+          "doc_id": "doc_47",
+          "score": 0.4133584499359131,
+          "question": "Ken created a care package to send to his brother, who was away at boarding school.  Ken placed a box on a scale, and then he poured into the box enough jelly beans to bring the weight to 2 pounds.  Then, he added enough brownies to cause the weight to triple.  Next, he added another 2 pounds of jelly beans.  And finally, he added enough gummy worms to double the weight once again.  What was the final weight of the box of goodies, in pounds?"
+        },
+        {
+          "doc_id": "doc_84",
+          "score": 0.4133584499359131,
+          "question": "Ken created a care package to send to his brother, who was away at boarding school.  Ken placed a box on a scale, and then he poured into the box enough jelly beans to bring the weight to 2 pounds.  Then, he added enough brownies to cause the weight to triple.  Next, he added another 2 pounds of jelly beans.  And finally, he added enough gummy worms to double the weight once again.  What was the final weight of the box of goodies, in pounds?"
+        }
+      ]
+    },
+    {
+      "query_id": "query_9",
+      "doc_id": "doc_106",
+      "hard_negatives": [
+        {
+          "doc_id": "doc_35",
+          "score": 0.5985897183418274,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_62",
+          "score": 0.5960202217102051,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_76",
+          "score": 0.5826054811477661,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_2",
+          "score": 0.5826054811477661,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_3",
+          "score": 0.5826054811477661,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        }
+      ]
+    },
+    {
+      "query_id": "query_10",
+      "doc_id": "doc_106",
+      "hard_negatives": [
+        {
+          "doc_id": "doc_40",
+          "score": 0.787087082862854,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_75",
+          "score": 0.7617543935775757,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_51",
+          "score": 0.7213037014007568,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_88",
+          "score": 0.7103148102760315,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_36",
+          "score": 0.7103148102760315,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        }
+      ]
+    },
+    {
+      "query_id": "query_11",
+      "doc_id": "doc_106",
+      "hard_negatives": [
+        {
+          "doc_id": "doc_40",
+          "score": 0.6560956835746765,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_96",
+          "score": 0.6109269857406616,
+          "question": "To make pizza, together with other ingredients, Kimber needs 10 cups of water, 16 cups of flour, and 1/2 times as many teaspoons of salt as the number of cups of flour. Calculate the combined total number of cups of water, flour, and teaspoons of salt that she needs to make the pizza."
+        },
+        {
+          "doc_id": "doc_35",
+          "score": 0.608238935470581,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_75",
+          "score": 0.5960284471511841,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_103",
+          "score": 0.577869176864624,
+          "question": "To make pizza, together with other ingredients, Kimber needs 10 cups of water, 16 cups of flour, and 1/2 times as many teaspoons of salt as the number of cups of flour. Calculate the combined total number of cups of water, flour, and teaspoons of salt that she needs to make the pizza."
+        }
+      ]
+    },
+    {
+      "query_id": "query_12",
+      "doc_id": "doc_107",
+      "hard_negatives": [
+        {
+          "doc_id": "doc_62",
+          "score": 0.4620656371116638,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_98",
+          "score": 0.45325320959091187,
+          "question": "Mr. Sanchez found out that 40% of his Grade 5  students got a final grade below B. How many of his students got a final grade of B and above if he has 60 students in Grade 5?"
+        },
+        {
+          "doc_id": "doc_35",
+          "score": 0.420584499835968,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_49",
+          "score": 0.39831867814064026,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_48",
+          "score": 0.39831867814064026,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        }
+      ]
+    },
+    {
+      "query_id": "query_13",
+      "doc_id": "doc_107",
+      "hard_negatives": [
+        {
+          "doc_id": "doc_98",
+          "score": 0.5570195913314819,
+          "question": "Mr. Sanchez found out that 40% of his Grade 5  students got a final grade below B. How many of his students got a final grade of B and above if he has 60 students in Grade 5?"
+        },
+        {
+          "doc_id": "doc_62",
+          "score": 0.546110212802887,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_35",
+          "score": 0.5336470603942871,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_63",
+          "score": 0.5003921389579773,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_50",
+          "score": 0.4951828122138977,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        }
+      ]
+    },
+    {
+      "query_id": "query_14",
+      "doc_id": "doc_107",
+      "hard_negatives": [
+        {
+          "doc_id": "doc_98",
+          "score": 0.5264902710914612,
+          "question": "Mr. Sanchez found out that 40% of his Grade 5  students got a final grade below B. How many of his students got a final grade of B and above if he has 60 students in Grade 5?"
+        },
+        {
+          "doc_id": "doc_62",
+          "score": 0.5013531446456909,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_35",
+          "score": 0.48674455285072327,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_63",
+          "score": 0.4636155962944031,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_76",
+          "score": 0.45628678798675537,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        }
+      ]
+    },
+    {
+      "query_id": "query_15",
+      "doc_id": "doc_108",
+      "hard_negatives": [
+        {
+          "doc_id": "doc_62",
+          "score": 0.5456063747406006,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_35",
+          "score": 0.5197010636329651,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_77",
+          "score": 0.49034762382507324,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_4",
+          "score": 0.48817989230155945,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_0",
+          "score": 0.48817989230155945,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        }
+      ]
+    },
+    {
+      "query_id": "query_16",
+      "doc_id": "doc_108",
+      "hard_negatives": [
+        {
+          "doc_id": "doc_75",
+          "score": 0.5565223693847656,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_107",
+          "score": 0.48409396409988403,
+          "question": "Oxford High School has 48 teachers, 1 principal and 15 classes with each having 20 students. How many people are there in total in Oxford High School?"
+        },
+        {
+          "doc_id": "doc_40",
+          "score": 0.4682020843029022,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_36",
+          "score": 0.44758328795433044,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_88",
+          "score": 0.44758328795433044,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        }
+      ]
+    },
+    {
+      "query_id": "query_17",
+      "doc_id": "doc_108",
+      "hard_negatives": [
+        {
+          "doc_id": "doc_107",
+          "score": 0.5282520055770874,
+          "question": "Oxford High School has 48 teachers, 1 principal and 15 classes with each having 20 students. How many people are there in total in Oxford High School?"
+        },
+        {
+          "doc_id": "doc_40",
+          "score": 0.4949968159198761,
+          "question": "Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?"
+        },
+        {
+          "doc_id": "doc_50",
+          "score": 0.4931303858757019,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_74",
+          "score": 0.4889805316925049,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        },
+        {
+          "doc_id": "doc_33",
+          "score": 0.4889805316925049,
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+        }
+      ]
+    }
+  ]
+}

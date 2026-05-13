@@ -1,0 +1,10 @@
+{
+  "num_examples": 208,
+  "base_model": "intfloat/e5-small-v2",
+  "projection_dim": 256,
+  "epochs": 8,
+  "batch_size": 32,
+  "learning_rate": 0.001,
+  "device": "cuda",
+  "positive_mode": "structural"
+}

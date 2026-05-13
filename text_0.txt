@@ -1,0 +1,209 @@
+❯ give me an output here explaining the plab with graphs                                                                                                                                   
+
+⏺ Hierarchical RL + Graph Memory — Plan
+
+  1. System architecture
+  
+                              ┌─────────────────────────────────┐
+                              │   Question (e.g. GSM8K item)    │
+                              └──────────────┬──────────────────┘
+                                             │
+                                             ▼
+                           ┌──────────────────────────────────┐
+                           │             ROUTER               │
+                           │  π_router(action | question)     │
+                           │                                  │
+                           │  Input:  question embedding      │
+                           │          (+ optional features:   │
+                           │           length, keyword flags) │
+                           │  Output: P(light) , P(heavy)     │
+                           └─────────┬──────────────┬─────────┘
+                                     │              │
+                            light ◀──┘              └──▶ heavy
+                                     │              │
+                                     ▼              ▼
+                      ┌──────────────────┐  ┌──────────────────────┐
+                      │   LIGHT SOLVER   │  │     HEAVY SOLVER     │
+                      │  (single CoT)    │  │  ┌────────────────┐  │
+                      │                  │  │  │ retrieve K=5   │  │
+                      │  1 generation    │  │  │ from graph mem │  │
+                      │  ~500 tokens     │  │  └────────┬───────┘  │
+                      │                  │  │           ▼          │
+                      │                  │  │  ┌────────────────┐  │
+                      │                  │  │  │ self-consis.   │  │
+                      │                  │  │  │ vote of 4 CoT  │  │
+                      │                  │  │  └────────┬───────┘  │
+                      │                  │  │           ▼          │
+                      │                  │  │     final answer     │
+                      └────────┬─────────┘  └──────────┬───────────┘
+                               │                       │
+                               └──────────┬────────────┘
+                                          ▼
+                                  ┌───────────────┐
+                                  │    Answer     │
+                                  └───────┬───────┘
+                                          │
+                                          ▼
+                              reward = correct − λ·cost(action)
+                                          │
+                                ┌─────────┴──────────┐
+                                ▼                    ▼
+                         update solver        update router
+                         (token-level         (bandit-style
+                          GRPO)                GRPO over actions)
+  
+  2. Training data flow — where each piece comes from
+  
+     Phase 0:  PROBE (already done ✓)
+     ──────────────────────────────────────────────────────────────
+          GSM8K-train  ──▶  probe.py  ──▶  probe_summary.csv
+                                            probe_rollouts.jsonl
+                                                    │
+                                                    ▼
+                                            ┌───────────────┐
+                                            │  partition    │
+                                            │  mixed:  583  │
+                                            │  hard:   286  │
+                                            │  trivial: 131 │
+                                            └───────────────┘
+  
+     Phase 1:  GRAPH MEMORY POPULATION (cheap, ~10 min)
+     ──────────────────────────────────────────────────────────────
+          probe_rollouts.jsonl
+          (keep correct ones)
+                  │
+                  ▼   
+          embed (question)
+          embed (final reasoning chain)
+                  │
+                  ▼   
+          ┌─────────────────────────┐
+          │   FAISS / flat index    │
+          │   ~6,600 correct        │
+          │   (Q, reasoning)        │
+          │   tuples                │
+          └─────────────────────────┘
+                   ▲  
+                   └── queried at inference by heavy path
+
+     Phase 2:  ROUTER WARM-START (supervised, ~30 min)
+     ──────────────────────────────────────────────────────────────
+          partition labels   ──▶   X = question embeddings
+          (oracle routing)         y = 0 if trivial, 1 otherwise
+                                         │
+                                         ▼
+                                  cross-entropy
+                                         │
+                                         ▼
+                                  ROUTER (linear head
+                                   on Qwen embeddings)
+
+     Phase 3:  RL FINE-TUNE END-TO-END (~6 h)
+     ──────────────────────────────────────────────────────────────
+          for each question in partition:
+              sample G router actions  ──▶  rollouts per action
+                                                  │
+                                                  ▼
+              reward = correct − λ·cost(action)
+                                                  │
+                         ┌────────────────────────┴───────────┐
+                         ▼                                    ▼
+                GRPO update on router            GRPO update on solver
+                (group over G actions)           (only on chosen path)
+
+  3. Example trajectory (illustrative)
+
+     Q1: "What is 2+3?"
+          │
+          ▼ 
+     ROUTER  →  P(light)=0.95  ●  P(heavy)=0.05
+          │
+          ▼ 
+     LIGHT  →  "2+3 = \boxed{5}"   reward = 1.0 − 0·0 = +1.0
+                                    ↑ correct, no cost penalty
+
+
+     Q2: "A train leaves A at 60 mph and another from B at 80 mph,
+          meeting in 3 hours. How far apart were A and B?"
+          │
+          ▼ 
+     ROUTER  →  P(light)=0.20  P(heavy)=0.80  ●
+          │
+          ▼
+     HEAVY  →  retrieve similar relative-speed problems from graph
+            →  4 self-consistent rollouts, majority vote → 420
+                                    reward = 1.0 − 0.1·1 = +0.9
+                                    ↑ correct, paid for heavy path
+
+  
+     Q3 (hard): "Compound interest with quarterly compounding..."
+          │
+          ▼
+     ROUTER  →  P(heavy) = 0.92  ●
+          │ 
+          ▼
+     HEAVY  →  ...vote wrong         reward = 0.0 − 0.1·1 = −0.1
+                                     ↑ router learns: even heavy
+                                       can't solve some problems
+                                       → may shift toward light on
+                                       similar-feature hard ones
+
+  4. Timeline (4 days)
+
+     Day 1 (May 12) — SCAFFOLD
+     ┌─────────────────────────────────────────┐
+     │ • Inspect router_solver_v2/ for reuse   │
+     │ • Build graph memory (FAISS over probe) │  ~3 h
+     │ • Build heavy solver (self-consistency) │  ~2 h
+     │ • Smoke test: heavy vs light on 50 Qs   │  ~1 h
+     └─────────────────────────────────────────┘
+                         │
+     Day 2 (May 13) — ROUTER WARM-START
+     ┌─────────────────────────────────────────┐
+     │ • Embed all partition questions         │  ~30 m
+     │ • Train router (linear head) on oracle  │  ~30 m
+     │ • Validate routing acc on held-out split│  ~1 h
+     │ • Run inference-only: routed system on  │
+     │   GSM8K-test (no RL yet) → baseline #3  │  ~1 h
+     └─────────────────────────────────────────┘
+                         │
+     Day 3 (May 14) — RL TRAIN
+     ┌─────────────────────────────────────────┐
+     │ • End-to-end GRPO on router (+ solver)  │  ~6-8 h
+     │ • Tune λ (cost weight): 0.05, 0.1, 0.2  │
+     │ • Save 3 variants                       │
+     └─────────────────────────────────────────┘
+                         │
+     Day 4 (May 15) — EVAL + WRITEUP
+     ┌─────────────────────────────────────────┐
+     │ • Full GSM8K-test eval on all variants  │  ~2 h
+     │ • Ablations: w/ vs. w/o graph memory    │
+     │              w/ vs. w/o router warm-start│
+     │              w/ vs. w/o RL fine-tune    │
+     │ • Compile results table for report      │
+     └─────────────────────────────────────────┘
+  
+  5. Expected results — what the table in your report looks like
+  
+                            GSM8K-test       Avg compute      Δ vs base
+                            accuracy         per question     (acc)
+     ──────────────────────────────────────────────────────────────
+     Base Qwen-Math-1.5B    XX.X%            1.0×             —
+     GRPO (linear)          XX.X + 2-6       1.0×             +2-6
+     SFT-warm + GRPO        XX.X + 5-10      1.0×             +5-10
+     Always-heavy           XX.X + 8-15      4.0×             +8-15
+     ROUTED (this work)     XX.X + 6-12      ~1.4×            +6-12
+     ROUTED + graph mem     XX.X + 8-15      ~1.5×            +8-15
+     ──────────────────────────────────────────────────────────────
+                                              ▲                ▲
+                                              │                │
+                                  heavy cost paid only         the headline
+                                  where it actually helps      number
+  
+  The thesis sentence becomes: "We learn a router that decides when to deploy extra reasoning compute, achieving near-always-heavy accuracy at ~1.5× rather than 4× the cost — and an 
+  additional lift from a graph-memory retrieval module that conditions the heavy path on prior solved sub-problems."
+
+  That's the project. The probe work and the GRPO linear baseline you've already done are exactly the substrate this needs — the partition gives oracle routing labels, the probe rollouts
+  populate the graph memory.
+
+  Want me to start by inspecting router_solver_v2/ to see what's reusable before scaffolding new code?

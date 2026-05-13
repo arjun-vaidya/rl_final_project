@@ -1,0 +1,7 @@
+{
+  "backbone_model_name": "/home/machina/pvd2112/rl_final_project/router_solver_hierarchical_pivot/experiments/retriever_pipeline_20260512_161200/retriever_e5small_proj",
+  "projection_dim": 256,
+  "query_prefix": "query: ",
+  "doc_prefix": "passage: ",
+  "max_length": 256
+}

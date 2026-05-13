@@ -1,0 +1,9 @@
+{
+  "num_examples": 92,
+  "base_model": "/home/machina/pvd2112/rl_final_project/router_solver_hierarchical_pivot/experiments/retriever_pipeline_20260512_161200/retriever_e5small_proj",
+  "projection_dim": 256,
+  "epochs": 6,
+  "batch_size": 32,
+  "learning_rate": 0.0005,
+  "device": "cuda"
+}

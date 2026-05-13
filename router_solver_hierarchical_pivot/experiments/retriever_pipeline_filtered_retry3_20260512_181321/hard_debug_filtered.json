@@ -1,0 +1,551 @@
+{
+  "indices": [
+    2,
+    3,
+    5
+  ],
+  "rows": [
+    {
+      "q_idx": 2,
+      "question": "Betty is saving money for a new wallet which costs $100. Betty has only half of the money she needs. Her parents decided to give her $15 for that purpose, and her grandparents twice as much as her parents. How much more money does Betty need to buy the wallet?",
+      "ground_truth": "5",
+      "retrieved_cases": [
+        {
+          "question": "A florist offers for sale 75 narcissus flowers and 90 chrysanthemums. Using all the flowers, how many bouquets containing 5 flowers each can he make?",
+          "normalized_question": "a florist offers for sale 75 narcissus flowers and 90 chrysanthemums. using all the flowers, how many bouquets containing 5 flowers each can he make?",
+          "question_tokens": [
+            "a",
+            "florist",
+            "offers",
+            "for",
+            "sale",
+            "75",
+            "narcissus",
+            "flowers",
+            "and",
+            "90",
+            "chrysanthemums",
+            "using",
+            "all",
+            "the",
+            "flowers",
+            "how",
+            "many",
+            "bouquets",
+            "containing",
+            "5",
+            "flowers",
+            "each",
+            "can",
+            "he",
+            "make"
+          ],
+          "plan": [
+            "Step 1: Calculate the total number of flowers.",
+            "Step 2: Determine how many bouquets can be made using those flowers.",
+            "Step 3: Answer the original question."
+          ],
+          "final_answer": "33",
+          "subgoals": [
+            "Step 1: Calculate the total number of flowers.",
+            "Step 2: Determine how many bouquets can be made using those flowers.",
+            "Step 3: Answer the original question."
+          ],
+          "diagnostics": {
+            "difficulty_bucket": "mixed",
+            "target_type": "direct_answer",
+            "operation_signature": "add",
+            "quality_reason": "answer_like_final_step",
+            "source_q_idx": 5286
+          },
+          "score": 0.4127645492553711
+        },
+        {
+          "question": "To make pizza, together with other ingredients, Kimber needs 10 cups of water, 16 cups of flour, and 1/2 times as many teaspoons of salt as the number of cups of flour. Calculate the combined total number of cups of water, flour, and teaspoons of salt that she needs to make the pizza.",
+          "normalized_question": "to make pizza, together with other ingredients, kimber needs 10 cups of water, 16 cups of flour, and 1/2 times as many teaspoons of salt as the number of cups of flour. calculate the combined total number of cups of water, flour, and teaspoons of salt that she needs to make the pizza.",
+          "question_tokens": [
+            "to",
+            "make",
+            "pizza",
+            "together",
+            "with",
+            "other",
+            "ingredients",
+            "kimber",
+            "needs",
+            "10",
+            "cups",
+            "of",
+            "water",
+            "16",
+            "cups",
+            "of",
+            "flour",
+            "and",
+            "1",
+            "2",
+            "times",
+            "as",
+            "many",
+            "teaspoons",
+            "of",
+            "salt",
+            "as",
+            "the",
+            "number",
+            "of",
+            "cups",
+            "of",
+            "flour",
+            "calculate",
+            "the",
+            "combined",
+            "total",
+            "number",
+            "of",
+            "cups",
+            "of",
+            "water",
+            "flour",
+            "and",
+            "teaspoons",
+            "of",
+            "salt",
+            "that",
+            "she",
+            "needs",
+            "to",
+            "make",
+            "the",
+            "pizza"
+          ],
+          "plan": [
+            "Answer the original question directly."
+          ],
+          "final_answer": "34",
+          "subgoals": [
+            "Answer the original question directly."
+          ],
+          "diagnostics": {
+            "difficulty_bucket": "mixed",
+            "target_type": "total",
+            "operation_signature": "add|mul",
+            "quality_reason": "answer_like_final_step",
+            "source_q_idx": 33
+          },
+          "score": 0.37578320503234863
+        }
+      ],
+      "plan": [
+        "answer",
+        "Step 1: Calculate the amount of money Betty already has.",
+        "Step 2: Add the money given by her parents.",
+        "Step 3: Add the money given by her grandparents.",
+        "Step 4: Subtract the total amount from the cost of the wallet.",
+        "answer",
+        "Step 1: Calculate the amount of money Betty already has.",
+        "Step 2: Add the money given by her parents. Then answer the original question directly using the previous results."
+      ],
+      "final_answer": "45",
+      "final_answer_source": "last_step",
+      "correct": false,
+      "step_answers": [
+        "96",
+        "5",
+        "70",
+        "5",
+        "5",
+        "1",
+        "5",
+        "45"
+      ],
+      "steps": [
+        {
+          "idx": 0,
+          "subgoal": "answer",
+          "answer": "96"
+        },
+        {
+          "idx": 1,
+          "subgoal": "Step 1: Calculate the amount of money Betty already has.",
+          "answer": "5"
+        },
+        {
+          "idx": 2,
+          "subgoal": "Step 2: Add the money given by her parents.",
+          "answer": "70"
+        },
+        {
+          "idx": 3,
+          "subgoal": "Step 3: Add the money given by her grandparents.",
+          "answer": "5"
+        },
+        {
+          "idx": 4,
+          "subgoal": "Step 4: Subtract the total amount from the cost of the wallet.",
+          "answer": "5"
+        },
+        {
+          "idx": 5,
+          "subgoal": "answer",
+          "answer": "1"
+        },
+        {
+          "idx": 6,
+          "subgoal": "Step 1: Calculate the amount of money Betty already has.",
+          "answer": "5"
+        },
+        {
+          "idx": 7,
+          "subgoal": "Step 2: Add the money given by her parents. Then answer the original question directly using the previous results.",
+          "answer": "45"
+        }
+      ]
+    },
+    {
+      "q_idx": 3,
+      "question": "Julie is reading a 120-page book. Yesterday, she was able to read 12 pages and today, she read twice as many pages as yesterday. If she wants to read half of the remaining pages tomorrow, how many pages should she read?",
+      "ground_truth": "42",
+      "retrieved_cases": [
+        {
+          "question": "John buys 2 packs of index cards for all his students.  He has 6 classes and 30 students in each class.  How many packs did he buy?",
+          "normalized_question": "john buys 2 packs of index cards for all his students. he has 6 classes and 30 students in each class. how many packs did he buy?",
+          "question_tokens": [
+            "john",
+            "buys",
+            "2",
+            "packs",
+            "of",
+            "index",
+            "cards",
+            "for",
+            "all",
+            "his",
+            "students",
+            "he",
+            "has",
+            "6",
+            "classes",
+            "and",
+            "30",
+            "students",
+            "in",
+            "each",
+            "class",
+            "how",
+            "many",
+            "packs",
+            "did",
+            "he",
+            "buy"
+          ],
+          "plan": [
+            "Step 1:",
+            "John needs to find out how many students he has.",
+            "Step 2:",
+            "He then needs to multiply that number by the number of classes he has.",
+            "Step 3:",
+            "Since he bought 2 packs per student, we need to multiply the total number of students by 2.",
+            "Step 1:",
+            "Calculate the total number of students John has."
+          ],
+          "final_answer": "360",
+          "subgoals": [
+            "Step 1:",
+            "John needs to find out how many students he has.",
+            "Step 2:",
+            "He then needs to multiply that number by the number of classes he has.",
+            "Step 3:",
+            "Since he bought 2 packs per student, we need to multiply the total number of students by 2.",
+            "Step 1:",
+            "Calculate the total number of students John has."
+          ],
+          "diagnostics": {
+            "difficulty_bucket": "mixed",
+            "target_type": "direct_answer",
+            "operation_signature": "add|mul",
+            "quality_reason": "answer_like_final_step",
+            "source_q_idx": 6654
+          },
+          "score": 0.33357730507850647
+        },
+        {
+          "question": "A florist offers for sale 75 narcissus flowers and 90 chrysanthemums. Using all the flowers, how many bouquets containing 5 flowers each can he make?",
+          "normalized_question": "a florist offers for sale 75 narcissus flowers and 90 chrysanthemums. using all the flowers, how many bouquets containing 5 flowers each can he make?",
+          "question_tokens": [
+            "a",
+            "florist",
+            "offers",
+            "for",
+            "sale",
+            "75",
+            "narcissus",
+            "flowers",
+            "and",
+            "90",
+            "chrysanthemums",
+            "using",
+            "all",
+            "the",
+            "flowers",
+            "how",
+            "many",
+            "bouquets",
+            "containing",
+            "5",
+            "flowers",
+            "each",
+            "can",
+            "he",
+            "make"
+          ],
+          "plan": [
+            "Step 1: Calculate the total number of flowers.",
+            "Step 2: Determine how many bouquets can be made using those flowers.",
+            "Step 3: Answer the original question."
+          ],
+          "final_answer": "33",
+          "subgoals": [
+            "Step 1: Calculate the total number of flowers.",
+            "Step 2: Determine how many bouquets can be made using those flowers.",
+            "Step 3: Answer the original question."
+          ],
+          "diagnostics": {
+            "difficulty_bucket": "mixed",
+            "target_type": "direct_answer",
+            "operation_signature": "add",
+            "quality_reason": "answer_like_final_step",
+            "source_q_idx": 5286
+          },
+          "score": 0.3070240318775177
+        }
+      ],
+      "plan": [
+        "answer",
+        "Step 1:",
+        "Julie needs to determine the total number of pages she has already read.",
+        "Step 2:",
+        "She reads 12 pages yesterday and twice that amount today.",
+        "Step 3:",
+        "Calculate the total number of pages she has read so far.",
+        "answer Then answer the original question directly using the previous results."
+      ],
+      "final_answer": "42",
+      "final_answer_source": "last_step",
+      "correct": true,
+      "step_answers": [
+        "240",
+        "42",
+        "42",
+        "27",
+        "42",
+        "180",
+        "96",
+        "42"
+      ],
+      "steps": [
+        {
+          "idx": 0,
+          "subgoal": "answer",
+          "answer": "240"
+        },
+        {
+          "idx": 1,
+          "subgoal": "Step 1:",
+          "answer": "42"
+        },
+        {
+          "idx": 2,
+          "subgoal": "Julie needs to determine the total number of pages she has already read.",
+          "answer": "42"
+        },
+        {
+          "idx": 3,
+          "subgoal": "Step 2:",
+          "answer": "27"
+        },
+        {
+          "idx": 4,
+          "subgoal": "She reads 12 pages yesterday and twice that amount today.",
+          "answer": "42"
+        },
+        {
+          "idx": 5,
+          "subgoal": "Step 3:",
+          "answer": "180"
+        },
+        {
+          "idx": 6,
+          "subgoal": "Calculate the total number of pages she has read so far.",
+          "answer": "96"
+        },
+        {
+          "idx": 7,
+          "subgoal": "answer Then answer the original question directly using the previous results.",
+          "answer": "42"
+        }
+      ]
+    },
+    {
+      "q_idx": 5,
+      "question": "Mark has a garden with flowers. He planted plants of three different colors in it. Ten of them are yellow, and there are 80% more of those in purple. There are only 25% as many green flowers as there are yellow and purple flowers. How many flowers does Mark have in his garden?",
+      "ground_truth": "35",
+      "retrieved_cases": [
+        {
+          "question": "A florist offers for sale 75 narcissus flowers and 90 chrysanthemums. Using all the flowers, how many bouquets containing 5 flowers each can he make?",
+          "normalized_question": "a florist offers for sale 75 narcissus flowers and 90 chrysanthemums. using all the flowers, how many bouquets containing 5 flowers each can he make?",
+          "question_tokens": [
+            "a",
+            "florist",
+            "offers",
+            "for",
+            "sale",
+            "75",
+            "narcissus",
+            "flowers",
+            "and",
+            "90",
+            "chrysanthemums",
+            "using",
+            "all",
+            "the",
+            "flowers",
+            "how",
+            "many",
+            "bouquets",
+            "containing",
+            "5",
+            "flowers",
+            "each",
+            "can",
+            "he",
+            "make"
+          ],
+          "plan": [
+            "Step 1: Calculate the total number of flowers.",
+            "Step 2: Determine how many bouquets can be made using those flowers.",
+            "Step 3: Answer the original question."
+          ],
+          "final_answer": "33",
+          "subgoals": [
+            "Step 1: Calculate the total number of flowers.",
+            "Step 2: Determine how many bouquets can be made using those flowers.",
+            "Step 3: Answer the original question."
+          ],
+          "diagnostics": {
+            "difficulty_bucket": "mixed",
+            "target_type": "direct_answer",
+            "operation_signature": "add",
+            "quality_reason": "answer_like_final_step",
+            "source_q_idx": 5286
+          },
+          "score": 0.6659110188484192
+        },
+        {
+          "question": "Steve is 5'6\".  He grows 6 inches.  How tall is he in inches?",
+          "normalized_question": "steve is 5'6\". he grows 6 inches. how tall is he in inches?",
+          "question_tokens": [
+            "steve",
+            "is",
+            "5",
+            "6",
+            "he",
+            "grows",
+            "6",
+            "inches",
+            "how",
+            "tall",
+            "is",
+            "he",
+            "in",
+            "inches"
+          ],
+          "plan": [
+            "Convert Steve's initial height to inches.",
+            "Add the growth to his initial height.",
+            "Output the total height in inches."
+          ],
+          "final_answer": "72",
+          "subgoals": [
+            "Convert Steve's initial height to inches.",
+            "Add the growth to his initial height.",
+            "Output the total height in inches."
+          ],
+          "diagnostics": {
+            "difficulty_bucket": "mixed",
+            "target_type": "direct_answer",
+            "operation_signature": "add",
+            "quality_reason": "structurally_clean_nonanswer_final",
+            "source_q_idx": 4674
+          },
+          "score": 0.6357238292694092
+        }
+      ],
+      "plan": [
+        "answer",
+        "______",
+        "Calculate the number of purple flowers.",
+        "Calculate the number of green flowers.",
+        "Sum up the number of yellow, purple, and green flowers.",
+        "answer",
+        "Total number of flowers",
+        ": None} { Then answer the original question directly using the previous results."
+      ],
+      "final_answer": "35",
+      "final_answer_source": "last_step",
+      "correct": true,
+      "step_answers": [
+        "7",
+        "35",
+        "35",
+        "35",
+        "7",
+        "35",
+        "59",
+        "35"
+      ],
+      "steps": [
+        {
+          "idx": 0,
+          "subgoal": "answer",
+          "answer": "7"
+        },
+        {
+          "idx": 1,
+          "subgoal": "______",
+          "answer": "35"
+        },
+        {
+          "idx": 2,
+          "subgoal": "Calculate the number of purple flowers.",
+          "answer": "35"
+        },
+        {
+          "idx": 3,
+          "subgoal": "Calculate the number of green flowers.",
+          "answer": "35"
+        },
+        {
+          "idx": 4,
+          "subgoal": "Sum up the number of yellow, purple, and green flowers.",
+          "answer": "7"
+        },
+        {
+          "idx": 5,
+          "subgoal": "answer",
+          "answer": "35"
+        },
+        {
+          "idx": 6,
+          "subgoal": "Total number of flowers",
+          "answer": "59"
+        },
+        {
+          "idx": 7,
+          "subgoal": ": None} { Then answer the original question directly using the previous results.",
+          "answer": "35"
+        }
+      ]
+    }
+  ]
+}

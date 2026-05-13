@@ -1,0 +1,8 @@
+{
+  "corpus_json": "experiments/retriever_pipeline_filtered_20260512_173943/retrieval_corpus_filtered.json",
+  "embedding_model": "experiments/retriever_pipeline_plus_pool_full_20260512_165500/retriever_e5small_structural",
+  "embedding_device": "cuda",
+  "top_k": 5,
+  "num_queries": 0,
+  "negatives": []
+}

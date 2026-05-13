@@ -1,0 +1,14 @@
+{
+  "embedding_model": "/home/machina/pvd2112/rl_final_project/router_solver_hierarchical_pivot/experiments/retriever_pipeline_20260512_161200/retriever_e5small_proj",
+  "num_docs": 187,
+  "num_queries": 561,
+  "same_question_pairs": 561,
+  "same_target_pairs": 396,
+  "same_signature_pairs": 135,
+  "same_question_mrr": 0.9373143196672608,
+  "same_target_mrr": 0.0877980581158031,
+  "same_signature_mrr": 0.1756661292469822,
+  "same_signature_recall_at_1": 0.0,
+  "same_signature_recall_at_3": 0.3333333333333333,
+  "same_signature_recall_at_5": 0.3333333333333333
+}

@@ -1,0 +1,592 @@
+{
+  "indices": [
+    2,
+    3,
+    5
+  ],
+  "rows": [
+    {
+      "q_idx": 2,
+      "question": "Betty is saving money for a new wallet which costs $100. Betty has only half of the money she needs. Her parents decided to give her $15 for that purpose, and her grandparents twice as much as her parents. How much more money does Betty need to buy the wallet?",
+      "ground_truth": "5",
+      "retrieved_cases": [
+        {
+          "question": "James writes a 3-page letter to 2 different friends twice a week.  How many pages does he write a year?",
+          "normalized_question": "james writes a 3-page letter to 2 different friends twice a week. how many pages does he write a year?",
+          "question_tokens": [
+            "james",
+            "writes",
+            "a",
+            "3",
+            "page",
+            "letter",
+            "to",
+            "2",
+            "different",
+            "friends",
+            "twice",
+            "a",
+            "week",
+            "how",
+            "many",
+            "pages",
+            "does",
+            "he",
+            "write",
+            "a",
+            "year"
+          ],
+          "plan": [
+            "Step 1: Calculate how many letters James writes in one day.",
+            "Step 2: Determine how many days are in a year.",
+            "Step 3: Multiply the number of letters written per day by the number of days in a year.",
+            "answer",
+            "James writes 480 pages in a year.",
+            "original_question",
+            "How many pages does James write in a year?",
+            "Calculate how many letters James writes in one day."
+          ],
+          "final_answer": "624",
+          "subgoals": [
+            "Step 1: Calculate how many letters James writes in one day.",
+            "Step 2: Determine how many days are in a year.",
+            "Step 3: Multiply the number of letters written per day by the number of days in a year.",
+            "answer",
+            "James writes 480 pages in a year.",
+            "original_question",
+            "How many pages does James write in a year?",
+            "Calculate how many letters James writes in one day."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 8,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.6190823316574097
+        },
+        {
+          "question": "Albert is wondering how much pizza he can eat in one day. He buys 2 large pizzas and 2 small pizzas. A large pizza has 16 slices and a small pizza has 8 slices. If he eats it all, how many pieces does he eat that day?",
+          "normalized_question": "albert is wondering how much pizza he can eat in one day. he buys 2 large pizzas and 2 small pizzas. a large pizza has 16 slices and a small pizza has 8 slices. if he eats it all, how many pieces does he eat that day?",
+          "question_tokens": [
+            "albert",
+            "is",
+            "wondering",
+            "how",
+            "much",
+            "pizza",
+            "he",
+            "can",
+            "eat",
+            "in",
+            "one",
+            "day",
+            "he",
+            "buys",
+            "2",
+            "large",
+            "pizzas",
+            "and",
+            "2",
+            "small",
+            "pizzas",
+            "a",
+            "large",
+            "pizza",
+            "has",
+            "16",
+            "slices",
+            "and",
+            "a",
+            "small",
+            "pizza",
+            "has",
+            "8",
+            "slices",
+            "if",
+            "he",
+            "eats",
+            "it",
+            "all",
+            "how",
+            "many",
+            "pieces",
+            "does",
+            "he",
+            "eat",
+            "that",
+            "day"
+          ],
+          "plan": [
+            "Step 1: Calculate the total number of slices from the large pizzas.",
+            "Step 2: Calculate the total number of slices from the small pizzas.",
+            "Step 3: Add the two totals together to find the total number of slices eaten.",
+            "Step 4: Answer the original question.",
+            "Calculate the total number of slices from the large pizzas.",
+            "Calculate the total number of slices from the small pizzas.",
+            "Add the two totals together to find the total number of slices eaten.",
+            "Answer the original question."
+          ],
+          "final_answer": "48",
+          "subgoals": [
+            "Step 1: Calculate the total number of slices from the large pizzas.",
+            "Step 2: Calculate the total number of slices from the small pizzas.",
+            "Step 3: Add the two totals together to find the total number of slices eaten.",
+            "Step 4: Answer the original question.",
+            "Calculate the total number of slices from the large pizzas.",
+            "Calculate the total number of slices from the small pizzas.",
+            "Add the two totals together to find the total number of slices eaten.",
+            "Answer the original question."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 8,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.5865898728370667
+        }
+      ],
+      "plan": [
+        "answer",
+        "Step 1: Calculate how much money Betty currently has.",
+        "Step 2: Add the amount given by her parents.",
+        "Step 3: Add the amount given by her grandparents.",
+        "Step 4: Subtract the cost of the wallet from the total amount of money Betty now has.",
+        "answer",
+        "Step 1: Calculate how much money Betty currently has.",
+        "Step 2: Add the amount given by her parents. Then answer the original question directly using the previous results."
+      ],
+      "final_answer": "30",
+      "final_answer_source": "last_step",
+      "correct": false,
+      "step_answers": [
+        "30",
+        "30",
+        "30",
+        "50",
+        "100",
+        "50",
+        "30",
+        "30"
+      ],
+      "steps": [
+        {
+          "idx": 0,
+          "subgoal": "answer",
+          "answer": "30"
+        },
+        {
+          "idx": 1,
+          "subgoal": "Step 1: Calculate how much money Betty currently has.",
+          "answer": "30"
+        },
+        {
+          "idx": 2,
+          "subgoal": "Step 2: Add the amount given by her parents.",
+          "answer": "30"
+        },
+        {
+          "idx": 3,
+          "subgoal": "Step 3: Add the amount given by her grandparents.",
+          "answer": "50"
+        },
+        {
+          "idx": 4,
+          "subgoal": "Step 4: Subtract the cost of the wallet from the total amount of money Betty now has.",
+          "answer": "100"
+        },
+        {
+          "idx": 5,
+          "subgoal": "answer",
+          "answer": "50"
+        },
+        {
+          "idx": 6,
+          "subgoal": "Step 1: Calculate how much money Betty currently has.",
+          "answer": "30"
+        },
+        {
+          "idx": 7,
+          "subgoal": "Step 2: Add the amount given by her parents. Then answer the original question directly using the previous results.",
+          "answer": "30"
+        }
+      ]
+    },
+    {
+      "q_idx": 3,
+      "question": "Julie is reading a 120-page book. Yesterday, she was able to read 12 pages and today, she read twice as many pages as yesterday. If she wants to read half of the remaining pages tomorrow, how many pages should she read?",
+      "ground_truth": "42",
+      "retrieved_cases": [
+        {
+          "question": "James writes a 3-page letter to 2 different friends twice a week.  How many pages does he write a year?",
+          "normalized_question": "james writes a 3-page letter to 2 different friends twice a week. how many pages does he write a year?",
+          "question_tokens": [
+            "james",
+            "writes",
+            "a",
+            "3",
+            "page",
+            "letter",
+            "to",
+            "2",
+            "different",
+            "friends",
+            "twice",
+            "a",
+            "week",
+            "how",
+            "many",
+            "pages",
+            "does",
+            "he",
+            "write",
+            "a",
+            "year"
+          ],
+          "plan": [
+            "Step 1: Calculate how many letters James writes in one day.",
+            "Step 2: Determine how many days are in a year.",
+            "Step 3: Multiply the number of letters written per day by the number of days in a year.",
+            "answer",
+            "James writes 480 pages in a year.",
+            "original_question",
+            "How many pages does James write in a year?",
+            "Calculate how many letters James writes in one day."
+          ],
+          "final_answer": "624",
+          "subgoals": [
+            "Step 1: Calculate how many letters James writes in one day.",
+            "Step 2: Determine how many days are in a year.",
+            "Step 3: Multiply the number of letters written per day by the number of days in a year.",
+            "answer",
+            "James writes 480 pages in a year.",
+            "original_question",
+            "How many pages does James write in a year?",
+            "Calculate how many letters James writes in one day."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 8,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.5414823293685913
+        },
+        {
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?",
+          "normalized_question": "natalia sold clips to 48 of her friends in april, and then she sold half as many clips in may. how many clips did natalia sell altogether in april and may?",
+          "question_tokens": [
+            "natalia",
+            "sold",
+            "clips",
+            "to",
+            "48",
+            "of",
+            "her",
+            "friends",
+            "in",
+            "april",
+            "and",
+            "then",
+            "she",
+            "sold",
+            "half",
+            "as",
+            "many",
+            "clips",
+            "in",
+            "may",
+            "how",
+            "many",
+            "clips",
+            "did",
+            "natalia",
+            "sell",
+            "altogether",
+            "in",
+            "april",
+            "and",
+            "may"
+          ],
+          "plan": [
+            "Identify the key pieces of information provided:",
+            "Determine the sequence of actions needed to solve the problem:",
+            "Organize the steps in a logical order:",
+            "Answer the original question directly using the previous results. State the final quantity requested in: Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+          ],
+          "final_answer": "72",
+          "subgoals": [
+            "Identify the key pieces of information provided:",
+            "Determine the sequence of actions needed to solve the problem:",
+            "Organize the steps in a logical order:",
+            "Answer the original question directly using the previous results. State the final quantity requested in: Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 4,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.45964568853378296
+        }
+      ],
+      "plan": [
+        "answer",
+        "Step 1: Calculate how many pages Julie read today.",
+        "Step 2: Determine how many pages remain after reading yesterday and today.",
+        "Step 3: Calculate how many pages Julie needs to read tomorrow.",
+        "answer",
+        "Julie should read 60 pages tomorrow.",
+        "Answer the original question directly using the previous results. State the final quantity requested in: Julie is reading a 120-page book. Yesterday, she was able to read 12 pages and today, she read twice as many pages as yesterday. If she wants to read half of the remaining pages tomorrow, how many pages should she read?"
+      ],
+      "final_answer": "24",
+      "final_answer_source": "last_step",
+      "correct": false,
+      "step_answers": [
+        "36",
+        "24",
+        "24",
+        "36",
+        "4",
+        "1",
+        "24"
+      ],
+      "steps": [
+        {
+          "idx": 0,
+          "subgoal": "answer",
+          "answer": "36"
+        },
+        {
+          "idx": 1,
+          "subgoal": "Step 1: Calculate how many pages Julie read today.",
+          "answer": "24"
+        },
+        {
+          "idx": 2,
+          "subgoal": "Step 2: Determine how many pages remain after reading yesterday and today.",
+          "answer": "24"
+        },
+        {
+          "idx": 3,
+          "subgoal": "Step 3: Calculate how many pages Julie needs to read tomorrow.",
+          "answer": "36"
+        },
+        {
+          "idx": 4,
+          "subgoal": "answer",
+          "answer": "4"
+        },
+        {
+          "idx": 5,
+          "subgoal": "Julie should read 60 pages tomorrow.",
+          "answer": "1"
+        },
+        {
+          "idx": 6,
+          "subgoal": "Answer the original question directly using the previous results. State the final quantity requested in: Julie is reading a 120-page book. Yesterday, she was able to read 12 pages and today, she read twice as many pages as yesterday. If she wants to read half of the remaining pages tomorrow, how many pages should she read?",
+          "answer": "24"
+        }
+      ]
+    },
+    {
+      "q_idx": 5,
+      "question": "Mark has a garden with flowers. He planted plants of three different colors in it. Ten of them are yellow, and there are 80% more of those in purple. There are only 25% as many green flowers as there are yellow and purple flowers. How many flowers does Mark have in his garden?",
+      "ground_truth": "35",
+      "retrieved_cases": [
+        {
+          "question": "James writes a 3-page letter to 2 different friends twice a week.  How many pages does he write a year?",
+          "normalized_question": "james writes a 3-page letter to 2 different friends twice a week. how many pages does he write a year?",
+          "question_tokens": [
+            "james",
+            "writes",
+            "a",
+            "3",
+            "page",
+            "letter",
+            "to",
+            "2",
+            "different",
+            "friends",
+            "twice",
+            "a",
+            "week",
+            "how",
+            "many",
+            "pages",
+            "does",
+            "he",
+            "write",
+            "a",
+            "year"
+          ],
+          "plan": [
+            "Step 1: Calculate how many letters James writes in one day.",
+            "Step 2: Determine how many days are in a year.",
+            "Step 3: Multiply the number of letters written per day by the number of days in a year.",
+            "answer",
+            "James writes 480 pages in a year.",
+            "original_question",
+            "How many pages does James write in a year?",
+            "Calculate how many letters James writes in one day."
+          ],
+          "final_answer": "624",
+          "subgoals": [
+            "Step 1: Calculate how many letters James writes in one day.",
+            "Step 2: Determine how many days are in a year.",
+            "Step 3: Multiply the number of letters written per day by the number of days in a year.",
+            "answer",
+            "James writes 480 pages in a year.",
+            "original_question",
+            "How many pages does James write in a year?",
+            "Calculate how many letters James writes in one day."
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 8,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.6238964200019836
+        },
+        {
+          "question": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?",
+          "normalized_question": "natalia sold clips to 48 of her friends in april, and then she sold half as many clips in may. how many clips did natalia sell altogether in april and may?",
+          "question_tokens": [
+            "natalia",
+            "sold",
+            "clips",
+            "to",
+            "48",
+            "of",
+            "her",
+            "friends",
+            "in",
+            "april",
+            "and",
+            "then",
+            "she",
+            "sold",
+            "half",
+            "as",
+            "many",
+            "clips",
+            "in",
+            "may",
+            "how",
+            "many",
+            "clips",
+            "did",
+            "natalia",
+            "sell",
+            "altogether",
+            "in",
+            "april",
+            "and",
+            "may"
+          ],
+          "plan": [
+            "Step 1: Find out how many clips Natalia sold in May.",
+            "Step 2: Add the number of clips sold in April and May together.",
+            "Step 1: Find out how many clips Natalia sold in May.",
+            "Step 2: Add the number of clips sold in April and May together.",
+            "Answer the original question directly using the previous results. State the final quantity requested in: Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+          ],
+          "final_answer": "72",
+          "subgoals": [
+            "Step 1: Find out how many clips Natalia sold in May.",
+            "Step 2: Add the number of clips sold in April and May together.",
+            "Step 1: Find out how many clips Natalia sold in May.",
+            "Step 2: Add the number of clips sold in April and May together.",
+            "Answer the original question directly using the previous results. State the final quantity requested in: Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"
+          ],
+          "diagnostics": {
+            "final_answer_source": "last_step",
+            "exact_match": true,
+            "relaxed_match": true,
+            "num_steps": 5,
+            "answer_bearing_step_idx": null,
+            "synthesis_rejected_by_consistency": false
+          },
+          "score": 0.5937885642051697
+        }
+      ],
+      "plan": [
+        "step 1",
+        "step 2",
+        "step 3",
+        "step 1",
+        "step 2",
+        "step 3",
+        "step 4",
+        "step 1 Then answer the original question directly using the previous results."
+      ],
+      "final_answer": "18",
+      "final_answer_source": "last_step",
+      "correct": false,
+      "step_answers": [
+        "8",
+        "28",
+        "2",
+        "18",
+        "18",
+        "28",
+        "3",
+        "18"
+      ],
+      "steps": [
+        {
+          "idx": 0,
+          "subgoal": "step 1",
+          "answer": "8"
+        },
+        {
+          "idx": 1,
+          "subgoal": "step 2",
+          "answer": "28"
+        },
+        {
+          "idx": 2,
+          "subgoal": "step 3",
+          "answer": "2"
+        },
+        {
+          "idx": 3,
+          "subgoal": "step 1",
+          "answer": "18"
+        },
+        {
+          "idx": 4,
+          "subgoal": "step 2",
+          "answer": "18"
+        },
+        {
+          "idx": 5,
+          "subgoal": "step 3",
+          "answer": "28"
+        },
+        {
+          "idx": 6,
+          "subgoal": "step 4",
+          "answer": "3"
+        },
+        {
+          "idx": 7,
+          "subgoal": "step 1 Then answer the original question directly using the previous results.",
+          "answer": "18"
+        }
+      ]
+    }
+  ]
+}
