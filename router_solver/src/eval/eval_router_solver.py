@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Evaluate the Router-Solver hierarchical model on GSM8K.
-Loads base model + LoRA adapters and runs inference.
-"""
+# Evaluate the Router-Solver hierarchical model on GSM8K.
+    # Loads base model + LoRA adapters and runs inference.
 import argparse
 import torch
 import json

@@ -33,10 +33,8 @@ class Rollout:
 
 
 class RouterSolverAgent:
-    """
-    Hierarchical agent with a Router and a Solver.
-    Uses two LoRA adapters on a shared base model.
-    """
+    # Hierarchical agent with a Router and a Solver.
+    # Uses two LoRA adapters on a shared base model.
     def __init__(
         self,
         model,
@@ -60,7 +58,7 @@ class RouterSolverAgent:
             self.router_reward_evaluator = router_reward_evaluator
 
     def _set_adapter(self, adapter_name: str):
-        """Swaps the active LoRA adapter. No-op for non-peft models (tests)."""
+        # Swaps the active LoRA adapter. No-op for non-peft models (tests).
         if hasattr(self.model, "set_adapter"):
             self.model.set_adapter(adapter_name)
 
@@ -72,7 +70,7 @@ class RouterSolverAgent:
         do_sample: bool = True,
         temperature: float = 1.0,
     ) -> Tuple[str, torch.Tensor, torch.Tensor]:
-        """Generate from the current adapter. Returns (text, prompt_ids, completion_ids)."""
+        # Generate from the current adapter. Returns (text, prompt_ids, completion_ids).
         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
         prompt_ids = inputs.input_ids[0]  # [L_p]
 
@@ -96,10 +94,8 @@ class RouterSolverAgent:
         do_sample: bool = True,
         temperature: float = 1.0,
     ) -> List[Rollout]:
-        """
-        Generate multiple rollouts for multiple questions in parallel.
-        Returns B*G rollouts (B questions, G rollouts per question).
-        """
+        # Generate multiple rollouts for multiple questions in parallel.
+    # Returns B*G rollouts (B questions, G rollouts per question).
         all_rollouts = []
 
         # 1. Batch router inference for all questions
@@ -237,11 +233,9 @@ class RouterSolverAgent:
         do_sample: bool = True,
         temperature: float = 1.0,
     ) -> Rollout:
-        """
-        Executes a full hierarchical rollout (Router → N × Solver+tool).
-        Returns a Rollout with prompt/completion token tensors so the caller
-        can recompute log-probs for GRPO.
-        """
+        # Executes a full hierarchical rollout (Router → N × Solver+tool).
+    # Returns a Rollout with prompt/completion token tensors so the caller
+    # can recompute log-probs for GRPO.
         # We wrap the single question into batched_rollout
         return self.batched_rollout([question], memory, do_sample, temperature, batch_size=1)[0]
 
@@ -256,7 +250,7 @@ class RouterSolverAgent:
         vllm_engine=None,
         lora_request=None,
     ) -> Tuple[List[str], List[torch.Tensor], List[torch.Tensor]]:
-        """Batched generation using vLLM if provided, else HF with left-padding."""
+        # Batched generation using vLLM if provided, else HF with left-padding.
         if vllm_engine is not None:
             from vllm import SamplingParams
             sampling_params = SamplingParams(
@@ -327,11 +321,9 @@ class RouterSolverAgent:
         vllm_engine=None,
         lora_base_path=None,
     ) -> List[Rollout]:
-        """
-        Executes a batched hierarchical rollout (Router → N × Solver+tool).
-        Generates plans for all questions concurrently, then executes solvers concurrently
-        layer by layer (step 1 for all, step 2 for all, etc.).
-        """
+        # Executes a batched hierarchical rollout (Router → N × Solver+tool).
+    # Generates plans for all questions concurrently, then executes solvers concurrently
+    # layer by layer (step 1 for all, step 2 for all, etc.).
         router_lora_req = None
         solver_lora_req = None
         if vllm_engine is not None and lora_base_path is not None:

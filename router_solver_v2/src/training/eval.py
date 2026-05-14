@@ -13,7 +13,7 @@ def evaluate(
     ground_truths: List[str],
     cfg: Config,
 ) -> Dict:
-    """Evaluate on a dataset."""
+    # Evaluate on a dataset.
 
     shaper = RewardShaper(use_judge=cfg.use_judge)
     results = {
@@ -34,7 +34,7 @@ def evaluate(
     rollout_batch = []
 
     def process_batch(plan_batch, step_batch, rollout_batch):
-        """Judge a batch and assign scores to rollouts."""
+        # Judge a batch and assign scores to rollouts.
         if not plan_batch:
             return
 
@@ -113,7 +113,7 @@ def evaluate(
 
 
 def print_eval_results(results: Dict, name: str = ""):
-    """Print evaluation results."""
+    # Print evaluation results.
     print(f"\n{'='*60}")
     print(f"Evaluation Results {name}")
     print(f"{'='*60}")

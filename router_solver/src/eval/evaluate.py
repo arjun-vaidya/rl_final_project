@@ -9,7 +9,7 @@ from src.rewards.outcome import outcome_reward, extract_answer_from_trajectory
 from src.env.python_tool import run_python, ToolResult
 
 def evaluate_flat(model, tokenizer, problems, device="cuda"):
-    """Evaluates the flat agent baseline."""
+    # Evaluates the flat agent baseline.
     correct = 0
     total = len(problems)
     results = []

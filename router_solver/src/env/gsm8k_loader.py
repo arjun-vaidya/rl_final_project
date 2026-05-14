@@ -9,7 +9,7 @@ class GSM8KProblem:
     numeric_answer: int
 
 def extract_numeric_answer(ans_str: str) -> int:
-    """Extracts the number after #### in the GSM8K answer string."""
+    # Extracts the number after #### in the GSM8K answer string.
     if "####" not in ans_str:
         return None
     ans = ans_str.split("####")[-1].strip()
@@ -21,7 +21,7 @@ def extract_numeric_answer(ans_str: str) -> int:
     return None
 
 def load_gsm8k(split: str = "train") -> list[GSM8KProblem]:
-    """Loads GSM8K and returns a list of GSM8KProblem objects."""
+    # Loads GSM8K and returns a list of GSM8KProblem objects.
     ds = load_dataset("openai/gsm8k", "main", split=split)
     problems = []
     for item in ds:

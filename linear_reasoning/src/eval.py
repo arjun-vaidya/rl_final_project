@@ -15,7 +15,7 @@ def evaluate(
     output_path: str = None,
     batch_size: int = 16,
 ):
-    """Evaluate the agent on the test set with greedy decoding, batched for speed."""
+    # Evaluate on test set with greedy decoding (batched).
     results = {
         "correct": 0,
         "total": 0,

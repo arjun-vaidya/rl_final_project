@@ -2,10 +2,8 @@
 from src.env.python_tool import ToolResult, looks_sensible
 
 def solver_step_reward(tool_result: ToolResult, final_outcome: float) -> float:
-    """
-    Decomposed per-step Solver reward.
-    Weights: 0.3 (no error) + 0.2 (sensible output) + 0.5 (final outcome)
-    """
+    # Decomposed per-step Solver reward.
+    # Weights: 0.3 (no error) + 0.2 (sensible output) + 0.5 (final outcome)
     if tool_result.is_error:
         return 0.0
         

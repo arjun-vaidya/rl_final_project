@@ -9,7 +9,7 @@ from reward import compute_reward, extract_boxed_answer, numeric_match, extract_
 
 
 def _vote(predictions: List[str], ground_truth: str):
-    """Majority-vote over a list of predicted strings; return (vote_pred, vote_correct, agreement)."""
+    # Majority-vote over a list of predicted strings; return (vote_pred, vote_correct, agreement).
     normalized = []
     for p in predictions:
         if p is None:
@@ -44,11 +44,10 @@ def evaluate_sc(
     batch_size: int = 8,
     vllm_engine=None,
 ):
-    """Self-consistency eval: K rollouts per question at `temperature`, majority-vote over \\boxed{} answers.
-
-    Also reports greedy (T=0) accuracy as a control by taking the first rollout of each group
-    only if `temperature` is 0; otherwise we report majority-vote accuracy only.
-    """
+    # Self-consistency eval: K rollouts per question at `temperature`, majority-vote over \\boxed{} answers.
+    #
+    # Also reports greedy (T=0) accuracy as a control by taking the first rollout of each group
+    # only if `temperature` is 0; otherwise we report majority-vote accuracy only.
     results = {
         "K": K,
         "temperature": temperature,

@@ -51,7 +51,7 @@ def _get_pool():
     return _pool
 
 def run_python(code: str, timeout: float = 5.0) -> ToolResult:
-    """Runs python code in a persistent worker pool and returns the result."""
+    # Runs python code in a persistent worker pool and returns the result.
     start_time = time.time()
     pool = _get_pool()
     try:
@@ -83,7 +83,7 @@ def run_python(code: str, timeout: float = 5.0) -> ToolResult:
         return ToolResult(output=f"Internal Error: {str(e)}", is_error=True, wall_time_ms=0)
 
 def looks_sensible(output: str) -> bool:
-    """Checks if the output is non-empty and reasonably sized."""
+    # Checks if the output is non-empty and reasonably sized.
     if not output or not output.strip():
         return False
     if len(output) > 256: # Truncated by script usually

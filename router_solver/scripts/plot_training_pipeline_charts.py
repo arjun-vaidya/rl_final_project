@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Build real-data charts comparing SFT and GRPO training runs.
-
-The script parses the existing training logs and emits:
-- a CSV of parsed SFT + GRPO metrics for reproducibility
-- an HTML report (using Chart.js) with real-time metrics from the runs
-"""
+# Build real-data charts comparing SFT and GRPO training runs.
+    #
+    # The script parses the existing training logs and emits:
+    # - a CSV of parsed SFT + GRPO metrics for reproducibility
+    # - an HTML report (using Chart.js) with real-time metrics from the runs
 
 from __future__ import annotations
 
@@ -216,145 +215,144 @@ def write_html(output_path: Path, sft: Dict, grpo: Dict) -> None:
     grpo_loss_steps = [r["step"] + 1 for r in sorted(grpo["loss_records"], key=lambda r: r["step"])]
     grpo_acc = [r["outcome_acc"] for r in sorted(grpo["loss_records"], key=lambda r: r["step"])]
 
-    html = f"""<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Router-Solver: SFT vs GRPO Pipeline Metrics</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-  <style>
-    body {{font-family: Arial, sans-serif; margin: 24px; color: #122; background: #f7f8fb;}}
-    .grid {{display: grid; grid-template-columns: 1fr; gap: 28px; max-width: 1400px;}}
-    canvas {{ background: #fff; border: 1px solid #d7dce2; border-radius: 8px; padding: 10px;}}
-    pre {{background: #fff; border: 1px solid #d7dce2; border-radius: 8px; padding: 10px; max-width: 1400px; overflow: auto;}}
-  </style>
-</head>
-<body>
-  <h1>Router-Solver: SFT vs GRPO Training Pipeline Metrics</h1>
-  <p>
-    Source logs:
-    <ul>
-      <li><code>{sft['log_path']}</code></li>
-      <li><code>{grpo['log_path']}</code></li>
-    </ul>
-    Parsed at generation time from raw training outputs.
-  </p>
-  <div class="grid">
-    <div>
-      <h3>Optimizer step time (seconds)</h3>
-      <canvas id="stepTimeChart" height="320"></canvas>
-    </div>
-    <div>
-      <h3>Cumulative wall-clock time (hours)</h3>
-      <canvas id="cumulativeChart" height="320"></canvas>
-    </div>
-    <div>
-      <h3>GRPO outcome trajectory</h3>
-      <canvas id="qualityChart" height="320"></canvas>
-    </div>
-  </div>
-  <script>
-    const xStep = {json.dumps(x_step)};
-    const grpoStepTime = {json.dumps(grpo_step_secs)};
-    const xCmp = {json.dumps(x_compare)};
-    const sftStepTime = {json.dumps(sft_step_line)};
-
-    const xCmpHours = {json.dumps(x_compare)};
-    const grpoCumHours = {json.dumps(grpo_cumulative_hours)};
-    const sftCumHours = {json.dumps(sft_cumulative_hours)};
-
-    const xLoss = {json.dumps(grpo_loss_steps)};
-    const grpoLoss = {json.dumps(grpo_loss)};
-    const grpoAcc = {json.dumps(grpo_acc)};
-
-    const commonGrid = {{
-      color: "#ddd",
-      drawBorder: false,
-    }};
-
-    new Chart(document.getElementById('stepTimeChart'), {{
-      type: 'line',
-      data: {{
-        labels: xStep,
-        datasets: [
-          {{label: 'GRPO step_time_sec', data: grpoStepTime, borderColor: '#0e5db8', backgroundColor: '#0e5db8', tension: 0.2, fill: false}},
-          {{label: 'SFT avg step_time_sec (constant)', data: xCmp.map(() => sftStepTime[0]), borderColor: '#0ea95f', backgroundColor: '#0ea95f', borderDash: [6, 6], pointRadius: 0, fill: false}},
-        ]
-      }},
-      options: {{
-        responsive: true,
-        plugins: {{legend: {{position: 'top'}}, title: {{display: true, text: 'Per-step cost comparison (seconds)'}}}},
-        scales: {{x: {{title: {{display: true, text: 'Optimizer step (1-indexed)'}}, grid: commonGrid}}, y: {{title: {{display: true, text: 'Step time (s)'}}, grid: commonGrid}}}}
-      }}
-    }});
-
-    new Chart(document.getElementById('cumulativeChart'), {{
-      type: 'line',
-      data: {{
-        labels: xCmpHours,
-        datasets: [
-          {{label: 'GRPO cumulative hours', data: grpoCumHours, borderColor: '#f28f1f', backgroundColor: '#f28f1f', tension: 0.25, fill: false}},
-          {{label: 'SFT projected cumulative hours', data: sftCumHours, borderColor: '#0ea95f', backgroundColor: '#0ea95f', borderDash: [5,5], tension: 0.25, pointRadius: 0, fill:false}},
-        ]
-      }},
-      options: {{
-        responsive: true,
-        plugins: {{legend: {{position: 'top'}}, title: {{display: true, text: 'Cumulative elapsed training time'}}}},
-        scales: {{x: {{title: {{display: true, text: 'Optimizer steps'}}, grid: commonGrid}}, y: {{title: {{display: true, text: 'Hours'}}, grid: commonGrid}}}}
-      }}
-    }});
-
-    new Chart(document.getElementById('qualityChart'), {{
-      type: 'line',
-      data: {{
-        labels: xLoss,
-        datasets: [
-          {{
-            label: 'GRPO outcome_acc',
-            data: grpoAcc,
-            borderColor: '#7b2cbf',
-            backgroundColor: '#7b2cbf',
-            yAxisID: 'y2',
-            tension: 0.2,
-            fill: false,
-          }},
-          {{
-            label: 'GRPO loss',
-            data: grpoLoss,
-            borderColor: '#0e5db8',
-            backgroundColor: '#0e5db8',
-            yAxisID: 'y',
-            tension: 0.2,
-            fill: false,
-          }},
-        ]
-      }},
-      options: {{
-        responsive: true,
-        plugins: {{legend: {{position: 'top'}}, title: {{display: true, text: 'GRPO quality trajectory (logged checkpoints)'}}}},
-        scales: {{
-          x: {{title: {{display: true, text: 'Optimizer step'}}, grid: commonGrid}},
-          y: {{type: 'linear', position: 'left', title: {{display: true, text: 'GRPO loss'}}, grid: commonGrid}},
-          y2: {{type: 'linear', position: 'right', title: {{display: true, text: 'outcome_acc'}}, grid: {{drawOnChartArea: false}}}},
-        }}
-      }}
-    }});
-  </script>
-  <pre>
-Source summary:
-{json.dumps({
-  "sft_total_steps": sft.get("total_steps"),
-  "sft_train_runtime_sec": round(sft_runtime, 2),
-  "sft_avg_step_time_sec": round(sft_step_time, 4) if sft_step_time else None,
-  "grpo_total_steps": grpo.get("total_steps"),
-  "grpo_avg_step_time_sec": round(sum(grpo_step_secs)/max(len(grpo_step_secs),1), 4),
-  "grpo_final_outcome_acc": grpo_loss_records_last_loss(grpo),
-}, indent=2)}
-  </pre>
-</body>
-</html>
-"""
+    html = f# <!doctype html>
+    # <html lang="en">
+    # <head>
+    # <meta charset="utf-8" />
+    # <meta name="viewport" content="width=device-width, initial-scale=1" />
+    # <title>Router-Solver: SFT vs GRPO Pipeline Metrics</title>
+    # <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+    # <style>
+    # body {{font-family: Arial, sans-serif; margin: 24px; color: #122; background: #f7f8fb;}}
+    # .grid {{display: grid; grid-template-columns: 1fr; gap: 28px; max-width: 1400px;}}
+    # canvas {{ background: #fff; border: 1px solid #d7dce2; border-radius: 8px; padding: 10px;}}
+    # pre {{background: #fff; border: 1px solid #d7dce2; border-radius: 8px; padding: 10px; max-width: 1400px; overflow: auto;}}
+    # </style>
+    # </head>
+    # <body>
+    # <h1>Router-Solver: SFT vs GRPO Training Pipeline Metrics</h1>
+    # <p>
+    # Source logs:
+    # <ul>
+    # <li><code>{sft['log_path']}</code></li>
+    # <li><code>{grpo['log_path']}</code></li>
+    # </ul>
+    # Parsed at generation time from raw training outputs.
+    # </p>
+    # <div class="grid">
+    # <div>
+    # <h3>Optimizer step time (seconds)</h3>
+    # <canvas id="stepTimeChart" height="320"></canvas>
+    # </div>
+    # <div>
+    # <h3>Cumulative wall-clock time (hours)</h3>
+    # <canvas id="cumulativeChart" height="320"></canvas>
+    # </div>
+    # <div>
+    # <h3>GRPO outcome trajectory</h3>
+    # <canvas id="qualityChart" height="320"></canvas>
+    # </div>
+    # </div>
+    # <script>
+    # const xStep = {json.dumps(x_step)};
+    # const grpoStepTime = {json.dumps(grpo_step_secs)};
+    # const xCmp = {json.dumps(x_compare)};
+    # const sftStepTime = {json.dumps(sft_step_line)};
+    #
+    # const xCmpHours = {json.dumps(x_compare)};
+    # const grpoCumHours = {json.dumps(grpo_cumulative_hours)};
+    # const sftCumHours = {json.dumps(sft_cumulative_hours)};
+    #
+    # const xLoss = {json.dumps(grpo_loss_steps)};
+    # const grpoLoss = {json.dumps(grpo_loss)};
+    # const grpoAcc = {json.dumps(grpo_acc)};
+    #
+    # const commonGrid = {{
+    # color: "#ddd",
+    # drawBorder: false,
+    # }};
+    #
+    # new Chart(document.getElementById('stepTimeChart'), {{
+    # type: 'line',
+    # data: {{
+    # labels: xStep,
+    # datasets: [
+    # {{label: 'GRPO step_time_sec', data: grpoStepTime, borderColor: '#0e5db8', backgroundColor: '#0e5db8', tension: 0.2, fill: false}},
+    # {{label: 'SFT avg step_time_sec (constant)', data: xCmp.map(() => sftStepTime[0]), borderColor: '#0ea95f', backgroundColor: '#0ea95f', borderDash: [6, 6], pointRadius: 0, fill: false}},
+    # ]
+    # }},
+    # options: {{
+    # responsive: true,
+    # plugins: {{legend: {{position: 'top'}}, title: {{display: true, text: 'Per-step cost comparison (seconds)'}}}},
+    # scales: {{x: {{title: {{display: true, text: 'Optimizer step (1-indexed)'}}, grid: commonGrid}}, y: {{title: {{display: true, text: 'Step time (s)'}}, grid: commonGrid}}}}
+    # }}
+    # }});
+    #
+    # new Chart(document.getElementById('cumulativeChart'), {{
+    # type: 'line',
+    # data: {{
+    # labels: xCmpHours,
+    # datasets: [
+    # {{label: 'GRPO cumulative hours', data: grpoCumHours, borderColor: '#f28f1f', backgroundColor: '#f28f1f', tension: 0.25, fill: false}},
+    # {{label: 'SFT projected cumulative hours', data: sftCumHours, borderColor: '#0ea95f', backgroundColor: '#0ea95f', borderDash: [5,5], tension: 0.25, pointRadius: 0, fill:false}},
+    # ]
+    # }},
+    # options: {{
+    # responsive: true,
+    # plugins: {{legend: {{position: 'top'}}, title: {{display: true, text: 'Cumulative elapsed training time'}}}},
+    # scales: {{x: {{title: {{display: true, text: 'Optimizer steps'}}, grid: commonGrid}}, y: {{title: {{display: true, text: 'Hours'}}, grid: commonGrid}}}}
+    # }}
+    # }});
+    #
+    # new Chart(document.getElementById('qualityChart'), {{
+    # type: 'line',
+    # data: {{
+    # labels: xLoss,
+    # datasets: [
+    # {{
+    # label: 'GRPO outcome_acc',
+    # data: grpoAcc,
+    # borderColor: '#7b2cbf',
+    # backgroundColor: '#7b2cbf',
+    # yAxisID: 'y2',
+    # tension: 0.2,
+    # fill: false,
+    # }},
+    # {{
+    # label: 'GRPO loss',
+    # data: grpoLoss,
+    # borderColor: '#0e5db8',
+    # backgroundColor: '#0e5db8',
+    # yAxisID: 'y',
+    # tension: 0.2,
+    # fill: false,
+    # }},
+    # ]
+    # }},
+    # options: {{
+    # responsive: true,
+    # plugins: {{legend: {{position: 'top'}}, title: {{display: true, text: 'GRPO quality trajectory (logged checkpoints)'}}}},
+    # scales: {{
+    # x: {{title: {{display: true, text: 'Optimizer step'}}, grid: commonGrid}},
+    # y: {{type: 'linear', position: 'left', title: {{display: true, text: 'GRPO loss'}}, grid: commonGrid}},
+    # y2: {{type: 'linear', position: 'right', title: {{display: true, text: 'outcome_acc'}}, grid: {{drawOnChartArea: false}}}},
+    # }}
+    # }}
+    # }});
+    # </script>
+    # <pre>
+    # Source summary:
+    # {json.dumps({
+    # "sft_total_steps": sft.get("total_steps"),
+    # "sft_train_runtime_sec": round(sft_runtime, 2),
+    # "sft_avg_step_time_sec": round(sft_step_time, 4) if sft_step_time else None,
+    # "grpo_total_steps": grpo.get("total_steps"),
+    # "grpo_avg_step_time_sec": round(sum(grpo_step_secs)/max(len(grpo_step_secs),1), 4),
+    # "grpo_final_outcome_acc": grpo_loss_records_last_loss(grpo),
+    # }, indent=2)}
+    # </pre>
+    # </body>
+    # </html>
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8") as f:

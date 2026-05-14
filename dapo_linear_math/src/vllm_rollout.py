@@ -49,7 +49,7 @@ class VLLMRollout:
             self.stop_token_ids.append(im_end_id)
 
     def sync_lora_from_peft(self, peft_model):
-        """Save the PEFT adapter to a fresh dir and register it with vLLM."""
+        # Save the PEFT adapter to a fresh dir and register it with vLLM.
         self._lora_counter += 1
         path = os.path.join(self._lora_dir, f"v{self._lora_counter}")
         peft_model.save_pretrained(path)
@@ -68,7 +68,7 @@ class VLLMRollout:
         )
 
     def generate_groups(self, agent, questions: List[str], ground_truths: List[str], G: int, temperature: float) -> List[List[Trajectory]]:
-        """Generate G rollouts per question. Returns one list of G Trajectories per question."""
+        # Generate G rollouts per question. Returns one list of G Trajectories per question.
         prompts = []
         for q in questions:
             prompts.extend([agent._build_prompt(q)] * G)
@@ -99,7 +99,7 @@ class VLLMRollout:
         return grouped
 
     def generate_flat(self, agent, questions: List[str], K: int, temperature: float) -> List[List[str]]:
-        """K rollouts per question, returning just text. Used by eval_sc."""
+        # K rollouts per question, returning just text. Used by eval_sc.
         prompts = []
         for q in questions:
             prompts.extend([agent._build_prompt(q)] * K)

@@ -2,20 +2,16 @@ import re
 from src.env.python_tool import run_python
 
 class FlatAgent:
-    """
-    A flat CoT agent that uses Python tools. 
-    It interleaves thought and code blocks.
-    """
+    # A flat CoT agent that uses Python tools.
+    # It interleaves thought and code blocks.
     def __init__(self, model, tokenizer, device="cuda"):
         self.model = model
         self.tokenizer = tokenizer
         self.device = device
 
     def execute(self, question: str, max_tokens: int = 1024) -> str:
-        """
-        Runs the full agentic loop for a single question.
-        Returns the full trajectory text.
-        """
+        # Runs the full agentic loop for a single question.
+    # Returns the full trajectory text.
         # Starting prompt
         prompt = f"Question: {question}\nReasoning and tool use:"
         trajectory = prompt

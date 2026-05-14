@@ -3,20 +3,18 @@ from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
 
-SYSTEM_PROMPT = """You are a math tutor. Solve the problem step by step, showing your reasoning clearly. End with the final answer in \\boxed{} format."""
+SYSTEM_PROMPT = # You are a math tutor. Solve the problem step by step, showing your reasoning clearly. End with the final answer in \\boxed{} format.
 
 
 def trim_at_eos(completion_ids: torch.Tensor, stop_token_ids) -> torch.Tensor:
-    """
-    Trim a completion at the first stop token (inclusive).
-
-    `stop_token_ids` can be a single int or an iterable of ints. The first
-    occurrence of ANY listed stop token marks the legitimate end of the
-    generation. Tokens after that point are padding from batched generation
-    and would otherwise contaminate the policy gradient (training the model
-    to predict runs of EOS / im_end). The first stop is kept — it's a real
-    prediction the model should learn.
-    """
+    # Trim a completion at the first stop token (inclusive).
+    #
+    # `stop_token_ids` can be a single int or an iterable of ints. The first
+    # occurrence of ANY listed stop token marks the legitimate end of the
+    # generation. Tokens after that point are padding from batched generation
+    # and would otherwise contaminate the policy gradient (training the model
+    # to predict runs of EOS / im_end). The first stop is kept — it's a real
+    # prediction the model should learn.
     if isinstance(stop_token_ids, int):
         stop_token_ids = [stop_token_ids]
 
@@ -35,7 +33,7 @@ def trim_at_eos(completion_ids: torch.Tensor, stop_token_ids) -> torch.Tensor:
 
 @dataclass
 class Trajectory:
-    """A single rollout trajectory."""
+    # A single rollout trajectory.
     question: str
     ground_truth: str
 
@@ -49,12 +47,10 @@ class Trajectory:
 
 
 class LinearReasoningAgent:
-    """
-    Single-pass CoT agent.
-
-    No router, no solver, no reflection prompt. Just:
-        Question -> Chain-of-thought reasoning -> \\boxed{N}
-    """
+    # Single-pass CoT agent.
+    #
+    # No router, no solver, no reflection prompt. Just:
+    # Question -> Chain-of-thought reasoning -> \\boxed{N}
 
     def __init__(
         self,
@@ -83,7 +79,7 @@ class LinearReasoningAgent:
             self.stop_token_ids.append(im_end_id)
 
     def _build_prompt(self, question: str) -> str:
-        """Format the prompt using the model's chat template."""
+        # Format the prompt using the model's chat template.
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": question},
@@ -99,7 +95,7 @@ class LinearReasoningAgent:
         max_tokens: int,
         temperature: float,
     ) -> Tuple[str, torch.Tensor, torch.Tensor]:
-        """Generate a single completion from a prompt."""
+        # Generate a single completion from a prompt.
         device = getattr(self.model, "device", torch.device("cuda" if torch.cuda.is_available() else "cpu"))
         inputs = self.tokenizer(prompt, return_tensors="pt").to(device)
 
@@ -131,7 +127,7 @@ class LinearReasoningAgent:
         max_tokens: int,
         temperature: float,
     ) -> List[Tuple[str, torch.Tensor, torch.Tensor]]:
-        """Generate completions for a batch of prompts (for G rollouts)."""
+        # Generate completions for a batch of prompts (for G rollouts).
         device = getattr(self.model, "device", torch.device("cuda" if torch.cuda.is_available() else "cpu"))
 
         original_padding = self.tokenizer.padding_side
@@ -168,7 +164,7 @@ class LinearReasoningAgent:
         return results
 
     def rollout(self, question: str, ground_truth: str, temperature: Optional[float] = None) -> Trajectory:
-        """Generate one trajectory."""
+        # Generate one trajectory.
         temp = temperature if temperature is not None else self.temperature
 
         prompt = self._build_prompt(question)
@@ -183,7 +179,7 @@ class LinearReasoningAgent:
         )
 
     def rollout_group(self, question: str, ground_truth: str, G: int, temperature: Optional[float] = None) -> List[Trajectory]:
-        """Generate G trajectories for one question (GRPO group)."""
+        # Generate G trajectories for one question (GRPO group).
         temp = temperature if temperature is not None else self.temperature
 
         prompt = self._build_prompt(question)
@@ -201,7 +197,7 @@ class LinearReasoningAgent:
         ]
 
     def rollout_batch(self, questions: List[str], ground_truths: List[str], temperature: Optional[float] = None) -> List[Trajectory]:
-        """Generate one trajectory per (question, ground_truth) pair, batched together."""
+        # Generate one trajectory per (question, ground_truth) pair, batched together.
         temp = temperature if temperature is not None else self.temperature
 
         prompts = [self._build_prompt(q) for q in questions]

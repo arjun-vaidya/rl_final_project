@@ -16,14 +16,8 @@ def compute_logprobs_batch(
     completion_ids_list: List[torch.Tensor],
     pad_token_id: int,
 ) -> List[torch.Tensor]:
-    """
-    Batched forward pass. One forward over all (prompt, completion) pairs in the
-    microbatch, then per-trajectory extraction of completion-token logprobs.
-
-    Right-pads sequences to the max length in the batch and uses attention_mask to
-    prevent padded positions from contributing to attention. Returns a list of
-    completion-token logprob tensors (variable length, one per trajectory).
-    """
+    # Batched forward pass with right-padding and attention mask.
+    # Returns completion logprobs per trajectory.
     device = model.device
     B = len(prompt_ids_list)
 
@@ -75,7 +69,7 @@ def compute_ref_logprobs_batch(
     completion_ids_list: List[torch.Tensor],
     pad_token_id: int,
 ) -> List[torch.Tensor]:
-    """Batched reference logprobs with LoRA disabled (no grad)."""
+    # Reference logprobs with LoRA disabled.
     with model.disable_adapter():
         return [lp.detach() for lp in compute_logprobs_batch(
             model, prompt_ids_list, completion_ids_list, pad_token_id
@@ -83,16 +77,13 @@ def compute_ref_logprobs_batch(
 
 
 def compute_kl_k3(log_p: torch.Tensor, log_p_ref: torch.Tensor) -> torch.Tensor:
-    """
-    Unbiased k3 KL estimator: KL(p || p_ref) ≈ exp(log_p_ref - log_p) - (log_p_ref - log_p) - 1
-    Always non-negative. This is the estimator used in DeepSeek-R1.
-    """
+    # K3 KL estimator from DeepSeek-R1.
     log_ratio = log_p_ref - log_p
     return torch.exp(log_ratio) - log_ratio - 1.0
 
 
 def compute_grpo_advantages(rewards: List[float]) -> List[float]:
-    """Compute group-relative advantages: (r - mean) / std."""
+    # Group-relative advantage: (r - mean) / std.
     rewards_t = torch.tensor(rewards, dtype=torch.float32)
     mean = rewards_t.mean()
     std = rewards_t.std()
@@ -109,7 +100,7 @@ def train(
     cfg,
     optimizer,
 ):
-    """GRPO training loop with verifiable rewards."""
+    # GRPO training loop with verifiable rewards.
     model = agent.model
     G = cfg.rollouts_per_q
     pad_token_id = agent.tokenizer.pad_token_id

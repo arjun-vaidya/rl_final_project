@@ -2,7 +2,7 @@ import numpy as np
 from typing import List, Dict, Tuple
 
 class MemoryStore:
-    """Storage for successful plans and their embeddings."""
+    # Storage for successful plans and their embeddings.
     def __init__(self, capacity: int = 1000):
         self.capacity = capacity
         self.keys: List[str] = [] # Original questions
@@ -10,7 +10,7 @@ class MemoryStore:
         self.embeddings: List[np.ndarray] = []
 
     def add(self, question: str, plan: Dict, embedding: np.ndarray):
-        """Adds a new entry. Evicts oldest if capacity exceeded (FIFO)."""
+        # Adds a new entry. Evicts oldest if capacity exceeded (FIFO).
         if len(self.keys) >= self.capacity:
             self.keys.pop(0)
             self.values.pop(0)
@@ -21,7 +21,7 @@ class MemoryStore:
         self.embeddings.append(embedding)
 
     def topk(self, query_embedding: np.ndarray, k: int = 3, min_similarity: float = 0.0) -> List[Tuple[Dict, float]]:
-        """Returns top-k most similar entries based on cosine similarity."""
+        # Returns top-k most similar entries based on cosine similarity.
         if not self.embeddings:
             return []
             

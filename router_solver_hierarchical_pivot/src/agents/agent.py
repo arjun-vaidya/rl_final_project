@@ -49,7 +49,7 @@ class Rollout:
     retrieved_cases: List[Dict[str, object]] = field(default_factory=list)
 
     def is_valid(self) -> bool:
-        """Check if rollout has valid plan and steps."""
+        # Check if rollout has valid plan and steps.
         return self.plan is not None and len(self.steps) > 0
 
 
@@ -120,7 +120,7 @@ class Agent:
 
     @staticmethod
     def _trim_at_eos(completion_ids: torch.Tensor, stop_token_ids) -> torch.Tensor:
-        """Trim completion tokens at the first stop token (inclusive)."""
+        # Trim completion tokens at the first stop token (inclusive).
         if isinstance(stop_token_ids, int):
             stop_token_ids = [stop_token_ids]
 
@@ -299,31 +299,31 @@ class Agent:
             )
 
         if not self.router_prompt_hardening:
-            return f"""Decompose this math problem into clear steps.
+            return f# Decompose this math problem into clear steps.
+    #
+    # {retrieval_block}\
+    # Problem: {question}
+    #
+    # The final plan step must answer the original question directly, not compute an intermediate quantity.
+    #
+    # Respond with JSON: {{"plan": ["step 1", "step 2", ...]}}
+    #
+    # JSON:
 
-{retrieval_block}\
-Problem: {question}
-
-The final plan step must answer the original question directly, not compute an intermediate quantity.
-
-Respond with JSON: {{"plan": ["step 1", "step 2", ...]}}
-
-JSON:"""
-
-        return f"""Decompose this math problem into clear steps.
-
-{retrieval_block}\
-Problem: {question}
-
-Respond with valid JSON only. Use this exact schema:
-{{"plan": ["Step 1: ...", "Step 2: ..."]}}
-
-Rules:
-- Output only JSON. No markdown, no prose, no code fences.
-- Make the final step explicitly compute the final answer to the original problem.
-- Keep the plan between 2 and 6 steps.
-
-JSON:"""
+        return f# Decompose this math problem into clear steps.
+    #
+    # {retrieval_block}\
+    # Problem: {question}
+    #
+    # Respond with valid JSON only. Use this exact schema:
+    # {{"plan": ["Step 1: ...", "Step 2: ..."]}}
+    #
+    # Rules:
+    # - Output only JSON. No markdown, no prose, no code fences.
+    # - Make the final step explicitly compute the final answer to the original problem.
+    # - Keep the plan between 2 and 6 steps.
+    #
+    # JSON:
 
     @staticmethod
     def _build_solver_prompt(question: str, plan: List[str], previous_answers: List[str], step_idx: int, subgoal: str) -> str:
@@ -339,33 +339,33 @@ JSON:"""
                 "Do not return an intermediate value from an earlier step.\n\n"
             )
 
-        return f"""Solve this step.
-
-Question: {question}
-
-Plan:
-{chr(10).join([f"{i+1}. {s}" for i, s in enumerate(plan)])}
-
-{history}
-
-Step {step_idx+1}: {subgoal}
-
-{final_step_instruction}\
-Solve this step. Show work, then end with a final line exactly in the form:
-Final answer: <number>
-
-Do not end with prose after the final answer line."""
+        return f# Solve this step.
+    #
+    # Question: {question}
+    #
+    # Plan:
+    # {chr(10).join([f"{i+1}. {s}" for i, s in enumerate(plan)])}
+    #
+    # {history}
+    #
+    # Step {step_idx+1}: {subgoal}
+    #
+    # {final_step_instruction}\
+    # Solve this step. Show work, then end with a final line exactly in the form:
+    # Final answer: <number>
+    #
+    # Do not end with prose after the final answer line.
 
     @staticmethod
     def _build_easy_prompt(question: str) -> str:
-        return f"""Solve this math problem directly.
-
-Question: {question}
-
-Show concise work if needed, then end with a final line exactly in the form:
-Final answer: <number>
-
-Do not end with prose after the final answer line."""
+        return f# Solve this math problem directly.
+    #
+    # Question: {question}
+    #
+    # Show concise work if needed, then end with a final line exactly in the form:
+    # Final answer: <number>
+    #
+    # Do not end with prose after the final answer line.
 
     def _build_synthesis_prompt(self, question: str, plan: List[str], steps: List[Step], answer_bearing_step_idx: Optional[int] = None) -> str:
         trace_lines = []
@@ -384,39 +384,39 @@ Do not end with prose after the final answer line."""
                 f"- Extracted answer: {hint_step.answer}\n"
             )
         if self.constrained_final_answer_decoding:
-            return f"""You are given a solved multi-step math trace. Return only the final numeric answer to the original question.
+            return f# You are given a solved multi-step math trace. Return only the final numeric answer to the original question.
+    #
+    # Original question: {question}
+    #
+    # Plan:
+    # {chr(10).join([f"{i+1}. {s}" for i, s in enumerate(plan)])}
+    #
+    # Trace:
+    # {trace}
+    # {hint_block}
+    #
+    # Output rules:
+    # - Output digits only, with an optional leading minus sign or decimal point.
+    # - No words.
+    # - No explanation.
+    # - No label such as 'Final answer'.
+    # - If the trace contains intermediate values, return only the value that answers the original question.
 
-Original question: {question}
-
-Plan:
-{chr(10).join([f"{i+1}. {s}" for i, s in enumerate(plan)])}
-
-Trace:
-{trace}
-{hint_block}
-
-Output rules:
-- Output digits only, with an optional leading minus sign or decimal point.
-- No words.
-- No explanation.
-- No label such as 'Final answer'.
-- If the trace contains intermediate values, return only the value that answers the original question."""
-
-        return f"""You are given a solved multi-step math trace. Your job is to extract or compute the single final answer to the original question.
-
-Original question: {question}
-
-Plan:
-{chr(10).join([f"{i+1}. {s}" for i, s in enumerate(plan)])}
-
-Trace:
-{trace}
-{hint_block}
-
-Return exactly one final line in the form:
-Final answer: <number>
-
-If an earlier intermediate is not the final answer to the original question, do not return it."""
+        return f# You are given a solved multi-step math trace. Your job is to extract or compute the single final answer to the original question.
+    #
+    # Original question: {question}
+    #
+    # Plan:
+    # {chr(10).join([f"{i+1}. {s}" for i, s in enumerate(plan)])}
+    #
+    # Trace:
+    # {trace}
+    # {hint_block}
+    #
+    # Return exactly one final line in the form:
+    # Final answer: <number>
+    #
+    # If an earlier intermediate is not the final answer to the original question, do not return it.
 
     @staticmethod
     def _looks_candidate_line(line: str) -> bool:
@@ -510,26 +510,26 @@ If an earlier intermediate is not the final answer to the original question, do 
                 f"{item['candidate']} | source={item['source']} | step={int(item['step_idx'])+1} | subgoal={item['subgoal']}"
             )
 
-        return f"""Choose which candidate number answers the original question.
-
-Original question: {question}
-Target type: {target_type}
-
-Plan:
-{chr(10).join([f"{i+1}. {s}" for i, s in enumerate(plan)])}
-
-Step summary:
-{chr(10).join(step_summary)}
-
-Candidate numbers with provenance:
-{chr(10).join(candidate_summary)}
-
-Return exactly one candidate number from the list above.
-Do not generate a new number.
-Do not include any words or explanation.
-Prefer the candidate that answers the original question itself, not an intermediate value from an earlier sub-step.
-If the question asks for a total, prefer totals or sums over partial quantities.
-If the question asks how much remains or is still needed, prefer the remaining/difference quantity over subtotals."""
+        return f# Choose which candidate number answers the original question.
+    #
+    # Original question: {question}
+    # Target type: {target_type}
+    #
+    # Plan:
+    # {chr(10).join([f"{i+1}. {s}" for i, s in enumerate(plan)])}
+    #
+    # Step summary:
+    # {chr(10).join(step_summary)}
+    #
+    # Candidate numbers with provenance:
+    # {chr(10).join(candidate_summary)}
+    #
+    # Return exactly one candidate number from the list above.
+    # Do not generate a new number.
+    # Do not include any words or explanation.
+    # Prefer the candidate that answers the original question itself, not an intermediate value from an earlier sub-step.
+    # If the question asks for a total, prefer totals or sums over partial quantities.
+    # If the question asks how much remains or is still needed, prefer the remaining/difference quantity over subtotals.
 
     def _match_candidate(self, selected_text: str, candidates: List[str]) -> Optional[str]:
         chosen_num = extract_numeric_value(selected_text)

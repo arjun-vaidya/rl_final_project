@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def compute_logp(prompt_ids: torch.Tensor, completion_ids: torch.Tensor, model, tokenizer) -> torch.Tensor:
-    """Compute log probability of completion given prompt (prompt tokens ignored). Returns tensor for gradient computation."""
+    # Compute log probability of completion given prompt (prompt tokens ignored). Returns tensor for gradient computation.
     full_ids = torch.cat([prompt_ids.unsqueeze(0), completion_ids.unsqueeze(0)], dim=1)
     labels = full_ids.clone()
     labels[0, :len(prompt_ids)] = -100
@@ -25,10 +25,8 @@ def compute_logp(prompt_ids: torch.Tensor, completion_ids: torch.Tensor, model, 
 
 
 def compute_grpo_advantages(rewards: List[float]) -> List[float]:
-    """
-    GRPO: Compute advantages as (reward - mean) / std within group.
-    Group size G typically 4.
-    """
+    # GRPO: Compute advantages as (reward - mean) / std within group.
+    # Group size G typically 4.
     if len(rewards) < 2:
         return [0.0] * len(rewards)
 
@@ -86,7 +84,7 @@ def train_epoch(
     epoch: int,
     start_q_idx: int = 0,
 ):
-    """Train one epoch using GRPO."""
+    # Train one epoch using GRPO.
 
     r_w, s_w, o_w = scheduler.get_weights(epoch)
     total_loss = 0.0
@@ -499,7 +497,7 @@ def train(
     start_epoch: int = 0,
     start_q_idx: int = 0,
 ):
-    """Train for full Phase 4."""
+    # Train for full Phase 4.
 
     shaper = RewardShaper(use_judge=cfg.use_judge)
     scheduler = Scheduler(

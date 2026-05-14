@@ -72,10 +72,9 @@ def compute_grpo_advantages(rewards):
 
 
 def rollout_multi_group(agent: LinearReasoningAgent, questions: List[str], gts: List[str], G: int, temperature: float):
-    """Generate G rollouts for each of len(questions) questions in one batched HF call.
-
-    Returns: list of length len(questions), each entry is a list of G Trajectories.
-    """
+    # Generate G rollouts for each of len(questions) questions in one batched HF call.
+    #
+    # Returns: list of length len(questions), each entry is a list of G Trajectories.
     prompts_flat = []
     for q in questions:
         prompts_flat.extend([agent._build_prompt(q)] * G)
@@ -106,20 +105,19 @@ def train_dapo(
     optimizer,
     vllm_engine=None,
 ):
-    """DAPO-style training loop.
-
-    Differences from vanilla GRPO:
-      1. Dynamic sampling: groups where all rollouts are correct or all wrong
-         are dropped, and we keep pulling new questions until the step has
-         `groups_per_step` informative groups (or hits resample cap).
-      2. Token-level policy gradient: loss normalizes by total tokens in the
-         step, not by number of trajectories.
-      3. Megabatched rollouts: B questions x G rollouts in one call.
-
-    If `vllm_engine` is provided, rollouts are produced by vLLM and the PEFT
-    adapter is synced to vLLM after every gradient step. Forward/backward for
-    the policy update stay on the HF model.
-    """
+    # DAPO-style training loop.
+    #
+    # Differences from vanilla GRPO:
+    # 1. Dynamic sampling: groups where all rollouts are correct or all wrong
+    # are dropped, and we keep pulling new questions until the step has
+    # `groups_per_step` informative groups (or hits resample cap).
+    # 2. Token-level policy gradient: loss normalizes by total tokens in the
+    # step, not by number of trajectories.
+    # 3. Megabatched rollouts: B questions x G rollouts in one call.
+    #
+    # If `vllm_engine` is provided, rollouts are produced by vLLM and the PEFT
+    # adapter is synced to vLLM after every gradient step. Forward/backward for
+    # the policy update stay on the HF model.
     model = agent.model
     G = cfg.rollouts_per_q
     pad_token_id = agent.tokenizer.pad_token_id

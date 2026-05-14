@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create a compact training-results chart from a WandB output log."""
+# Create a compact training-results chart from a WandB output log.
 
 from __future__ import annotations
 

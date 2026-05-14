@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Evaluate the Flat SFT Baseline model on GSM8K.
-"""
+# Evaluate the Flat SFT Baseline model on GSM8K.
 import argparse
 import torch
 import json

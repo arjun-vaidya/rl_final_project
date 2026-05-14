@@ -5,19 +5,18 @@ from typing import List, Sequence, Union
 ROUTER_HEADER = "You are a planner. Output a JSON plan of subgoals for this math problem."
 ROUTER_FORMAT_LINE = 'Format: {"plan": [{"subgoal": "<desc>", "tool": "python"}, ...]}'
 
-SOLVER_PROMPT_TEMPLATE = """You are solving one subgoal of a larger problem.
-
-Original problem:  {question}
-Full plan:         {plan_json}
-Previous results:  {scratchpad}
-Current subgoal:   {current_subgoal}
-
-Write Python code (one expression or short block) wrapped in <code>...</code>.
-"""
+SOLVER_PROMPT_TEMPLATE = # You are solving one subgoal of a larger problem.
+    #
+    # Original problem:  {question}
+    # Full plan:         {plan_json}
+    # Previous results:  {scratchpad}
+    # Current subgoal:   {current_subgoal}
+    #
+    # Write Python code (one expression or short block) wrapped in <code>...</code>.
 
 
 def _render_memory_block(entries: Sequence) -> str:
-    """Render retrieved (question, plan) pairs per docs/04_design.md and 07_plan_memory.md."""
+    # Render retrieved (question, plan) pairs per docs/04_design.md and 07_plan_memory.md.
     if not entries:
         return ""
     lines = ["Similar problems you have solved before:"]
@@ -36,13 +35,12 @@ def _render_memory_block(entries: Sequence) -> str:
 
 
 def build_router_prompt(question: str, past_memory: Union[str, Sequence, None] = None) -> str:
-    """Builds the router prompt, optionally including retrieved past plans.
-
-    `past_memory` may be:
-      - None / empty: no memory block (core design, docs/04).
-      - a list of {"question","plan"} dicts or (question, plan) tuples (memory-on path).
-      - a pre-rendered string (accepted for back-compat).
-    """
+    # Builds the router prompt, optionally including retrieved past plans.
+    #
+    # `past_memory` may be:
+    # - None / empty: no memory block (core design, docs/04).
+    # - a list of {"question","plan"} dicts or (question, plan) tuples (memory-on path).
+    # - a pre-rendered string (accepted for back-compat).
     if past_memory is None or past_memory == "":
         memory_block = ""
     elif isinstance(past_memory, str):
@@ -62,7 +60,7 @@ def build_router_prompt(question: str, past_memory: Union[str, Sequence, None] =
 
 
 def build_solver_prompt(question: str, plan_json: str, scratchpad: str, current_subgoal: str) -> str:
-    """Builds the solver prompt."""
+    # Builds the solver prompt.
     return SOLVER_PROMPT_TEMPLATE.format(
         question=question,
         plan_json=plan_json,

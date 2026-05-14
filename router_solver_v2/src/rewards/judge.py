@@ -76,7 +76,7 @@ class Judge:
         return scores[0] if scores else 0.0
 
     def batch_judge_plans(self, items: List[Tuple[str, list]]) -> List[float]:
-        """Judge multiple plans in one API call. items: [(question, plan), ...]"""
+        # Judge multiple plans in one API call. items: [(question, plan), ...]
         if not items:
             return []
 
@@ -109,7 +109,7 @@ class Judge:
         return scores[0] if scores else 0.0
 
     def batch_judge_steps(self, items: List[Tuple[str, list, int, str]]) -> List[float]:
-        """Judge multiple steps in one API call. items: [(question, plan, step_idx, reasoning), ...]"""
+        # Judge multiple steps in one API call. items: [(question, plan, step_idx, reasoning), ...]
         if not items:
             return []
 

@@ -34,7 +34,7 @@ if wandb_api_key:
 
 
 class WandBLoggingCallback:
-    """Callback to log training metrics to Weights & Biases."""
+    # Callback to log training metrics to Weights & Biases.
 
     def on_log(self, args, state, control, logs=None, **kwargs):
         if logs:
@@ -42,7 +42,7 @@ class WandBLoggingCallback:
 
 
 class RewardWeightedTrainer(Trainer):
-    """Custom Trainer that weights loss by rewards."""
+    # Custom Trainer that weights loss by rewards.
 
     def compute_loss(self, model, inputs, return_outputs=False):
         # Extract rewards if present

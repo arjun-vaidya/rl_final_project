@@ -1,10 +1,8 @@
 import re
 
 def extract_answer_from_trajectory(trajectory: str) -> int:
-    """
-    Extracts the numeric answer from a model's trajectory.
-    Looks for <answer>X</answer> or the last number in the text as a fallback.
-    """
+    # Extracts the numeric answer from a model's trajectory.
+    # Looks for <answer>X</answer> or the last number in the text as a fallback.
     # Try <answer> pattern first
     match = re.search(r"<answer>\s*(-?\d+)\s*</answer>", trajectory, re.IGNORECASE)
     if match:
@@ -23,9 +21,7 @@ def extract_answer_from_trajectory(trajectory: str) -> int:
     return None
 
 def outcome_reward(trajectory: str, ground_truth: int) -> float:
-    """
-    Returns 1.0 if the extracted answer matches the ground truth, else 0.0.
-    """
+    # Returns 1.0 if the extracted answer matches the ground truth, else 0.0.
     extracted = extract_answer_from_trajectory(trajectory)
     if extracted is not None and extracted == ground_truth:
         return 1.0

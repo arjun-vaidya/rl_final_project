@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
-"""
-Main script for Phase 4 training + evaluation.
-
-Usage:
-    python main.py --mode train
-    python main.py --mode eval
-    python main.py --mode train_eval
-    python main.py --mode diagnose
-    python main.py --mode train --checkpoint checkpoint_epoch0_q50.pt
-"""
+# Main script for Phase 4 training + evaluation.
+    #
+    # Usage:
+    # python main.py --mode train
+    # python main.py --mode eval
+    # python main.py --mode train_eval
+    # python main.py --mode diagnose
+    # python main.py --mode train --checkpoint checkpoint_epoch0_q50.pt
 
 import argparse
 import os
@@ -47,7 +45,7 @@ if torch.cuda.is_available():
 
 
 def load_model(cfg):
-    """Load base model and setup LoRA."""
+    # Load base model and setup LoRA.
     print(f"\n[1/3] Loading base model: {cfg.base_model}...")
     model = AutoModelForCausalLM.from_pretrained(
         cfg.base_model,
@@ -89,7 +87,7 @@ def load_model(cfg):
 
 
 def load_data(cfg):
-    """Load GSM8K dataset. Parses ground truth from '#### <answer>' format."""
+    # Load GSM8K dataset. Parses ground truth from '#### <answer>' format.
     from datasets import load_dataset
     import re
 
@@ -97,7 +95,7 @@ def load_data(cfg):
     dataset = load_dataset("gsm8k", "main")
 
     def extract_numeric_answer(answer_text):
-        """Extract numeric answer from GSM8K format: '#### 42' -> '42'."""
+        # Extract numeric answer from GSM8K format: '#### 42' -> '42'.
         last_line = answer_text.split("\n")[-1].strip()
         match = re.search(r'####\s*([-\d.]+)', last_line)
         if match:

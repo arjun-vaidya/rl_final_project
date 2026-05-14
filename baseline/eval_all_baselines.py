@@ -32,7 +32,7 @@ def parse_number(s):
 
 
 def extract_answer(text):
-    """Prefer the last \\boxed{N}; otherwise take the last number in the text."""
+    # Prefer the last \\boxed{N}; otherwise take the last number in the text.
     if not text:
         return None
     boxed = BOXED_RE.findall(text)
@@ -129,8 +129,8 @@ def evaluate_model(name, model, tokenizer, questions, ground_truths,
 
 
 def _vote_majority(predictions, ground_truth_num):
-    """Majority-vote over a list of predicted numbers.
-    Returns (vote_pred, vote_correct, agreement_fraction)."""
+    # Majority-vote over a list of predicted numbers.
+    # Returns (vote_pred, vote_correct, agreement_fraction).
     bucketed = []
     for p in predictions:
         if p is None:
@@ -149,13 +149,12 @@ def _vote_majority(predictions, ground_truth_num):
 
 def evaluate_pass_at_k(name, model, tokenizer, questions, ground_truths,
                         K, temperature, max_tokens=512, batch_size=8):
-    """Sample K rollouts per question at the given temperature, report pass@K
-    and majority-vote accuracy.
-
-    pass@K: question scored correct if any of the K rollouts is correct.
-    majority-vote: question scored correct if the most common predicted number
-                   among the K rollouts matches the ground truth.
-    """
+    # Sample K rollouts per question at the given temperature, report pass@K
+    # and majority-vote accuracy.
+    #
+    # pass@K: question scored correct if any of the K rollouts is correct.
+    # majority-vote: question scored correct if the most common predicted number
+    # among the K rollouts matches the ground truth.
     tokenizer.padding_side = "left"
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -263,9 +262,9 @@ def load_hf_model(model_id):
 
 
 def load_rl_model(base_model_id, checkpoint_path):
-    """Wrap the base model in the same LoRA adapter used at training, then load
-    the checkpoint. Must match linear_reasoning/src/config.py -- mismatches would
-    silently leave the base model untouched under strict=False."""
+    # Wrap the base model in the same LoRA adapter used at training, then load
+    # the checkpoint. Must match linear_reasoning/src/config.py -- mismatches would
+    # silently leave the base model untouched under strict=False.
     from peft import LoraConfig, get_peft_model
 
     model, tokenizer = load_hf_model(base_model_id)

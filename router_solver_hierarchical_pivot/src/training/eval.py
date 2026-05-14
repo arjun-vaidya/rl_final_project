@@ -13,7 +13,7 @@ def evaluate(
     ground_truths: List[str],
     cfg: Config,
 ) -> Dict:
-    """Evaluate on a dataset."""
+    # Evaluate on a dataset.
 
     shaper = RewardShaper(use_judge=cfg.use_judge)
     results = {
@@ -63,7 +63,7 @@ def evaluate(
 
 
 def print_eval_results(results: Dict, name: str = ""):
-    """Print evaluation results."""
+    # Print evaluation results.
     print(f"\n{'='*60}")
     print(f"Evaluation Results {name}")
     print(f"{'='*60}")

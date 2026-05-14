@@ -7,7 +7,7 @@ NUMBER_RE = re.compile(r"[-+]?\d*\.?\d+")
 
 
 def extract_boxed_answer(text: str) -> Optional[str]:
-    """Extract answer from \\boxed{} format."""
+    # Extract answer from \\boxed{} format.
     if not text:
         return None
     matches = BOXED_RE.findall(text)
@@ -17,7 +17,7 @@ def extract_boxed_answer(text: str) -> Optional[str]:
 
 
 def extract_last_number(text: str) -> Optional[float]:
-    """Fallback: extract the last number in the text."""
+    # Fallback: extract the last number in the text.
     if not text:
         return None
     cleaned = text.replace(",", "")
@@ -31,7 +31,7 @@ def extract_last_number(text: str) -> Optional[float]:
 
 
 def numeric_match(predicted: Optional[str], ground_truth: str) -> bool:
-    """Check if predicted answer matches ground truth numerically."""
+    # Check if predicted answer matches ground truth numerically.
     if predicted is None:
         return False
 
@@ -52,19 +52,17 @@ def numeric_match(predicted: Optional[str], ground_truth: str) -> bool:
 
 
 def compute_reward(generated_text: str, ground_truth: str, cfg) -> tuple:
-    """
-    Strict verifiable reward.
-
-    The model ONLY gets correctness credit if the answer is inside \\boxed{}.
-    Naked numeric matches do not count -- this forces the model to commit to
-    the format. We still extract a fallback last-number for the eval `predicted`
-    field so we can see what the model emitted, but it does not influence reward.
-
-    Returns: (reward, is_correct, predicted_string)
-        cfg.correct_reward + cfg.format_reward   if \\boxed{N} present AND N matches GT
-        cfg.format_reward                        if \\boxed{N} present but N wrong
-        cfg.incorrect_reward                     otherwise (no box, regardless of content)
-    """
+    # Strict verifiable reward.
+    #
+    # The model ONLY gets correctness credit if the answer is inside \\boxed{}.
+    # Naked numeric matches do not count -- this forces the model to commit to
+    # the format. We still extract a fallback last-number for the eval `predicted`
+    # field so we can see what the model emitted, but it does not influence reward.
+    #
+    # Returns: (reward, is_correct, predicted_string)
+    # cfg.correct_reward + cfg.format_reward   if \\boxed{N} present AND N matches GT
+    # cfg.format_reward                        if \\boxed{N} present but N wrong
+    # cfg.incorrect_reward                     otherwise (no box, regardless of content)
     boxed = extract_boxed_answer(generated_text)
     has_format = boxed is not None
 

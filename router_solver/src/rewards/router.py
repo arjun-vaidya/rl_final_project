@@ -7,33 +7,29 @@ import json
 
 
 class RouterReward(ABC):
-    """Base class for router reward evaluators."""
+    # Base class for router reward evaluators.
 
     @abstractmethod
     def compute_reward(self, plan_output: str, trajectory: str, ground_truth, question: str = None) -> float:
-        """
-        Compute router reward (0.0-1.0).
-
-        Args:
-            plan_output: JSON string containing the router's plan
-            trajectory: Solver's execution trajectory/output
-            ground_truth: Correct answer for the problem
-            question: Optional problem question for context
-
-        Returns:
-            Reward score 0.0-1.0
-        """
+        # Compute router reward (0.0-1.0).
+    #
+    # Args:
+    # plan_output: JSON string containing the router's plan
+    # trajectory: Solver's execution trajectory/output
+    # ground_truth: Correct answer for the problem
+    # question: Optional problem question for context
+    #
+    # Returns:
+    # Reward score 0.0-1.0
         pass
 
 
 class HeuristicRouterReward(RouterReward):
-    """Hand-crafted heuristics: evaluate plan quality based on structure."""
+    # Hand-crafted heuristics: evaluate plan quality based on structure.
 
     def compute_reward(self, plan_output: str, trajectory: str, ground_truth, question: str = None) -> float:
-        """
-        Hybrid reward: 0.5 × plan_quality + 0.5 × outcome_correctness.
-        Evaluates both planning structure and final answer.
-        """
+        # Hybrid reward: 0.5 × plan_quality + 0.5 × outcome_correctness.
+    # Evaluates both planning structure and final answer.
         plan_dict = parse_plan_json(plan_output)
         if plan_dict is None:
             return 0.0
@@ -56,10 +52,8 @@ class HeuristicRouterReward(RouterReward):
 
     @staticmethod
     def _evaluate_plan_quality(plan_list: list, question: str = None) -> float:
-        """
-        Score plan quality (0.0–1.0) based on structure, clarity, logical order.
-        Independent of execution or final answer.
-        """
+        # Score plan quality (0.0–1.0) based on structure, clarity, logical order.
+    # Independent of execution or final answer.
         if not plan_list or len(plan_list) == 0:
             return 0.0
 
@@ -99,9 +93,7 @@ class HeuristicRouterReward(RouterReward):
 
     @staticmethod
     def _is_logically_ordered(plan_list: list) -> bool:
-        """
-        Heuristic: steps shouldn't repeat the same topic twice.
-        """
+        # Heuristic: steps shouldn't repeat the same topic twice.
         keywords_seen = set()
 
         for step in plan_list:
@@ -119,22 +111,18 @@ class HeuristicRouterReward(RouterReward):
 
 
 class LLMJudgeRouterReward(RouterReward):
-    """Use Claude to evaluate plan quality as a judge."""
+    # Use Claude to evaluate plan quality as a judge.
 
     def __init__(self, model: str = "claude-opus-4-1"):
-        """
-        Initialize LLM-based reward evaluator.
-
-        Args:
-            model: Claude model ID to use for evaluation
-        """
+        # Initialize LLM-based reward evaluator.
+    #
+    # Args:
+    # model: Claude model ID to use for evaluation
         self.client = anthropic.Anthropic()
         self.model = model
 
     def compute_reward(self, plan_output: str, trajectory: str, ground_truth, question: str = None) -> float:
-        """
-        Hybrid reward using Claude: 0.5 × llm_plan_quality + 0.5 × outcome_correctness.
-        """
+        # Hybrid reward using Claude: 0.5 × llm_plan_quality + 0.5 × outcome_correctness.
         plan_dict = parse_plan_json(plan_output)
         if plan_dict is None:
             return 0.0
@@ -156,9 +144,7 @@ class LLMJudgeRouterReward(RouterReward):
         return 0.5 * plan_quality + 0.5 * outcome_signal
 
     def _evaluate_plan_with_llm(self, plan_list: list, question: str = None) -> float:
-        """
-        Use Claude to score plan quality 0-10, return as 0.0-1.0.
-        """
+        # Use Claude to score plan quality 0-10, return as 0.0-1.0.
         try:
             formatted_steps = []
             for i, step in enumerate(plan_list):
@@ -166,19 +152,19 @@ class LLMJudgeRouterReward(RouterReward):
                 formatted_steps.append(f"{i+1}. {text}")
             plan_text = "\n".join(formatted_steps)
 
-            prompt = f"""Evaluate the quality of this mathematical reasoning plan.
-
-Question: {question if question else "Unknown"}
-
-Plan:
-{plan_text}
-
-Score 0-10 based on:
-- Clarity: Is each step explicit and understandable?
-- Completeness: Does it decompose the problem fully?
-- Feasibility: Would this plan lead to the correct answer if executed perfectly?
-
-Respond with ONLY a number from 0 to 10 (no explanation)."""
+            prompt = f# Evaluate the quality of this mathematical reasoning plan.
+    #
+    # Question: {question if question else "Unknown"}
+    #
+    # Plan:
+    # {plan_text}
+    #
+    # Score 0-10 based on:
+    # - Clarity: Is each step explicit and understandable?
+    # - Completeness: Does it decompose the problem fully?
+    # - Feasibility: Would this plan lead to the correct answer if executed perfectly?
+    #
+    # Respond with ONLY a number from 0 to 10 (no explanation).
 
             response = self.client.messages.create(
                 model=self.model,
@@ -197,10 +183,8 @@ Respond with ONLY a number from 0 to 10 (no explanation)."""
 
 # Backward compatibility: default to heuristic
 def router_reward(plan_output, trajectory, gt, question: str = None) -> float:
-    """
-    Legacy function for backward compatibility.
-    Uses heuristic-based reward evaluation.
-    """
+    # Legacy function for backward compatibility.
+    # Uses heuristic-based reward evaluation.
     evaluator = HeuristicRouterReward()
     return evaluator.compute_reward(plan_output, trajectory, gt, question)
 

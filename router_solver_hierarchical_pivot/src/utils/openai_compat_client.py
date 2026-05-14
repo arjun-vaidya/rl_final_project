@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class OpenAICompatClient:
-    """Small OpenAI-compatible chat completions client with retry support."""
+    # Small OpenAI-compatible chat completions client with retry support.
 
     def __init__(
         self,

@@ -1,9 +1,7 @@
-"""
-Batch code execution on CPU while GPU continues inference.
-
-Instead of blocking on each solver step's code execution,
-collect code snippets and execute them in parallel across CPU cores.
-"""
+# Batch code execution on CPU while GPU continues inference.
+    #
+    # Instead of blocking on each solver step's code execution,
+    # collect code snippets and execute them in parallel across CPU cores.
 
 import subprocess
 import multiprocessing as mp
@@ -14,32 +12,30 @@ from src.env.python_tool import ToolResult
 
 @dataclass
 class CodeTask:
-    """A single code execution task."""
+    # A single code execution task.
     code: str
     task_id: int
 
 
 def _execute_code_task(task: CodeTask, timeout: float = 5.0) -> Tuple[int, ToolResult]:
-    """Execute a single code task. Returns (task_id, result)."""
+    # Execute a single code task. Returns (task_id, result).
     try:
         # Wrapper script that auto-prints last expression
-        wrapper = f"""
-import sys
-code_str = {repr(task.code)}
-try:
-    import ast
-    tree = ast.parse(code_str)
-    if tree.body and isinstance(tree.body[-1], ast.Expr):
-        tree.body[-1] = ast.Expr(value=ast.Call(
-            func=ast.Name(id='print', ctx=ast.Load()),
-            args=[tree.body[-1].value],
-            keywords=[]
-        ))
-    code_str = ast.unparse(tree)
-except:
-    pass
-exec(code_str)
-"""
+        wrapper = f# import sys
+    # code_str = {repr(task.code)}
+    # try:
+    # import ast
+    # tree = ast.parse(code_str)
+    # if tree.body and isinstance(tree.body[-1], ast.Expr):
+    # tree.body[-1] = ast.Expr(value=ast.Call(
+    # func=ast.Name(id='print', ctx=ast.Load()),
+    # args=[tree.body[-1].value],
+    # keywords=[]
+    # ))
+    # code_str = ast.unparse(tree)
+    # except:
+    # pass
+    # exec(code_str)
         process = subprocess.Popen(
             ["python3", "-c", wrapper],
             stdout=subprocess.PIPE,
@@ -72,43 +68,37 @@ exec(code_str)
 
 
 class CodeBatcher:
-    """Batch executor for code snippets across CPU cores."""
+    # Batch executor for code snippets across CPU cores.
 
     def __init__(self, num_workers: int = 4, timeout: float = 5.0):
-        """
-        Initialize the batch executor.
-
-        Args:
-            num_workers: Number of CPU cores to use for parallel execution
-            timeout: Timeout per code execution in seconds
-        """
+        # Initialize the batch executor.
+    #
+    # Args:
+    # num_workers: Number of CPU cores to use for parallel execution
+    # timeout: Timeout per code execution in seconds
         self.num_workers = num_workers
         self.timeout = timeout
         self.task_queue: List[CodeTask] = []
         self.task_counter = 0
 
     def queue_code(self, code: str) -> int:
-        """
-        Queue code for batch execution.
-
-        Args:
-            code: Python code string to execute
-
-        Returns:
-            task_id: Unique identifier for this task
-        """
+        # Queue code for batch execution.
+    #
+    # Args:
+    # code: Python code string to execute
+    #
+    # Returns:
+    # task_id: Unique identifier for this task
         task_id = self.task_counter
         self.task_queue.append(CodeTask(code=code, task_id=task_id))
         self.task_counter += 1
         return task_id
 
     def execute_batch(self) -> dict:
-        """
-        Execute all queued code in parallel using multiprocessing pool.
-
-        Returns:
-            dict: {task_id -> ToolResult} mapping for all executed tasks
-        """
+        # Execute all queued code in parallel using multiprocessing pool.
+    #
+    # Returns:
+    # dict: {task_id -> ToolResult} mapping for all executed tasks
         if not self.task_queue:
             return {}
 
@@ -141,6 +131,6 @@ class CodeBatcher:
         return results_map
 
     def clear(self):
-        """Clear the task queue."""
+        # Clear the task queue.
         self.task_queue = []
         self.task_counter = 0

@@ -121,7 +121,7 @@ def evaluate_trained_model(model, tokenizer, cfg, questions, ground_truths, num_
     return results
 
 def generate_comparison_report(all_baselines, trained_results, output_path):
-    """Generate comparison markdown report with all three models."""
+    # Generate comparison markdown report with all three models.
     general = all_baselines.get("general", {})
     math_spec = all_baselines.get("math_specialized", {})
 
@@ -129,24 +129,23 @@ def generate_comparison_report(all_baselines, trained_results, output_path):
     general_to_trained = ((trained_results['accuracy'] - general['accuracy']) * 100)
     math_to_trained = ((trained_results['accuracy'] - math_spec['accuracy']) * 100)
 
-    report = f"""# Baseline vs Trained Model Comparison
-
-| Model | Accuracy | Count |
-|-------|----------|-------|
-| **Qwen2.5-1.5B (general)** | {general['accuracy']:.1%} | {general['correct']}/{general['total']} |
-| **Qwen2.5-Math-1.5B (specialized)** | {math_spec['accuracy']:.1%} | {math_spec['correct']}/{math_spec['total']} |
-| **Router-Solver V2 (your RL model)** | {trained_results['accuracy']:.1%} | {trained_results['correct']}/{trained_results['total']} |
-
-**Improvements vs baselines:**
-- General baseline → Router-Solver: **+{general_to_trained:.1f} pts**
-- Math-specialized baseline → Router-Solver: **+{math_to_trained:.1f} pts**
-
-## Models Evaluated
-
-- **Qwen2.5-1.5B-Instruct:** General-purpose model, no math specialization
-- **Qwen2.5-Math-1.5B-Instruct:** Math-specialized pre-trained model
-- **Router-Solver V2:** Your hierarchical RL-trained model (outcome-heavy rewards)
-"""
+    report = f# # Baseline vs Trained Model Comparison
+    #
+    # | Model | Accuracy | Count |
+    # |-------|----------|-------|
+    # | **Qwen2.5-1.5B (general)** | {general['accuracy']:.1%} | {general['correct']}/{general['total']} |
+    # | **Qwen2.5-Math-1.5B (specialized)** | {math_spec['accuracy']:.1%} | {math_spec['correct']}/{math_spec['total']} |
+    # | **Router-Solver V2 (your RL model)** | {trained_results['accuracy']:.1%} | {trained_results['correct']}/{trained_results['total']} |
+    #
+    # **Improvements vs baselines:**
+    # - General baseline → Router-Solver: **+{general_to_trained:.1f} pts**
+    # - Math-specialized baseline → Router-Solver: **+{math_to_trained:.1f} pts**
+    #
+    # ## Models Evaluated
+    #
+    # - **Qwen2.5-1.5B-Instruct:** General-purpose model, no math specialization
+    # - **Qwen2.5-Math-1.5B-Instruct:** Math-specialized pre-trained model
+    # - **Router-Solver V2:** Your hierarchical RL-trained model (outcome-heavy rewards)
 
     with open(output_path, 'w') as f:
         f.write(report)

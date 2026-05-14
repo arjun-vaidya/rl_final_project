@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-"""
-Linear Reasoning: RLVR + Self-Reflection on GSM8K with GRPO.
-
-Usage:
-    python main.py --mode train         # Train on full GSM8K
-    python main.py --mode eval          # Evaluate on full test set
-    python main.py --mode train_eval    # Train then evaluate
-"""
+# Linear Reasoning: RLVR + Self-Reflection on GSM8K with GRPO.
+    #
+    # Usage:
+    # python main.py --mode train         # Train on full GSM8K
+    # python main.py --mode eval          # Evaluate on full test set
+    # python main.py --mode train_eval    # Train then evaluate
 
 import argparse
 import os
@@ -64,7 +62,7 @@ def load_model(cfg):
 
 
 def load_gsm8k():
-    """Load GSM8K and extract ground truth answers."""
+    # Load GSM8K and extract ground truth answers.
     dataset = load_dataset("gsm8k", "main")
 
     def extract_gt(answer_text):

@@ -1,28 +1,26 @@
-"""
-Joint GRPO training for the Router + Solver LoRA adapters.
-
-Implements the loop described in docs/04_design.md §96-118:
-
-    for step in range(num_steps):
-        questions = sample_batch(train_set, B)
-        # G rollouts per question → B*G trajectories
-        ... compute router_reward, solver_step_reward ...
-        router_loss = grpo_loss(router_rewards, grouping=by_question)
-        solver_loss = grpo_loss(solver_rewards, grouping=by_question)
-        (router_loss + solver_loss).backward()
-        optimizer.step()
-
-GRPO specifics:
-  - Advantages are per-question group z-scores (no critic).
-  - KL penalty β uses the base model (LoRA disabled) as the reference policy,
-    via the approximate KL estimator exp(r) - 1 - r  where r = logπ - logπ_ref.
-  - Router loss covers router-generated tokens under the router adapter.
-    Solver loss covers the solver-generated tokens of every subgoal, under
-    the solver adapter. Gradients flow independently to each adapter's LoRA
-    since only the active adapter is engaged during each forward.
-
-Supports both Condition #3 (reward_mode: "outcome_only") and #4 ("decomposed").
-"""
+# Joint GRPO training for the Router + Solver LoRA adapters.
+    #
+    # Implements the loop described in docs/04_design.md §96-118:
+    #
+    # for step in range(num_steps):
+    # questions = sample_batch(train_set, B)
+    # # G rollouts per question → B*G trajectories
+    # ... compute router_reward, solver_step_reward ...
+    # router_loss = grpo_loss(router_rewards, grouping=by_question)
+    # solver_loss = grpo_loss(solver_rewards, grouping=by_question)
+    # (router_loss + solver_loss).backward()
+    # optimizer.step()
+    #
+    # GRPO specifics:
+    # - Advantages are per-question group z-scores (no critic).
+    # - KL penalty β uses the base model (LoRA disabled) as the reference policy,
+    # via the approximate KL estimator exp(r) - 1 - r  where r = logπ - logπ_ref.
+    # - Router loss covers router-generated tokens under the router adapter.
+    # Solver loss covers the solver-generated tokens of every subgoal, under
+    # the solver adapter. Gradients flow independently to each adapter's LoRA
+    # since only the active adapter is engaged during each forward.
+    #
+    # Supports both Condition #3 (reward_mode: "outcome_only") and #4 ("decomposed").
 import os
 import sys
 import argparse
@@ -57,11 +55,9 @@ from src.agents.router_solver_agent import Rollout
 # --------------------------------------------------------------------------- #
 
 def compute_rewards(rollout: Rollout, gt: int, reward_mode: str):
-    """
-    Returns (router_reward_scalar, solver_reward_per_step, outcome).
-    For outcome_only: everyone gets the same {0,1} outcome.
-    For decomposed: router_reward gates on plan validity; solver gets 0.3/0.2/0.5.
-    """
+    # Returns (router_reward_scalar, solver_reward_per_step, outcome).
+    # For outcome_only: everyone gets the same {0,1} outcome.
+    # For decomposed: router_reward gates on plan validity; solver gets 0.3/0.2/0.5.
     final_ans = rollout.final_answer or rollout.router_output
     outcome = outcome_reward(final_ans, gt)
 
@@ -78,7 +74,7 @@ def compute_rewards(rollout: Rollout, gt: int, reward_mode: str):
 
 
 def group_normalize(values: List[float]) -> List[float]:
-    """Standard GRPO group-relative normalization. Zero advantage if all equal."""
+    # Standard GRPO group-relative normalization. Zero advantage if all equal.
     arr = np.asarray(values, dtype=np.float32)
     mean = arr.mean()
     std = arr.std()
@@ -97,7 +93,7 @@ def batched_teacher_forced_logprobs(
     completion_ids_list: List[torch.Tensor],
     device: str,
 ) -> List[torch.Tensor]:
-    """Return per-token log-probs in a batched pass. Grad flows."""
+    # Return per-token log-probs in a batched pass. Grad flows.
     if not prompt_ids_list:
         return []
     
@@ -142,7 +138,7 @@ def batched_reference_logprobs(
     completion_ids_list: List[torch.Tensor],
     device: str,
 ) -> List[torch.Tensor]:
-    """Same as above but with all LoRA adapters disabled."""
+    # Same as above but with all LoRA adapters disabled.
     was_training = model.training
     if was_training:
         model.eval()
@@ -163,10 +159,8 @@ def grpo_term(
     advantage: float,
     beta: float,
 ) -> torch.Tensor:
-    """
-    Per-rollout loss: -(advantage * sum logπ) + β * sum KL.
-    KL estimator: exp(r) - 1 - r, with r = logπ - logπ_ref (detached ref).
-    """
+    # Per-rollout loss: -(advantage * sum logπ) + β * sum KL.
+    # KL estimator: exp(r) - 1 - r, with r = logπ - logπ_ref (detached ref).
     if policy_lp.numel() == 0:
         return policy_lp.sum()  # zero scalar on the right device
     pg = -advantage * policy_lp.sum()
@@ -192,7 +186,7 @@ def _live_data_objective_no_grad(
     chunk_size: int,
     device: str,
 ) -> torch.Tensor:
-    """Compute the full GRPO objective on real rollout data with no-grad."""
+    # Compute the full GRPO objective on real rollout data with no-grad.
     scale = 1.0 / max(1, len(records))
     total = torch.zeros((), device=device)
 
@@ -256,10 +250,8 @@ def _run_backward_terms(
     router_adapter: str,
     solver_adapter: str,
 ) -> torch.Tensor:
-    """
-    Compute router+solver GRPO loss terms and run backward.
-    Returns a detached total loss value for logging.
-    """
+    # Compute router+solver GRPO loss terms and run backward.
+    # Returns a detached total loss value for logging.
     total_loss = torch.zeros((), device=device)
 
     def chunk_iter():
