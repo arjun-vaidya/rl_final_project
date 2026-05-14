@@ -1,0 +1,43 @@
+DAPO training: |Q|=1738 G=4 groups/step=2 rollout_batch=2
+[step 10] kept=20 drop_correct=12 drop_wrong=14 recent_acc=57.50% kl=0.0001 loss=-0.008
+[step 20] kept=42 drop_correct=28 drop_wrong=34 recent_acc=60.42% kl=0.0001 loss=-0.005
+[step 30] kept=63 drop_correct=45 drop_wrong=52 recent_acc=55.28% kl=0.0001 loss=-0.008
+[step 40] kept=85 drop_correct=60 drop_wrong=65 recent_acc=56.98% kl=0.0001 loss=-0.006
+[step 50] kept=105 drop_correct=68 drop_wrong=85 recent_acc=56.08% kl=0.0001 loss=-0.005
+[step 60] kept=122 drop_correct=88 drop_wrong=110 recent_acc=56.00% kl=0.0001 loss=-0.004
+[step 70] kept=144 drop_correct=103 drop_wrong=129 recent_acc=53.25% kl=0.0001 loss=-0.004
+[step 80] kept=165 drop_correct=112 drop_wrong=147 recent_acc=56.92% kl=0.0001 loss=-0.004
+[step 90] kept=187 drop_correct=128 drop_wrong=161 recent_acc=56.17% kl=0.0001 loss=-0.006
+[step 91] no informative groups after 8 attempts; skipping policy update
+[step 100] kept=208 drop_correct=139 drop_wrong=183 recent_acc=55.25% kl=0.0001 loss=-0.008
+[step 110] kept=228 drop_correct=161 drop_wrong=201 recent_acc=56.25% kl=0.0001 loss=-0.009
+[step 120] kept=248 drop_correct=173 drop_wrong=223 recent_acc=56.25% kl=0.0001 loss=-0.008
+[step 130] kept=268 drop_correct=190 drop_wrong=238 recent_acc=54.83% kl=0.0001 loss=-0.007
+[step 140] kept=288 drop_correct=206 drop_wrong=250 recent_acc=54.50% kl=0.0002 loss=-0.006
+[step 150] kept=308 drop_correct=217 drop_wrong=261 recent_acc=56.42% kl=0.0002 loss=-0.004
+[step 160] kept=330 drop_correct=234 drop_wrong=276 recent_acc=54.83% kl=0.0002 loss=-0.004
+[step 170] kept=351 drop_correct=252 drop_wrong=293 recent_acc=54.17% kl=0.0002 loss=-0.005
+[step 180] kept=371 drop_correct=265 drop_wrong=306 recent_acc=55.17% kl=0.0002 loss=-0.005
+[step 190] kept=391 drop_correct=287 drop_wrong=326 recent_acc=54.58% kl=0.0002 loss=-0.004
+[step 200] kept=411 drop_correct=293 drop_wrong=348 recent_acc=54.42% kl=0.0002 loss=-0.006
+[step 210] kept=432 drop_correct=301 drop_wrong=365 recent_acc=53.17% kl=0.0002 loss=-0.005
+[step 220] kept=454 drop_correct=316 drop_wrong=378 recent_acc=53.75% kl=0.0003 loss=-0.006
+[step 225] no informative groups after 8 attempts; skipping policy update
+[step 230] kept=471 drop_correct=329 drop_wrong=402 recent_acc=52.25% kl=0.0003 loss=-0.007
+[step 240] kept=490 drop_correct=347 drop_wrong=417 recent_acc=51.33% kl=0.0003 loss=-0.009
+[step 241] no informative groups after 8 attempts; skipping policy update
+[step 246] no informative groups after 8 attempts; skipping policy update
+[step 250] kept=506 drop_correct=366 drop_wrong=440 recent_acc=52.25% kl=0.0003 loss=-0.012
+[step 260] kept=527 drop_correct=378 drop_wrong=451 recent_acc=54.92% kl=0.0004 loss=-0.016
+[step 270] kept=549 drop_correct=394 drop_wrong=463 recent_acc=57.42% kl=0.0004 loss=-0.017
+[step 280] kept=572 drop_correct=411 drop_wrong=479 recent_acc=55.25% kl=0.0004 loss=-0.014
+[step 283] no informative groups after 8 attempts; skipping policy update
+[step 290] kept=591 drop_correct=424 drop_wrong=489 recent_acc=54.75% kl=0.0005 loss=-0.015
+[step 300] kept=613 drop_correct=438 drop_wrong=497 recent_acc=55.75% kl=0.0005 loss=-0.015
+[step 310] kept=631 drop_correct=460 drop_wrong=515 recent_acc=54.50% kl=0.0006 loss=-0.011
+[step 320] kept=652 drop_correct=476 drop_wrong=526 recent_acc=54.92% kl=0.0006 loss=-0.010
+[step 324] no informative groups after 8 attempts; skipping policy update
+[step 330] kept=668 drop_correct=490 drop_wrong=542 recent_acc=56.83% kl=0.0007 loss=-0.011
+
+Final training rollout accuracy: 50.40% (3504/6952)
+Kept groups: 688, dropped (all correct): 496, dropped (all wrong): 554

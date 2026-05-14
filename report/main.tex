@@ -11,7 +11,7 @@
 
 \graphicspath{{figures/}}
 
-\title{Long-context Reasoning for Agentic LLMs:\\
+\title{Long-context Reasoning for LLMs\\
        Linear and Hierarchical Baselines on GSM8K\thanks{Code and data: \url{https://github.com/arjun-vaidya/rl_final_project}}}
 \author{Arjun Vaidya \quad Peter Vail Driscoll \\
         Columbia University \\
@@ -24,7 +24,7 @@
 \section{Introduction}
 \label{sec:intro}
 
-Mathematical word problems are a natural setting for RL in language models because answers can be verified deterministically, removing the need for learned reward models used in standard RLHF \citep{ouyang2022instructgpt}. Recently, reinforcement learning with verifiable rewards (RLVR) has become the dominant post-training approach for reasoning models. DeepSeek-R1 \citep{deepseekr1} showed that a base language model can develop self-reflection and adaptive reasoning strategies through RL on correctness signals alone, without supervised reasoning traces. T"ulu 3 \citep{lambert2024tulu3} reproduced this result at 8B and 70B scales on top of Llama 3.1, using the GRPO optimizer introduced in DeepSeekMath \citep{shao2024deepseekmath}.
+Mathematical word problems are a natural setting for RL in language models because answers can be verified deterministically, removing the need for learned reward models used in standard RLHF \citep{ouyang2022instructgpt}. Recently, reinforcement learning with verifiable rewards (RLVR) has become the dominant post-training approach for reasoning models. DeepSeek-R1 \citep{deepseekr1} showed that a base language model can develop self-reflection and adaptive reasoning strategies through RL on correctness signals alone, without supervised reasoning traces. T\"ulu 3 \citep{lambert2024tulu3} reproduced this result at 8B and 70B scales on top of Llama 3.1, using the GRPO optimizer introduced in DeepSeekMath \citep{shao2024deepseekmath}.
 
 \medskip
 
@@ -35,7 +35,7 @@ Our paper studies whether this approach transfers cleanly to three settings: (i)
 \section{Background and Related Work}
 \label{sec:background}
 
-Chain-of-thought prompting \citep{wei2022cot} showed that large language models can solve reasoning tasks by generating intermediate steps before producing a final answer. Self-consistency \citep{wang2022sc} improves performance by sampling multiple reasoning paths and taking a majority vote, yielding a 17.9 point gain on GSM8K. The benchmark is GSM8K \citep{cobbe2021}, consisting of 7{,}473 training and 1{,}319 test grade-school word problems with single numeric answers.
+Chain-of-thought prompting \citep{wei2022cot} showed that large language models can solve reasoning tasks by generating intermediate steps before producing a final answer. Self-consistency \citep{wang2022sc} improves performance by sampling multiple reasoning paths and taking a majority vote, yielding a 17.3 point gain on GSM8K. The benchmark is GSM8K \citep{cobbe2021}, consisting of 7{,}473 training and 1{,}319 test grade-school word problems with single numeric answers.
 
 \medskip
 Group Relative Policy Optimization (GRPO) \citep{shao2024deepseekmath} is a PPO variant \citep{schulman2017ppo} that removes the critic by sampling $G$ rollouts per prompt and using the group mean as the baseline. The advantage for rollout $i$ is given by
@@ -164,7 +164,7 @@ Figure~\ref{fig:dapo-train} shows rolling accuracy and KL over 330 gradient step
 \end{figure}
 
 \paragraph{Test-set result.}
-The DAPO-trained policy achieves $1{,}167/1{,}319 = 88.5\%$ majority-vote accuracy and $1{,}241/1{,}319 = 94.1\%$ pass@8 under $K{=}8$ self-consistency ($T{=}0.6$). The math base model yields $1{,}164/1{,}319 = 88.2\%$ majority-vote accuracy and $1{,}243/1{,}319 = 94.2\%$ pass@8 under the same protocol. The difference is $+3$ questions in majority-vote accuracy ($+0.2$ pp) and $-2$ in pass@8 ($-0.1$ pp), well within sampling noise. DAPO does not improve over the base.
+The DAPO-trained policy achieves $1{,}167/1{,}319 = 88.5\%$ majority-vote accuracy and $1{,}241/1{,}319 = 94.1\%$ pass@8 under $K{=}8$ self-consistency ($T{=}0.6$). The math base model yields $1{,}164/1{,}319 = 88.2\%$ majority-vote accuracy and $1{,}243/1{,}319 = 94.2\%$ pass@8 under the same protocol. The difference is $+3$ questions in majority-vote accuracy ($+0.3$ pp) and $-2$ in pass@8 ($-0.1$ pp), well within sampling noise. DAPO does not improve over the base.
 
 \paragraph{Why training improved but test accuracy did not.}
 Training diagnostics improve under DAPO. However, test accuracy does not improve because the math-specialized base already reaches 88.2\% under $K{=}8$ majority vote, and most remaining errors are all-wrong cases that DAPO explicitly filters out during training. As a result, there is effectively no gradient update signal on the hardest cases, and gains on borderline questions are too few to shift performance.
@@ -316,10 +316,10 @@ This appendix collects the training signals not included in the main figures: pe
 \begin{thebibliography}{99}
 
 \bibitem[Yu et~al.(2025)]{yu2025dapo}
-Qiying Yu, Zheng Zhang, Ruofei Zhu, Yufeng Yuan, Xiaochen Zuo, Yu Yue, Tiantian Fan, Gaohong Liu, Lingjun Liu, Xin Liu, Haibin Lin, Zhiqi Lin, Bole Ma, Guangming Sheng, Siran Yang, Ji Qi, Yuhao Ding, Wenlong Deng, Shimao Chen, Chengcheng Xu, Yongsheng Luo, Wanli Ouyang, Ge Zhang, Wenhao Huang, Tao Chen, Tianlong Chen, and Wenhu Chen.
-\newblock \emph{DAPO: An Open-Source LLM Reinforcement Learning System at Scale}.
-\newblock arXiv:2503.14476, 2025.
-\newblock \url{https://arxiv.org/abs/2503.14476}.
+    Qiying Yu et~al.
+    \newblock \emph{DAPO: An Open-Source LLM Reinforcement Learning System at Scale}.
+    \newblock arXiv:2503.14476, 2025.
+    \newblock \url{https://arxiv.org/abs/2503.14476}.
 
 \bibitem[Cobbe et~al.(2021)]{cobbe2021}
 Karl Cobbe, Vineet Kosaraju, Mohammad Bavarian, Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias Plappert, Jerry Tworek, Jacob Hilton, Reiichiro Nakano, Christopher Hesse, and John Schulman.
