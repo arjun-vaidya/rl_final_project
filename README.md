@@ -1,4 +1,4 @@
-# Long-context Reasoning for Agentic LLMs
+# Long-context Reasoning for LLMs
 
 ORCSE6529 final project. Tests whether GRPO (as in DeepSeekMath, DeepSeek-R1) works on 1.5B models with LoRA on a single GPU.
 
