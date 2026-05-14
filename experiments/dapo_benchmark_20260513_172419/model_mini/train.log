@@ -1,5 +1,0 @@
-DAPO training: |Q|=24 G=5 groups/step=1 rollout_batch=1
-[step 10] kept=10 drop_correct=6 drop_wrong=6 recent_acc=54.00% kl=0.0001 loss=-0.002
-
-Final training rollout accuracy: 50.83% (61/120)
-Kept groups: 11, dropped (all correct): 6, dropped (all wrong): 7
