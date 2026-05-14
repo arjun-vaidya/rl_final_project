@@ -2,22 +2,20 @@
 
 ORCSE6529 final project. Tests whether GRPO (as in DeepSeekMath, DeepSeek-R1) works on 1.5B models with LoRA on a single GPU.
 
-**Results:** GRPO improves general base by 1.9pp. Fails on math-specialized base. Hierarchical agents fail due to interface design, not reasoning.
+## Project Structure
 
-## What's here
-
-- `linear_reasoning/` — GRPO on general base. Works (+1.9pp).
-- `grpo_linear_math_version/` — GRPO on math base. No gain.
-- `dapo_linear_math/` — DAPO variant on math base. +0.3pp (noise).
-- `router_solver/` — Hierarchical V1 (Router + code Solver). 1.7%.
-- `router_solver_v2/` — Hierarchical V2 (Router + text Solver + GPT judge). 35%.
-- `router_solver_hierarchical_pivot/` — V3 (easy/soft/hard branches + memory).
-- `baseline/` — Evaluator for three base models.
-- `report/main.pdf` — Full writeup.
+- `linear_reasoning/` GRPO on general base. Works (+1.9pp).
+- `grpo_linear_math_version/` GRPO on math base. No gain.
+- `dapo_linear_math/` DAPO variant on math base. +0.3pp (noise).
+- `router_solver/` Hierarchical V1 (Router + code Solver). 1.7%.
+- `router_solver_v2/` Hierarchical V2 (Router + text Solver + GPT judge). 35%.
+- `router_solver_hierarchical_pivot/` V3 (easy/soft/hard branches + memory).
+- `baseline/` Evaluator for three base models.
+- `report/main.pdf` Full writeup.
 
 ## Quick start
 
-Read `report/main.pdf` first (4-6 pages).
+Read `report/main.pdf` first.
 
 Run experiments:
 ```bash
@@ -27,7 +25,7 @@ python dapo_linear_math/main.py --mode train_eval
 python baseline/eval_all_baselines.py
 ```
 
-Each folder has a README with hyperparameters and gotchas.
+Each folder has a README with hyperparameters.
 
 ## Setup
 
