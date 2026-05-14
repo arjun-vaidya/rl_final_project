@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import re
+from collections import Counter
 
 import torch
 from datasets import load_dataset
@@ -127,6 +128,119 @@ def evaluate_model(name, model, tokenizer, questions, ground_truths,
     return results
 
 
+def _vote_majority(predictions, ground_truth_num):
+    """Majority-vote over a list of predicted numbers.
+    Returns (vote_pred, vote_correct, agreement_fraction)."""
+    bucketed = []
+    for p in predictions:
+        if p is None:
+            continue
+        # Round to a canonical string to dedupe near-equal floats.
+        bucketed.append(f"{float(p):.6f}")
+    if not bucketed:
+        return None, False, 0.0
+    counts = Counter(bucketed)
+    vote_key, vote_count = counts.most_common(1)[0]
+    vote_pred = float(vote_key)
+    agreement = vote_count / len(predictions)
+    vote_correct = ground_truth_num is not None and abs(vote_pred - ground_truth_num) < 1e-6
+    return vote_pred, vote_correct, agreement
+
+
+def evaluate_pass_at_k(name, model, tokenizer, questions, ground_truths,
+                        K, temperature, max_tokens=512, batch_size=8):
+    """Sample K rollouts per question at the given temperature, report pass@K
+    and majority-vote accuracy.
+
+    pass@K: question scored correct if any of the K rollouts is correct.
+    majority-vote: question scored correct if the most common predicted number
+                   among the K rollouts matches the ground truth.
+    """
+    tokenizer.padding_side = "left"
+    if tokenizer.pad_token_id is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    device = getattr(model, "device", "cuda" if torch.cuda.is_available() else "cpu")
+    results = {
+        "model_name": name,
+        "K": K,
+        "temperature": temperature,
+        "correct_pass_at_K": 0,
+        "correct_majority": 0,
+        "total": 0,
+        "mean_agreement": 0.0,
+        "details": [],
+    }
+
+    agreements = []
+    progress = tqdm(range(0, len(questions), batch_size), desc=f"Pass@{K} {name}")
+    for start in progress:
+        end = min(start + batch_size, len(questions))
+        q_batch = questions[start:end]
+        gt_batch = ground_truths[start:end]
+
+        # Repeat each prompt K times and run one big batched generate.
+        prompts_flat = []
+        for q in q_batch:
+            prompts_flat.extend([build_prompt(q, tokenizer)] * K)
+
+        inputs = tokenizer(prompts_flat, return_tensors="pt", padding=True, truncation=True).to(device)
+        with torch.no_grad():
+            outputs = model.generate(
+                **inputs,
+                max_new_tokens=max_tokens,
+                do_sample=True,
+                temperature=temperature,
+                top_p=1.0,
+                pad_token_id=tokenizer.pad_token_id,
+            )
+        completions_flat = tokenizer.batch_decode(
+            outputs[:, inputs.input_ids.shape[1]:], skip_special_tokens=True
+        )
+
+        for qi, (question, ground_truth) in enumerate(zip(q_batch, gt_batch)):
+            gt_num = parse_number(ground_truth)
+            preds = []
+            any_correct = False
+            for ki in range(K):
+                completion = completions_flat[qi * K + ki]
+                pred = extract_answer(completion)
+                preds.append(pred)
+                if pred is not None and gt_num is not None and abs(pred - gt_num) < 1e-6:
+                    any_correct = True
+
+            vote_pred, vote_correct, agreement = _vote_majority(preds, gt_num)
+            agreements.append(agreement)
+
+            results["total"] += 1
+            if any_correct:
+                results["correct_pass_at_K"] += 1
+            if vote_correct:
+                results["correct_majority"] += 1
+
+            results["details"].append({
+                "question": question[:100],
+                "ground_truth": ground_truth,
+                "predictions": [None if p is None else float(p) for p in preds],
+                "majority_pred": vote_pred,
+                "majority_correct": vote_correct,
+                "any_correct": any_correct,
+                "agreement": round(agreement, 3),
+            })
+
+        progress.set_postfix(
+            maj=f"{results['correct_majority']}/{results['total']} "
+                f"({results['correct_majority']/max(1,results['total']):.1%})",
+            any=f"{results['correct_pass_at_K']}/{results['total']} "
+                f"({results['correct_pass_at_K']/max(1,results['total']):.1%})",
+        )
+
+    results["accuracy_majority"] = results["correct_majority"] / results["total"] if results["total"] else 0.0
+    results["accuracy_pass_at_K"] = results["correct_pass_at_K"] / results["total"] if results["total"] else 0.0
+    results["mean_agreement"] = sum(agreements) / len(agreements) if agreements else 0.0
+    return results
+
+
 def load_gsm8k_test(num_questions=None):
     dataset = load_dataset("gsm8k", "main")["test"]
     n = len(dataset) if num_questions is None else min(num_questions, len(dataset))
@@ -191,7 +305,18 @@ def main():
                         help="HF model id the trained checkpoint was fine-tuned from")
     parser.add_argument("--skip_baselines", action="store_true",
                         help="Skip the two Qwen baselines and only evaluate the trained checkpoint")
+    parser.add_argument("--pass_at_k_K", type=int, default=0,
+                        help="If > 1, also run a pass@K eval with K samples per question. 0 disables.")
+    parser.add_argument("--pass_at_k_temperature", type=float, default=0.6,
+                        help="Sampling temperature for the pass@K eval.")
+    parser.add_argument("--pass_at_k_batch_size", type=int, default=8,
+                        help="Per-question batch size for pass@K eval (B*K prompts per generate call).")
+    parser.add_argument("--skip_greedy", action="store_true",
+                        help="Skip the greedy eval and only run pass@K (requires --pass_at_k_K > 1).")
     args = parser.parse_args()
+
+    if args.skip_greedy and args.pass_at_k_K <= 1:
+        parser.error("--skip_greedy requires --pass_at_k_K > 1")
 
     os.makedirs(args.output_dir, exist_ok=True)
 
@@ -209,14 +334,29 @@ def main():
     for key, display_name, hf_id in models_to_run:
         logging.info(f"\n=== {display_name} ===")
         model, tokenizer = load_hf_model(hf_id)
-        all_results[key] = evaluate_model(
-            display_name, model, tokenizer, questions, ground_truths,
-            batch_size=args.batch_size,
-            log_every=args.log_qa_every,
-            qa_log_path=os.path.join(args.output_dir, f"qa_log_{key}.txt"),
-        )
-        logging.info(f"Accuracy: {all_results[key]['accuracy']:.1%} "
-                     f"({all_results[key]['correct']}/{all_results[key]['total']})")
+        if not args.skip_greedy:
+            all_results[key] = evaluate_model(
+                display_name, model, tokenizer, questions, ground_truths,
+                batch_size=args.batch_size,
+                log_every=args.log_qa_every,
+                qa_log_path=os.path.join(args.output_dir, f"qa_log_{key}.txt"),
+            )
+            logging.info(f"Greedy accuracy: {all_results[key]['accuracy']:.1%} "
+                         f"({all_results[key]['correct']}/{all_results[key]['total']})")
+        if args.pass_at_k_K > 1:
+            all_results[f"{key}_pass_at_k"] = evaluate_pass_at_k(
+                display_name + f" (pass@{args.pass_at_k_K})", model, tokenizer,
+                questions, ground_truths,
+                K=args.pass_at_k_K,
+                temperature=args.pass_at_k_temperature,
+                batch_size=args.pass_at_k_batch_size,
+            )
+            r = all_results[f"{key}_pass_at_k"]
+            logging.info(f"Majority-vote: {r['accuracy_majority']:.1%} "
+                         f"({r['correct_majority']}/{r['total']})  "
+                         f"pass@{args.pass_at_k_K}: {r['accuracy_pass_at_K']:.1%} "
+                         f"({r['correct_pass_at_K']}/{r['total']})  "
+                         f"agreement: {r['mean_agreement']:.2%}")
         del model, tokenizer
 
     if args.trained_checkpoint:
@@ -224,14 +364,29 @@ def main():
         display_name = f"{args.trained_base_model} + RLVR ({ckpt_stem})"
         logging.info(f"\n=== {display_name} ===")
         model, tokenizer = load_rl_model(args.trained_base_model, args.trained_checkpoint)
-        all_results["rl_trained"] = evaluate_model(
-            display_name, model, tokenizer, questions, ground_truths,
-            batch_size=args.batch_size,
-            log_every=args.log_qa_every,
-            qa_log_path=os.path.join(args.output_dir, f"qa_log_rl_{ckpt_stem}.txt"),
-        )
-        logging.info(f"Accuracy: {all_results['rl_trained']['accuracy']:.1%} "
-                     f"({all_results['rl_trained']['correct']}/{all_results['rl_trained']['total']})")
+        if not args.skip_greedy:
+            all_results["rl_trained"] = evaluate_model(
+                display_name, model, tokenizer, questions, ground_truths,
+                batch_size=args.batch_size,
+                log_every=args.log_qa_every,
+                qa_log_path=os.path.join(args.output_dir, f"qa_log_rl_{ckpt_stem}.txt"),
+            )
+            logging.info(f"Greedy accuracy: {all_results['rl_trained']['accuracy']:.1%} "
+                         f"({all_results['rl_trained']['correct']}/{all_results['rl_trained']['total']})")
+        if args.pass_at_k_K > 1:
+            all_results["rl_trained_pass_at_k"] = evaluate_pass_at_k(
+                display_name + f" (pass@{args.pass_at_k_K})", model, tokenizer,
+                questions, ground_truths,
+                K=args.pass_at_k_K,
+                temperature=args.pass_at_k_temperature,
+                batch_size=args.pass_at_k_batch_size,
+            )
+            r = all_results["rl_trained_pass_at_k"]
+            logging.info(f"Majority-vote: {r['accuracy_majority']:.1%} "
+                         f"({r['correct_majority']}/{r['total']})  "
+                         f"pass@{args.pass_at_k_K}: {r['accuracy_pass_at_K']:.1%} "
+                         f"({r['correct_pass_at_K']}/{r['total']})  "
+                         f"agreement: {r['mean_agreement']:.2%}")
         del model, tokenizer
 
     output_file = os.path.join(args.output_dir, "baseline_results_all.json")
@@ -243,7 +398,15 @@ def main():
     logging.info("SUMMARY")
     logging.info("=" * 60)
     for res in all_results.values():
-        logging.info(f"{res['model_name']}: {res['accuracy']:.1%} ({res['correct']}/{res['total']})")
+        if "accuracy" in res:
+            logging.info(f"{res['model_name']}: {res['accuracy']:.1%} ({res['correct']}/{res['total']})")
+        elif "accuracy_majority" in res:
+            logging.info(
+                f"{res['model_name']}: maj-vote {res['accuracy_majority']:.1%} "
+                f"({res['correct_majority']}/{res['total']})  "
+                f"pass@K {res['accuracy_pass_at_K']:.1%} "
+                f"({res['correct_pass_at_K']}/{res['total']})"
+            )
 
 
 if __name__ == "__main__":

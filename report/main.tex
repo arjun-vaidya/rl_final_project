@@ -23,24 +23,47 @@
 \section{Introduction}
 \label{sec:intro}
 
-Mathematical word problems are a clean test bed for reinforcement learning on language models because the answer is a single number, so a deterministic check replaces the learned reward model used in standard RLHF \citep{ouyang2022instructgpt}. The substantive shift in the last year is that reinforcement learning with verifiable rewards (RLVR) has gone from a curiosity to the dominant post-training recipe for reasoning models. DeepSeek-R1 \citep{deepseekr1} showed that a base language model can develop self-reflection and dynamic strategy adaptation through pure RL against correctness signals alone, with no supervised reasoning demonstrations. T\"ulu 3 \citep{lambert2024tulu3} reproduced the recipe at 8B and 70B on top of Llama 3.1, and the GRPO optimizer used by both papers comes from DeepSeekMath \citep{shao2024deepseekmath}.
+Mathematical word problems are a natural setting for RL in language models because answers can be verified deterministically, removing the need for learned reward models used in standard RLHF \citep{ouyang2022instructgpt}. Recently, reinforcement learning with verifiable rewards (RLVR) has become the dominant post-training approach for reasoning models. DeepSeek-R1 \citep{deepseekr1} showed that a base language model can develop self-reflection and adaptive reasoning strategies through RL on correctness signals alone, without supervised reasoning traces. T"ulu 3 \citep{lambert2024tulu3} reproduced this result at 8B and 70B scales on top of Llama 3.1, using the GRPO optimizer introduced in DeepSeekMath \citep{shao2024deepseekmath}.
 
-What is not settled in the public literature is whether this recipe transfers cleanly to (i) small bases ($\sim$1.5B), (ii) parameter-efficient adaptation rather than full fine-tuning, and (iii) bases that have already been math-specialized through supervised pre-training. This report addresses those three questions on GSM8K \citep{cobbe2021}. The vanilla LoRA-GRPO recipe fails on the math-specialized base (zero net gain), but a DAPO-style variant with dynamic group filtering and a wider adapter succeeds. We also describe a hierarchical Router--Solver agent in two variants, which falls well short of the linear-policy baselines and whose failure-mode taxonomy locates the bottleneck in the agent's interface contract rather than in the base model's reasoning capability.
+\medskip
 
-Four concrete results come out of this report. On the general-purpose Qwen2.5-1.5B-Instruct base, LoRA-only GRPO adds about 1.9 points of GSM8K accuracy (Section~\ref{sec:linear}). On the math-specialized Qwen2.5-Math-1.5B-Instruct, the same recipe adds zero net points despite producing different reasoning text on every test problem (Section~\ref{sec:math-base}). Switching to DAPO-style dynamic group filtering with a larger LoRA on the same math base recovers the training signal: the policy reaches $88.5\%$ majority-vote accuracy ($94.1\%$ pass@8) with $K{=}8$ self-consistency (Section~\ref{sec:dapo}). A hierarchical Router--Solver agent at the same scale reaches at most about 35\% rollout accuracy, and roughly half of its failures are not reasoning errors but mismatches in the agent's plan, step, and final-answer contract (Section~\ref{sec:router-solver}).
+Our paper studies whether this approach transfers cleanly to three settings: (i) small base models ($\sim$1.5B), (ii) parameter-efficient adaptation instead of full fine-tuning, and (iii) models already specialized for mathematics through supervised pre-training. We evaluate these questions on GSM8K (Grade School Math 8K) \citep{cobbe2021}.
+
+\medskip
 
 \section{Background and Related Work}
 \label{sec:background}
 
-Chain-of-thought prompting \citep{wei2022cot} showed that large language models can solve arithmetic and symbolic reasoning tasks by emitting intermediate steps before committing to an answer. Self-consistency \citep{wang2022sc} sampled multiple reasoning paths and majority-voted, adding 17.9 points on GSM8K. Our policy is a chain-of-thought policy by construction: the prompt asks the model to solve the problem step by step and place the final answer inside a \verb|\boxed{}| token. The benchmark is GSM8K \citep{cobbe2021}, 7{,}473 train and 1{,}319 test grade-school word problems with a single numeric answer each; \citet{cobbe2021} also introduced verifier-based test-time selection, which is the test-time analogue of RLVR.
+Chain-of-thought prompting \citep{wei2022cot} showed that large language models can solve reasoning tasks by generating intermediate steps before producing a final answer. Self-consistency \citep{wang2022sc} improves performance by sampling multiple reasoning paths and taking a majority vote, yielding a 17.9 point gain on GSM8K. The benchmark is GSM8K \citep{cobbe2021}, consisting of 7{,}473 training and 1{,}319 test grade-school word problems with single numeric answers.
 
-The optimizer is Group Relative Policy Optimization \citep{shao2024deepseekmath}, a variant of PPO \citep{schulman2017ppo} that removes the critic by sampling $G$ rollouts per prompt and using the empirical mean reward in the group as the baseline. The advantage of rollout $i$ is $(r_i - \mathrm{mean}(r))/\mathrm{std}(r)$. This cuts memory roughly in half compared with PPO and is the optimizer DeepSeekMath \citep{shao2024deepseekmath} and DeepSeek-R1 \citep{deepseekr1} use at scale. We use a hard verifiable reward in the style of T\"ulu 3's RLVR \citep{lambert2024tulu3}: $+1$ for a correct boxed answer, $+0.5$ format bonus for a parseable boxed token, $0$ otherwise. Process-supervised rewards \citep{lightman2023verify} can outperform outcome supervision when step-level labels are available; GSM8K is outcome-only.
+\medskip
+Group Relative Policy Optimization (GRPO) \citep{shao2024deepseekmath} is a PPO variant \citep{schulman2017ppo} that removes the critic by sampling $G$ rollouts per prompt and using the group mean as the baseline. The advantage for rollout $i$ is given by
+\[
+A_i = \frac{r_i - \mathrm{mean}(r)}{\mathrm{std}(r)}.
+\]
 
-The policy is a LoRA adapter \citep{hu2021lora} on top of a frozen 1.5B base. LoRA trains low-rank update matrices and reduces trainable parameters by roughly four orders of magnitude, which is what lets the project run on a single GPU. The closest prior work is \citet{shao2024deepseekmath}: the same GRPO objective at 7B with full fine-tuning and roughly an order of magnitude more rollouts. Their 51.7\% on the competition-level MATH benchmark shows the recipe scales. Our contribution is the negative result at 1.5B with LoRA on a math-specialized base, which maps where the recipe stops being effective. Qwen2.5-Math \citep{yang2024qwen25math} provides the math-specialized 1.5B base we use in Sections~\ref{sec:math-base} and \ref{sec:dapo}, and ReAct \citep{yao2022react} is the structural ancestor of the hierarchical and graph-memory variants in the larger project plan.
+\newpage
+This reduces memory usage by roughly half compared to PPO and is used in both DeepSeekMath \citep{shao2024deepseekmath} and DeepSeek-R1 \citep{deepseekr1}. We use a hard verifiable reward following T\"ulu 3’s RLVR setup \citep{lambert2024tulu3}:
+\[
+r =
+\begin{cases}
+1 & \text{if the boxed answer is correct}, \\
+0.5 & \text{if the output is a parseable boxed answer}, \\
+0 & \text{otherwise}.
+\end{cases}
+\]
 
-DAPO \citep{yu2025dapo} is a variant of GRPO that filters out uninformative groups before committing to a gradient step: any group whose $G$ rollouts are all-correct or all-wrong is discarded and the batch is refilled by resampling new prompts until the target number of informative groups is collected (or a resample budget is exhausted). This guarantees that every policy update sees within-group reward variance, which is the necessary condition for a non-zero GRPO advantage. Section~\ref{sec:dapo} applies DAPO to address the dead-gradient failure mode diagnosed in Section~\ref{sec:math-base}.
+Process-supervised rewards \citep{lightman2023verify} can outperform outcome supervision when step-level labels are available, but GSM8K provides only outcome supervision.
 
-\paragraph{Hardware and compute.} All training runs were executed on a single NVIDIA L4 GPU (24\,GB VRAM). The software stack is PyTorch with HuggingFace \texttt{transformers} and \texttt{peft} for LoRA adaptation; the DAPO run additionally used vLLM for rollout generation, syncing the updated LoRA adapter to vLLM after each gradient step. Table~\ref{tab:compute} summarizes rollout counts and approximate wall-clock times.
+\medskip
+
+The policy is a LoRA adapter \citep{hu2021lora} on a frozen 1.5B base, reducing trainable parameters by several orders of magnitude and enabling single GPU training. Qwen2.5-Math \citep{yang2024qwen25math} is the math-specialized 1.5B base used in Sections~\ref{sec:math-base} and \ref{sec:dapo}, and ReAct \citep{yao2022react} serves as the structural ancestor of the hierarchical and graph-memory variants.
+
+\medskip
+DAPO \citep{yu2025dapo} modifies GRPO by filtering out uninformative groups prior to each update. Groups in which all rollouts are correct or all are incorrect are discarded, and resampling continues until a target number of informative groups is obtained or a resampling budget is reached. This enforces non-zero within group variance, which is necessary for meaningful GRPO advantage estimates.
+
+\paragraph{Hardware and compute.}
+All training runs were executed on a single NVIDIA L4 GPU (24\,GB VRAM). DAPO run initially used vLLM for rollout generation, but it was not used extensively due to memory constraints from model replication during inference. Table~\ref{tab:compute} summarizes rollout counts and approximate wall-clock times.
 
 \begin{table}[h]
   \centering
@@ -51,21 +74,26 @@ DAPO \citep{yu2025dapo} is a variant of GRPO that filters out uninformative grou
     Linear GRPO (general base)     & 2{,}000  & 12{,}000  & $\sim$7\,h \\
     GRPO on math base              & 1{,}000  & 8{,}000   & $\sim$7\,h \\
     DAPO on math base              & 1{,}738\textsuperscript{$\dagger$} & $\sim$7{,}000 & $\sim$8\,h \\
-    Router--Solver V2              & 7{,}500  & 30{,}000  & $\sim$40\,h\textsuperscript{$\ddagger$} \\
+    Router--Solver V2              & 7{,}500  & 30{,}000  & $\sim$40\,h \\
     \bottomrule
   \end{tabular}
-  \caption{Compute summary. All runs on a single NVIDIA L4 (24\,GB). \textsuperscript{$\dagger$}Questions attempted before DAPO group filtering; 688 informative groups were kept. \textsuperscript{$\ddagger$}Includes latency from batched GPT-4o-mini judge API calls.}
+  \caption{Compute summary. \textsuperscript{$\dagger$}Questions before DAPO  filtering, 688 informative groups kept. }
   \label{tab:compute}
 \end{table}
 
 \section{Linear Reasoning Model}
 \label{sec:linear}
 
-\paragraph{Policy.} The policy is Qwen2.5-1.5B-Instruct with a LoRA adapter ($r{=}8$, $\alpha{=}16$, dropout 0.05) on the \verb|q_proj| and \verb|v_proj| projections of every attention block. The base weights are frozen, so the trainable parameter count is on the order of $10^{6}$ rather than the full 1.5\,B. Every prompt is wrapped in the model's chat template with a fixed system message (``You are a math tutor. Solve the problem step by step, showing your reasoning clearly. End with the final answer in \textbackslash boxed\{\} format.''), and rollouts decode at most 512 new tokens.
+\paragraph{Policy.}
+The policy is Qwen2.5-1.5B-Instruct with a LoRA adapter ($r{=}8$, $\alpha{=}16$, dropout 0.05) applied to the \verb|q_proj| and \verb|v_proj| matrices in every attention layer. The base model is frozen, leaving only the LoRA parameters trainable.
+
+\medskip
+Each prompt is formatted using the model’s chat template with a fixed system message ``You are a math tutor. Solve the problem step by step, showing your reasoning clearly. End with the final answer in \textbackslash boxed\{\} format.'' Rollouts are truncated to 512 generated tokens.
 
 \paragraph{Reward and optimization.} Each completion receives a verifiable reward: $+1.0$ if the value in the final \verb|\boxed{}| matches the GSM8K ground truth, $+0.5$ format bonus for a parseable \verb|\boxed{}|, and $0$ otherwise. For each training question we draw $G{=}6$ rollouts at temperature 0.8 and form a GRPO group-relative advantage by normalizing rewards by the group mean and standard deviation. The policy is updated against a frozen copy of itself (the reference) with a KL penalty of $0.04$, using AdamW at learning rate $10^{-5}$ and a microbatch of 3 trajectories per forward/backward pass. We run one pass over $2{,}000$ GSM8K training questions ($12{,}000$ rollouts), saving a checkpoint every 500 questions. The run takes about seven hours on a single GPU.
 
-\paragraph{Training dynamics.} Figure~\ref{fig:linear-train} shows training-time rollout accuracy. Rolling accuracy climbs from about 65\% to 80\% over the run, and the cumulative curve saturates near 78\%. Per-rollout reward moves from about 1.1 to 1.3 (out of a 1.5 ceiling), policy loss stays cleanly negative, and KL to the reference grows monotonically but stays bounded by the $0.04$ penalty. The cumulative training accuracy near 78\% lines up with the held-out 71.6\% in Table~\ref{tab:baselines} once the temperature gap between training (0.8) and evaluation (greedy) is accounted for.
+\paragraph{Training dynamics.}
+Figure~\ref{fig:linear-train} shows training-time rollout accuracy. Rolling accuracy increases from about 65\% to 80\%, and the cumulative curve stabilizes near 78\%. Per-rollout reward increases from about 1.1 to 1.3 (out of a 1.5 ceiling). Policy loss remains negative throughout training, and KL divergence from the reference grows monotonically but stays bounded by the 0.04 penalty.
 
 \begin{figure}[h]
   \centering
@@ -78,18 +106,27 @@ DAPO \citep{yu2025dapo} is a variant of GRPO that filters out uninformative grou
     \includegraphics[width=\linewidth]{train_cumulative_accuracy.png}
     \caption{Cumulative training accuracy.}
   \end{subfigure}
-  \caption{Training-time rollout accuracy over $2{,}000$ questions with $G{=}6$ rollouts each, on Qwen2.5-1.5B-Instruct + LoRA. Rolling accuracy climbs from $\sim$65\% to $\sim$80\%; the cumulative curve saturates near 78\%.}
+  \caption{Training-time rollout accuracy over $2{,}000$ questions with $G{=}6$ rollouts per question.}
   \label{fig:linear-train}
 \end{figure}
 
 \section{Linear RL on a Math-Specialized Base}
 \label{sec:math-base}
 
-A natural follow-up is whether the recipe of Section~\ref{sec:linear} compounds when stacked on Qwen2.5-Math-1.5B-Instruct \citep{yang2024qwen25math}, a base that has already been math-specialized through supervised pre-training. It does not. Running the identical architecture and GRPO recipe on top of the math base returned the post-training policy to exactly the base-model accuracy of $1118/1319 = 84.8\%$.
+We evaluate whether the setup in Section~\ref{sec:linear} transfers to Qwen2.5-Math-1.5B-Instruct \citep{yang2024qwen25math}, a base model already specialized for mathematics through supervised pre-training. We find that it does not improve performance. Applying the same architecture and GRPO recipe yields no gain over the base model, matching its accuracy of $1118/1319 = 84.8\%$.
 
-\paragraph{Setup.} Policy, prompt, reward, and optimizer are identical to Section~\ref{sec:linear}. The only changes are that the base model is Qwen2.5-Math-1.5B-Instruct, the LoRA configuration is unchanged so trainable parameters stay at $\sim$1.09M (0.07\% of the model), and the training set is a probe-derived $1{,}000$-question subset of GSM8K drawn from the union of \emph{trivial}, \emph{mixed}, and \emph{hard} buckets. Bucket membership is determined by how many of $G{=}4$ probe rollouts at $T{=}0.8$ from the same base model were correct. Training runs one epoch at $G{=}8$ rollouts per question, totalling $8{,}000$ rollouts.
+\paragraph{Setup.}
+Policy, prompt, reward, and optimizer are identical to Section~\ref{sec:linear}. The only changes are the base model, Qwen2.5-Math-1.5B-Instruct, and the training data. The LoRA configuration is unchanged, so trainable parameters remain at $\sim$1.09M (0.07\% of the model).
 
-\paragraph{Training dynamics.} Figure~\ref{fig:math-train} shows on-policy training accuracy and the KL signal. The contrast with Section~\ref{sec:linear} is sharp. Rolling accuracy oscillates inside $0.45$ to $0.65$ for the entire run with no upward trend, and the cumulative curve flatlines at $\sim$0.55 after about 150 steps. Per-decile rollout accuracy across the $1{,}000$-step run is $\{54.8, 56.7, 49.7, 55.8, 58.7, 56.7, 54.3, 54.9, 54.7, 54.8\}\%$, which is noise around a constant, not learning. The KL signal is the cleanest diagnostic: it jumps to $\sim$0.04 inside the first few steps and stays pinned there, meaning the $0.04$ penalty saturates immediately and the policy is held adjacent to the reference for the entire run.
+\medskip
+We train on a subset of 1{,}000 GSM8K questions sampled from a union of \emph{trivial}, \emph{mixed}, and \emph{hard} buckets. Due to compute constraints, we restrict training to this subset. "Hardness" is determined by correctness across $G{=}4$ probe rollouts at $T{=}0.8$ from the base model.
+
+
+\paragraph{Training dynamics.}
+Figure~\ref{fig:math-train} shows training accuracy and the KL signal. Compared to Section~\ref{sec:linear}, training does not exhibit sustained improvement. Rolling accuracy remains between 0.45 and 0.65 throughout training, and the cumulative curve stabilizes at approximately 0.55.
+
+\medskip
+The KL divergence increases rapidly to approximately 0.04 within the first few steps and remains near this value for the remainder of training, indicating that the KL penalty saturates early and the policy stays close to the reference model.
 
 \begin{figure}[h]
   \centering
@@ -102,22 +139,31 @@ A natural follow-up is whether the recipe of Section~\ref{sec:linear} compounds 
     \includegraphics[width=\linewidth]{math_train_recent_kl.png}
     \caption{KL to the reference policy.}
   \end{subfigure}
-  \caption{Training-time signals on the math-specialized base. Cumulative accuracy saturates at $\sim$55\% after about 150 steps; KL pins at the $0.04$ penalty inside the first few steps and stays there. Compare Figure~\ref{fig:linear-train}.}
+  \caption{Training-time signals on the math-specialized base.}
   \label{fig:math-train}
 \end{figure}
 
-\paragraph{Test-set result.} On the full 1319-question GSM8K test set, the post-training policy and the untouched base agree on the correctness label for $1{,}291/1{,}319 = 97.9\%$ of problems. They produce different reasoning text on every single problem ($0/1{,}319$ character-identical generations), so weights did move, but they moved in directions that flip $14$ test problems from wrong to right and a different $14$ from right to wrong. The net change is zero, and the $\pm 14$ swap is consistent with sampling noise at $T>0$.
+\paragraph{Test-set result.} On the full GSM8K test set, the post-training policy and the base model agree on correctness for $1{,}291/1{,}319 = 97.9\%$ of examples. Although they produce different reasoning traces for all problems, parameter updates lead to a symmetric effect where 14 examples flip from incorrect to correct and 14 from correct to incorrect, yielding no net change in accuracy.
 
-\paragraph{Why the policy did not learn.} GRPO produces gradient only when, within a group of $G$ rollouts on the same question, some succeed and some fail. Groups that are all-correct or all-wrong have zero advantage and contribute nothing but the KL drag toward the reference. Three properties of this setup combine to leave very few informative groups. First, the base is already strong, solving roughly 85\% of GSM8K at $T{=}0$, so a large share of trivial and mixed-bucket questions yields all-correct $G{=}8$ groups even at $T{=}0.8$. Second, the residual hard tail is mostly all-wrong: for genuinely hard probe-bucket questions the base typically misses on every rollout, again giving zero variance. Third, LoRA capacity on \verb|q_proj| and \verb|v_proj| alone does not let the policy reach a meaningfully better policy than the base within the $0.04$ KL ball, and the KL trace pinning at the penalty value is exactly this constraint becoming active. On Qwen2.5-1.5B-Instruct (general) the same recipe did train because the base's $\sim$70\% accuracy left enough mixed-outcome groups for GRPO to find useful gradient. On the math-specialized base the informative-group rate is too low, so the policy is held at base for the entire run. The result rules out the simplest path to closing the 13-point gap from the trained general-base policy to the math-specialized base: applying the same LoRA recipe a second time. Larger LoRA rank, curriculum filtering to the mixed-outcome bucket, and a smaller KL penalty would each address a different identified bottleneck; Section~\ref{sec:dapo} tests all three together via DAPO-style training.
+\paragraph{Why the policy did not learn.}
+GRPO only produces a gradient when a group of $G$ rollouts contains both successes and failures. All-correct and all-wrong groups have zero advantage and contribute only KL pressure toward the reference. This setup yields few informative groups for three reasons. First, the base model is already strong (about 85\% GSM8K accuracy at $T{=}0$), so many trivial and mixed-bucket questions produce all-correct $G{=}8$ groups even at $T{=}0.8$. Second, the remaining hard questions are mostly all-wrong, again giving zero variance. Third, LoRA does not sufficiently modify the attention weights to move the policy within the $0.04$ KL constraint.
+
+\medskip
+In contrast, Qwen2.5-1.5B-Instruct (general) trains successfully because its lower baseline accuracy produces more mixed-outcome groups. Our hypothesis is that the failure stems from insufficient gradient signal rather than a fundamental limitation of the base model. Larger LoRA rank, filtering toward mixed-outcome questions, and a weaker KL penalty target different bottlenecks; we would have explored these directions further in the absence of compute constraints. 
 
 \section{DAPO on the Math-Specialized Base}
 \label{sec:dapo}
 
-Section~\ref{sec:math-base} identified three bottlenecks: an informative-group rate too low to sustain gradient, a KL budget small enough to pin the policy to the reference from step one, and a LoRA configuration covering too few projections. This section applies DAPO-style dynamic group filtering \citep{yu2025dapo} together with a wider LoRA and a looser KL penalty to address all three simultaneously.
+We address the bottlenecks identified in Section~\ref{sec:math-base} using DAPO-style dynamic group filtering \citep{yu2025dapo}, a larger LoRA, and a reduced KL penalty.
 
-\paragraph{Setup.} The base model and prompt format are identical to Section~\ref{sec:math-base}. Three hyperparameters change. (i)~LoRA rank increases from 8 to 32 and covers seven projection matrices (\verb|q,k,v,o,gate,up,down|), raising trainable parameters from $\sim$1.1M to $\sim$25M. (ii)~The KL coefficient drops from 0.04 to 0.015. (iii)~The training loop uses DAPO dynamic group filtering targeting 2 informative groups per gradient step with up to 8 resample attempts before skipping. Training uses the \verb|mixed_hard| bucket ($\sim$1{,}738 effective training examples), $G{=}4$ rollouts per question, and a per-token loss normalization. Over the full run, 688 informative groups were kept from $\sim$1{,}738 attempted questions (496 discarded as all-correct, 554 as all-wrong). Evaluation uses self-consistency with $K{=}8$ rollouts at $T{=}0.6$ and majority vote on the full 1{,}319-question GSM8K test set.
+\paragraph{Setup.} The base model and prompt format are identical to Section~\ref{sec:math-base}. We increase LoRA rank from 8 to 32 and extend it to seven projection matrices, raising trainable parameters from $\sim$1.1M to $\sim$25M. The KL coefficient is reduced from 0.04 to 0.015.
 
-\paragraph{Training dynamics.} Figure~\ref{fig:dapo-train} shows rolling accuracy and KL over 330 gradient steps. The contrast with Figure~\ref{fig:math-train} is sharp on two dimensions. First, KL does not pin: it climbs monotonically from near zero to $\sim$0.0008 across the full run, well below the 0.015 penalty ceiling, meaning the optimizer had room to move throughout. Second, per-step reward rises from $\sim$0.65 to $\sim$1.01 (Figure~\ref{fig:dapo-train} shows accuracy; reward follows the same upward trend), confirming that the policy genuinely learns higher-reward completions on the filtered informative groups. Rolling accuracy on the \verb|mixed_hard| training subset oscillates in the 50--60\% range, which is the expected operating point: these are by construction the questions the base model cannot solve on every rollout, so 50--60\% on them is a meaningful signal rather than noise.
+\medskip
+Training uses DAPO filtering with a target of 2 informative groups per step and up to 8 resampling attempts. We train on the \verb|mixed_hard| bucket ($\sim$1{,}738 examples) with $G{=}4$ rollouts per question and per-token normalization. Over training, 688 informative groups are retained from $\sim$1{,}738 sampled questions. Evaluation uses self-consistency with $K{=}8$ rollouts at $T{=}0.6$ and majority vote on the full GSM8K test set.
+
+\paragraph{Training dynamics.}
+Figure~\ref{fig:dapo-train} shows rolling accuracy and KL over 330 gradient steps. Compared to Figure~\ref{fig:math-train}, KL no longer pins: it increases gradually from near zero to $\sim$0.0008, remaining well below the 0.015 ceiling and indicating available optimization headroom throughout training. Per-step reward rises from $\sim$0.65 to $\sim$1.01, confirming consistent improvement on informative groups.
+
 
 \begin{figure}[h]
   \centering
@@ -130,8 +176,7 @@ Section~\ref{sec:math-base} identified three bottlenecks: an informative-group r
     \includegraphics[width=\linewidth]{dapo_train_recent_kl.png}
     \caption{KL to the reference policy.}
   \end{subfigure}
-  \caption{DAPO training dynamics on the math-specialized base ($\sim$330 gradient steps). KL grows monotonically to $\sim$0.0008 without pinning---compare Figure~\ref{fig:math-train} where it saturates at the 0.04 penalty within five steps. Rolling accuracy on the filtered hard-only training subset holds in the 50--60\% band, the expected regime for genuinely difficult questions.}
-  \label{fig:dapo-train}
+  \caption{DAPO training dynamics on the math-specialized base ($\sim$330 gradient steps). \label{fig:dapo-train}}
 \end{figure}
 
 \paragraph{Test-set result.} The DAPO-trained policy achieves $1{,}167/1{,}319 = 88.5\%$ majority-vote accuracy and $1{,}241/1{,}319 = 94.1\%$ pass@8. Table~\ref{tab:dapo} shows these alongside the math-specialized base. Because we did not run a greedy eval on the DAPO checkpoint, the comparison to the base's $84.8\%$ greedy figure is not directly apples-to-apples; the base row in Table~\ref{tab:dapo} reports greedy for reference only.
@@ -146,7 +191,7 @@ Section~\ref{sec:math-base} identified three bottlenecks: an informative-group r
     \quad + DAPO (ours)                & ---    & 88.5\% & 94.1\% \\
     \bottomrule
   \end{tabular}
-  \caption{GSM8K test results for DAPO vs.\ the math-specialized base. Greedy and self-consistency evals were not both run on the same checkpoint; dashes indicate the missing protocol. The majority-vote and pass@8 figures use $K{=}8$ rollouts at $T{=}0.6$.}
+  \caption{GSM8K test results for DAPO vs.\ the math-specialized base.}
   \label{tab:dapo}
 \end{table}
 
@@ -174,6 +219,17 @@ V1 used one Qwen2.5-1.5B-Instruct base with two LoRA adapters. The Router emitte
 \paragraph{Attempted fixes that did not generalize.} Two interventions were tested directly. Router prompt hardening, a stricter template intended to drive \texttt{plan\_parse\_failed} to zero, caused a catastrophic regression on an isolated 10Q split (20.0\% to 3.3\% with only $9/60$ valid rollouts), because the harder prompt made the Router refuse to emit plans on out-of-template questions. Outcome credit on all steps, a training-side change that distributes the outcome reward across every Solver step's log-probs, improved in-loop training accuracy (15.0\% to 26.7\%) but lost on a fresh traced eval (35.0\% to 28.3\%): the variant overfit to sampled training trajectories and produced a weaker policy on fresh draws. The inference-side fix that did help, final-answer synthesis, works precisely because it bypasses the last-step-equals-final-answer assumption that the taxonomy identified as the largest single failure source.
 
 \paragraph{Reading.} V2 is bottlenecked by the Router--Solver interface design, not by reasoning capability at this scale. The question-level taxonomy shows 25\% of questions already have at least one correct rollout in their $G{=}6$ group, with a projected 90\% if all non-core failures were eliminated. The base model produces usable reasoning often enough that the actual bottleneck is whether the system can extract a single correct scalar from a multi-step trajectory. At 1.5B with rank-8 LoRA, an outcome-only or step-judged reward cannot supervise that contract into shape. The next architectural change has to flatten or supervise the Router--Solver hand-offs rather than just decompose harder, which is the motivation for the graph-memory and hierarchical-RL extensions in the larger project plan.
+
+\subsection{V3: three-branch hierarchical pivot}
+\label{sec:rsv3}
+
+\paragraph{Setup.} V3 takes V2's failure taxonomy seriously and changes the interface before changing the optimizer. The system now exposes three execution branches: \emph{easy}, a cheap single-pass chain-of-thought path; \emph{soft}, the main hierarchical Router--Solver branch; and \emph{hard}, the same hierarchical branch augmented with retrieval from a Hopfield-style graph memory of solved cases. The current production candidate is \emph{soft}, not \emph{hard}. Its frozen contract removes global answer synthesis, keeps plan-parse repair on, turns router hardening and strict answer-format heuristics off, repairs the last subgoal so it is answer-bearing, and returns the deterministic majority vote over rollout-local final answers. The headline diagnostic uses a fixed $10$-question slice with $G{=}6$ rollouts per question; the best known setting is \texttt{solver\_temperature=0.7}.
+
+\paragraph{Result.} On that fixed $10\mathrm{Q}\times G{=}6$ diagnostic contract, the \emph{soft} branch reaches $0.90$ question-majority relaxed accuracy, $1.00$ question-any relaxed accuracy, and $0.4833$ rollout relaxed accuracy ($29/60$ correct rollouts). This is the strongest hierarchical result in the repo and a substantial improvement over V2's $\sim$35\% rollout accuracy. The gain comes from simplifying the answer contract rather than from a stronger RL recipe: the branch no longer asks the model to synthesize one global answer after a long trajectory, and instead votes over local final answers that are explicitly tied to answer-bearing last steps. At the same time, the result is not yet directly comparable to Table~\ref{tab:baselines}, because the clean \emph{soft}-only and oracle-routed evaluations beyond the fixed diagnostic slice are still pending.
+
+\paragraph{What improved and what did not.} The central V2 failure mode was that the model often computed the right scalar somewhere in the trace but lost answer identity at the final hand-off. V3 reduces that failure materially, but it does not eliminate it. Across the traced V3 ablations, the dominant residual category is still \texttt{correct\_number\_in\_trace\_wrong\_final}; for example, an answer-bearing-hardened 10Q trace logged $29$ such failures versus only $7$ pure \texttt{wrong\_numeric\_final} errors. The current read is therefore unchanged at a deeper level: the base can often do the arithmetic, but the hierarchy still corrupts the answer target at the endpoint.
+
+\paragraph{Reading.} V3 changes the conclusion from ``hierarchy does not work'' to ``hierarchy only helps when the contract is simplified aggressively.'' The \emph{soft} branch is now real enough to justify branch-separation and supervised-routing work, while the \emph{hard} retrieval branch remains research-only. Just as importantly, porting the stronger DAPO discipline into the hierarchy did not rescue training: a minimal informative-group-sampling + all-steps-credit port regressed to $0.30$ question-majority accuracy on the corrected 10Q/$G{=}5$ eval. That negative result reinforces the main diagnosis from V2. The next gain is more likely to come from branch routing and interface supervision than from another local tweak to the hierarchical GRPO trainer.
 
 \section{Benchmarks}
 \label{sec:benchmarks}
